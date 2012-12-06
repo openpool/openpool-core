@@ -94,7 +94,7 @@ void setup()
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    1, 0.75, 0.75, 
+    255, 0, 0, 
     redfishes);
 
     bluefishes[i-1] = new Fish(
@@ -103,7 +103,7 @@ void setup()
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    0.75, 0.75, 1, 
+    0, 0, 255, 
     bluefishes);
         
     greenfishes[i-1] = new Fish(
@@ -112,7 +112,7 @@ void setup()
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    0.75, 1, 0.75, 
+    0, 255, 0, 
     greenfishes);
   }
 
