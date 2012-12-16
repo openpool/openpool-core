@@ -9,6 +9,7 @@ class Fish
   PVector v2 = new PVector();  //for param2
   PVector v3 = new PVector();  //for param3
   PVector v4 = new PVector();  //for param4
+  PVector v5 = new PVector();  //for p
 
   int id;
   // Fish[] others;
@@ -19,7 +20,7 @@ class Fish
   int _id, 
   float _r, float _g, float _b, 
   float _speed)
-  //Fish[] _others
+    //Fish[] _others
   {
     x = _x;
     y = _y;
@@ -27,19 +28,32 @@ class Fish
     vy = _vy;
     id = _id;
     //others = _others;
-    
+
     r=_r;
     g=_g;
     b=_b;
     speed = _speed;
     return;
   }
-  
- void move()
-  {
-    vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x;
-    vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y;
 
+  void move()
+  {
+    vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x + r5 * v5.x;
+    vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y + r5 * v5.y;
+    /*
+    print(" r1*v1.x:");    print(r1*v1.x);
+     print(" r1*v1.y:");    print(r1*v1.y); 
+     print(" r2*v2.x:");    print(r2*v2.x);
+     print(" r2*v2.y:");    print(r2*v2.y); 
+     print(" r3*v3.x:");    print(r3*v3.x);
+     print(" r3*v3.y:");    print(r3*v3.y); 
+
+    print(" r4*v4.x:");      print(r5*v5.x);
+    print(" r4*v4.y:");      println(r5*v5.y);
+        print(" r5*v5.x:");      print(r5*v5.x);
+    print(" r5*v5.y:");      println(r5*v5.y);
+     */
+     
     //max speed check 
     float vVector = sqrt(vx * vx + vy * vy);
     if (vVector > speed) 
@@ -112,6 +126,9 @@ class Fish
     v3.y = 0;
     v4.x = 0;
     v4.y = 0;
+    v5.x = 0;
+    v5.y = 0;
+    //println("clearvector");
   }
 }
 

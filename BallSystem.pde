@@ -13,6 +13,10 @@ class BallSystem
     balls.add(ball);
   }
   
+  void clearBall()
+  {
+    balls.clear();
+  }
   void draw()
   {
     Iterator iter = balls.iterator();

@@ -33,14 +33,15 @@
 
 import msafluid.*;
 
+//OpenGL
 import processing.opengl.*;
 import javax.media.opengl.*;
-
 
 //Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
 
+//Fluid and Particle
 MSAFluidSolver2D fluidSolver;
 ParticleSystem particleSystem;
 
@@ -53,7 +54,7 @@ final float FLUID_WIDTH = 120;
 //Fish config
 float SPEED = 5;
 float R = 4;       
-int NUMBER = 20;   // number of fishes
+int NUMBER = 10;   // number of fishes
 int FISHFORCE = 1500;
 
 //Ball config
@@ -64,10 +65,15 @@ int BALLRINGS = 8;
 ShoalSystem shoalSystem;
 BallSystem ballSystem;
 
+float SHOALCOLISION = 100;
+
+int timecount;
+
 float r1 = 1.0;   //param: shoal gathering
 float r2 = 0.1; //  param: avoid conflict with other fishes in shoal 
 float r3 = 0.5; // param: along with other fish in shoal
-float r4 = 10;   //  param: avoid balls
+float r4 = 1;   //  param: avoid other shoal
+float r5 = 50;   //  param: avoid balls
 
 int redaddx = -100; //initial position of the red shoal
 int redaddy = 0;
@@ -92,6 +98,8 @@ void setup()
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
   frameRate(30);
+
+  timecount = 0;
 
   invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
@@ -118,25 +126,32 @@ void setup()
   shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, NUMBER, SPEED);
   shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, NUMBER, SPEED);
   shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  // shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  //  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
 
   ballSystem = new BallSystem();
 
-  ballSystem.addBall(200, 180, 50, 50, BALLRINGS);
-  ballSystem.addBall(200, 380, 50, 50, BALLRINGS);  
-  ballSystem.addBall(400, 380, 50, 50, BALLRINGS);
-  ballSystem.addBall(400, 180, 50, 50, BALLRINGS);
-  ballSystem.addBall(600, 180, 50, 50, BALLRINGS);
-  ballSystem.addBall(600, 380, 50, 50, BALLRINGS);  
-  ballSystem.addBall(800, 180, 50, 50, BALLRINGS);
-  ballSystem.addBall(800, 380, 50, 50, BALLRINGS);
+  setBallandSetAvoid(200, 180, 50);
+  setBallandSetAvoid(200, 380, 50);
+  setBallandSetAvoid(400, 180, 50);
+  setBallandSetAvoid(400, 380, 50);
+  setBallandSetAvoid(600, 180, 50);
+  setBallandSetAvoid(600, 380, 50);
+  setBallandSetAvoid(800, 180, 50);
+  setBallandSetAvoid(800, 380, 50);
 }
 
 //main draw
 void draw()
 {
+  if (timecount >= 2*50)
+  {
+    timecount -= 2*50;
+  }
 
+  timecount++;
+  println(timecount);
+  
   background(0, 0, 0);
   image(img, 0, 0, 498*2, 282*2);
 
@@ -144,8 +159,9 @@ void draw()
 
   //draw shoals
   if (!noUpdate)
+  {
     shoalSystem.Update();
-
+  }
   shoalSystem.Draw();
 
   //draw particles
@@ -172,6 +188,20 @@ void draw()
   particleSystem.updateAndDraw();
 
   //draw balls
+
+  //clear all Balls
+  clearBallandAvoid();
+
+  //TODO:update Ball x&y here   
+  setBallandSetAvoid(200, 180, 50);
+  setBallandSetAvoid(200, 380, 50);
+  setBallandSetAvoid(400, 180, 50);
+  setBallandSetAvoid(400, 380, 50);
+  setBallandSetAvoid(600, 180, 50);
+  setBallandSetAvoid(600, 380, 50);
+  setBallandSetAvoid(800, 180, 50);
+  setBallandSetAvoid(800, 380, 50);
+
   if (!DEBUG)
   {
     ballSystem.draw();
@@ -211,6 +241,17 @@ void keyPressed()
   println(frameRate);
 }
 
+void clearBallandAvoid()
+{
+  ballSystem.clearBall();
+  shoalSystem.clearAvoidEllipseObject();
+}
+
+void setBallandSetAvoid(int x, int y, int R)
+{
+  ballSystem.addBall(x, y, R, R, BALLRINGS);
+  shoalSystem.addAvoidEllipseObject(x, y, R);
+}
 
 
 // add force and dye to fluid, and create particles

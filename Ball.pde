@@ -4,7 +4,7 @@ class Ball
   int y;
   int R;
   int realr;
-  int timecount;
+
   int RINGNUM;
 
   //Construct
@@ -16,17 +16,11 @@ class Ball
     R = _R;
     RINGNUM = _RINGNUM;
 
-    timecount = 0;
   }
 
   void draw()
   {
-    if (timecount >= 2*R)
-    {
-      timecount -= 2*R;
-    }
 
-    timecount++;
 
     stroke(255, 255, 255);
     fill(255, 255, 255);

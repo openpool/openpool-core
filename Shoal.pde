@@ -31,7 +31,7 @@ class Shoal
   }
 
   //calc param1
-  Fish shoalrules(int i, Fish fish_i)
+  Fish shoalrules(Fish fish_i)
   {
     Iterator iter_j = fishes.iterator();
     while (iter_j.hasNext ())
@@ -39,7 +39,6 @@ class Shoal
       Fish fish_j = (Fish)iter_j.next();
       if (fish_i != fish_j) 
       {
-
         //rule1
         fish_i.v1.x = fish_i.v1.x + fish_j.x;
         fish_i.v1.y = fish_i.v1.y + fish_j.y;
@@ -76,27 +75,16 @@ class Shoal
     return fish_i;
   }//end shoalrules
 
-  //calc param4
-  /*void rule4()
-   {
-   for ( int j = 0;j < BALLNUM ; j++)
-   {
-   if (sq(balls[j].x - x) + sq(balls[j].y - y) < sq(balls[j].R))
-   {
-   fish_i.v4.x += (fish_i.x - balls[j].x);
-   fish_i.v4.y += (fish_i.y - balls[j].y);
-   }
-   }
-   }
-   */
+  void clearVector()
+  {  
+    Iterator iter = fishes.iterator();
 
-  //check rules
-  Fish check(int i, Fish fish_i) 
-  {
-    return shoalrules(i, fish_i);
-    //rule4();
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();
+      fish.clearVector();
+    }
   }
-
   void update()
   {
     x=0;
@@ -104,22 +92,24 @@ class Shoal
     vx=0;
     vy=0;
 
-    for (int i = 0 ; i < fishes.size() ; i++)
+    Iterator iter = fishes.iterator();
+
+    while (iter.hasNext ())
     {
-      Fish fish_i = (Fish)fishes.get(i);
+      Fish fish = (Fish)iter.next();
 
-      x = x + fish_i.x;
-      y = y + fish_i.y;
+      x = x + fish.x;
+      y = y + fish.y;
 
-      fish_i.clearVector();
-      check(i, fish_i);
-      fish_i.move();
-      fishes.set(i, fish_i);
-      
-      vx = vx + fish_i.vx;
-      vy = vy + fish_i.vy;
+      shoalrules(fish);
+      //rule4
 
-      addForceToFluid(fish_i.x/width, fish_i.y/height, -fish_i.vx/FISHFORCE, -fish_i.vy/FISHFORCE);
+      fish.move();
+
+      vx = vx + fish.vx;
+      vy = vy + fish.vy;
+
+      addForceToFluid(fish.x/width, fish.y/height, -fish.vx/FISHFORCE, -fish.vy/FISHFORCE);
     }
     x = x / fishes.size();
     y = y / fishes.size();
@@ -132,13 +122,18 @@ class Shoal
 
   void addForce(float _vx, float _vy)
   {
-    ListIterator iter = fishes.listIterator();
+    Iterator iter = fishes.iterator();
     while (iter.hasNext ())
     {
       Fish fish = (Fish)iter.next();  
-      fish.v4.x += _vx;
-      fish.v4.y += _vy;
-      iter.set(fish);
+      fish.v4.x = fish.v4.x + _vx;
+      fish.v4.y = fish.v4.y + _vy;
+      /*
+      print("addforce vx:");
+      print(vx);
+      print(" vy:");
+      println(vy);
+      */
     }
   }
 
@@ -150,15 +145,15 @@ class Shoal
       Fish fish = (Fish)iter.next();  
       fish.draw();
     }
-        
-    if(DEBUG)
+
+    if (DEBUG)
     {
-    noFill();
-    stroke(1,1,1);
-    ellipse(x, y, 100, 100);  
-    text("SHOAL", x, y);
-    text(x,x,y+15);
-    text(y,x,y+30);
+      noFill();
+      stroke(1, 1, 1);
+      ellipse(x, y, SHOALCOLISION, SHOALCOLISION);  
+      text("SHOAL", x, y);
+      text(x, x, y+15);
+      text(y, x, y+30);
     }
     return;
   }

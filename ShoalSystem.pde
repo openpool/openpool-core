@@ -1,10 +1,12 @@
 class ShoalSystem
 {
   ArrayList shoals;
+  ArrayList avoidEllipseObject;
   //construct
   ShoalSystem()
   {
     shoals = new ArrayList();
+    avoidEllipseObject = new ArrayList();
   }
 
   Shoal addShoal(
@@ -37,35 +39,95 @@ class ShoalSystem
     return shoal;
   }
 
+  void addAvoidEllipseObject(int x, int y, int R)
+  {
+    EllipseObject obj = new EllipseObject(x, y, R);
+    avoidEllipseObject.add(obj);
+  }
+
+  void clearAvoidEllipseObject()
+  {
+    avoidEllipseObject.clear();
+  }
+
   void Update()
   { 
-    ListIterator iter_i = shoals.listIterator();
+    Iterator iter_i = shoals.iterator();  
     while (iter_i.hasNext ())
     {
       Shoal shoal_i = (Shoal)iter_i.next();
+
+      shoal_i.clearVector();
+
       Iterator iter_j = shoals.iterator();
+
       while (iter_j.hasNext ())
       {
         Shoal shoal_j = (Shoal)iter_j.next();
+
         if (shoal_i != shoal_j)
         {
-          shoal_i.addForce((shoal_j.x-shoal_i.x), (shoal_j.y-shoal_i.y));
+          PVector force = new PVector();
+          force = AvoidEllipse(shoal_i.x, shoal_i.y, shoal_j.x, shoal_j.y, SHOALCOLISION);
+          shoal_i.addForce(force.x, force.y);
         }
       }
+
+      Iterator iter_f = (shoal_i.fishes).iterator();
+      while (iter_f.hasNext ())
+      {
+        Fish fish = (Fish)iter_f.next();
+        
+        Iterator iter_o = avoidEllipseObject.iterator();
+        PVector force = new PVector();
+        while (iter_o.hasNext ())
+        {
+          EllipseObject obj = (EllipseObject) iter_o.next();
+          force = AvoidEllipse(fish.x, fish.y, obj.x, obj.y, obj.R);
+          fish.v5.x = fish.v5.x + force.x;
+          fish.v5.y = fish.v5.y + force.y;
+        }       
+      }
       shoal_i.update();
-      iter_i.set(shoal_i);
+
     }
-    //  rule4();       
+
     return;
+  }
+
+
+  PVector AvoidEllipse(float _x, float _y, float _xb, float _yb, float R)
+  {
+    PVector v = new PVector();
+    v.x = 0;
+    v.y = 0;
+
+    if (sq(_x - _xb) + sq(_y - _yb) <sq(R))
+    {
+      if ((_x-_xb)!=0)
+      {
+        v.x = (_x-_xb)/abs(_x-_xb);
+      }
+      if ((_y-_yb)!=0)
+      {
+        v.y = (_y-_yb)/abs(_y-_yb);
+      }
+    }
+    return v;
   }
 
   void Draw()
   {
-    Iterator iter = shoals.iterator();
+    Iterator iter_shoal = shoals.iterator();
+    while (iter_shoal.hasNext ())
+    {
+      Shoal shoal = (Shoal)iter_shoal.next();
+      shoal.draw();
+    }
+    Iterator iter = avoidEllipseObject.iterator();
     while (iter.hasNext ())
     {
-      Shoal shoal = (Shoal)iter.next();
-      shoal.draw();
+      ((EllipseObject)iter.next()).draw();
     }
   }
 }
