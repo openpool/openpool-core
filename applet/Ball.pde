@@ -1,3 +1,4 @@
+
 class Ball
 {
   int x;
@@ -5,17 +6,14 @@ class Ball
   int R;
   int realr;
   int timecount;
-  int RINGNUM;
 
   //Construct
-  Ball(int _x, int _y, int _realr, int _R, int _RINGNUM)
+  Ball(int _x, int _y, int _realr, int _R)
   {
     x = _x;
     y = _y;
     realr = _realr;
     R = _R;
-    RINGNUM = _RINGNUM;
-
     timecount = 0;
   }
 
@@ -32,7 +30,6 @@ class Ball
     fill(255, 255, 255);
     ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);
     noFill();
-
     for (int i=0;i<RINGNUM;i++)
     {
       int tempring = timecount + i*(4*R/RINGNUM);

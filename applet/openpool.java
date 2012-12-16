@@ -7,6 +7,9 @@ import javax.media.opengl.*;
 import java.nio.FloatBuffer; 
 import com.sun.opengl.util.*; 
 
+import processing.core.*; 
+import processing.xml.*; 
+
 import java.applet.*; 
 import java.awt.Dimension; 
 import java.awt.Frame; 
@@ -28,7 +31,7 @@ public class openpool extends PApplet {
 
 
 
-final float FLUID_WIDTH = 80;
+final float FLUID_WIDTH = 50;
 
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
@@ -40,7 +43,7 @@ ParticleSystem particleSystem;
 PImage imgFluid;
 boolean drawFluid = true;
 
-float SPEED = 5;  
+float SPEED = 5;
 float R = 4;       
 int NUMBER = 20;   // number of fishes
 int BALLNUM = 8;
@@ -64,23 +67,25 @@ int blueaddy = 0;
 int greenaddx = 0;
 int greenaddy = 0;
 
-int CENTER_PULL_FACTOR = 300;
+
+
 int DIST_THRESHOLD = 30;
 
 int ballcount = 0;
 Ball[] balls = new Ball[BALLNUM];
 
+// margin for billiard pool edge
 int wband = 80;
 int hband = 80;
 
+//img for billiard pool background
 PImage img;
-
 
 public void setup() 
 {
   //498*2
   //282*2
-  size(996, 564,OPENGL);
+  size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
   //frameRate(30);
 
@@ -89,23 +94,23 @@ public void setup()
   aspectRatio = width * invHeight;
   aspectRatio2 = aspectRatio * aspectRatio;
 
-    // create fluid and set options
-    fluidSolver = new MSAFluidSolver2D((int)(FLUID_WIDTH), (int)(FLUID_WIDTH * height/width));
-    fluidSolver.enableRGB(true).setFadeSpeed(0.05f).setDeltaT(0.5f).setVisc(0.001f);
+  // create fluid and set options
+  fluidSolver = new MSAFluidSolver2D((int)(FLUID_WIDTH), (int)(FLUID_WIDTH * height/width));
+  fluidSolver.enableRGB(true).setFadeSpeed(0.05f).setDeltaT(0.5f).setVisc(0.001f);
 
-    // create image to hold fluid picture
-    imgFluid = createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), RGB);
+  // create image to hold fluid picture
+  imgFluid = createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), RGB);
 
-    // create particle system
-    particleSystem = new ParticleSystem();
+  // create particle system
+  particleSystem = new ParticleSystem();
 
-    // init TUIO
-    initTUIO();
+  // init TUIO
+  initTUIO();
 
   stroke(255, 255, 255);
 
   img = loadImage("billiards.jpg");
-  tint(255,127);
+  tint(255, 127);
 
   float angle = TWO_PI / NUMBER;
   for (int i = 1; i <= NUMBER; i++)
@@ -119,7 +124,7 @@ public void setup()
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    255, 0, 0, 
+    1, 0, 0, SPEED,
     redfishes);
 
     bluefishes[i-1] = new Fish(
@@ -128,28 +133,28 @@ public void setup()
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    0, 0, 255, 
+    0, 0, 1, SPEED,
     bluefishes);
-        
+
     greenfishes[i-1] = new Fish(
     width / 2 + addx * 50 + greenaddx, 
     height / 2 + addy * 50 + greenaddy, 
     random(- SPEED, SPEED) * addx, 
     random(- SPEED, SPEED) * addy, 
     i - 1, 
-    0, 255, 0, 
+    0, 1, 0, SPEED,
     greenfishes);
   }
 
   ballcount = BALLNUM;
-  balls[0] = new Ball(200, 200, 25,25);
-  balls[1] = new Ball(400, 400, 25,25);
-  balls[2] = new Ball(200, 400, 50,50);
-  balls[3] = new Ball(400, 200, 50,50);
-  balls[4] = new Ball(600, 200, 25,50);
-  balls[5] = new Ball(600, 400, 50,50);
-  balls[6] = new Ball(800, 200, 50,50);
-  balls[7] = new Ball(800, 400, 25,50);
+  balls[0] = new Ball(200, 200, 25, 25);
+  balls[1] = new Ball(400, 400, 25, 25);
+  balls[2] = new Ball(200, 400, 50, 50);
+  balls[3] = new Ball(400, 200, 50, 50);
+  balls[4] = new Ball(600, 200, 25, 50);
+  balls[5] = new Ball(600, 400, 50, 50);
+  balls[6] = new Ball(800, 200, 50, 50);
+  balls[7] = new Ball(800, 400, 25, 50);
 }
 
 //main draw
@@ -157,20 +162,20 @@ public void draw()
 {
   updateTUIO();
   fluidSolver.update();
-    
-  background(0, 0, 0);
-  //image(img, 0, 0, 498*2, 282*2);
-  
-    if(drawFluid) {
-        for(int i=0; i<fluidSolver.getNumCells(); i++) {
-            int d = 2;
-            imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
-        }  
-        imgFluid.updatePixels();//  fastblur(imgFluid, 2);
-        image(imgFluid, 0, 0, width, height);
-    } 
 
-    particleSystem.updateAndDraw();
+  background(0, 0, 0);
+  image(img, 0, 0, 498*2, 282*2);
+
+  if (drawFluid) {
+    for (int i=0; i<fluidSolver.getNumCells(); i++) {
+      int d = 2;
+      imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
+    }  
+    imgFluid.updatePixels();//  fastblur(imgFluid, 2);
+    image(imgFluid, 0, 0, width, height);
+  } 
+
+  particleSystem.updateAndDraw();
 
   for (int i = 0; i < NUMBER; i++)
   {
@@ -185,19 +190,19 @@ public void draw()
     fish.check();
     fish.move();
     fish.draw();
-    addForce(fish.x/width,fish.y/height,fish.vx/5000,fish.vy/5000);
-    
+    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
+
     fish = (Fish) bluefishes[i];
     fish.check();
     fish.move();
     fish.draw();
-     addForce(fish.x/width,fish.y/height,fish.vx/5000,fish.vy/5000);
-    
+    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
+
     fish = (Fish) greenfishes[i];
     fish.check();
     fish.move();
     fish.draw();
-     addForce(fish.x/width,fish.y/height,fish.vx/5000,fish.vy/5000);
+    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
   }
   for (int i = 0 ; i < ballcount ; i++)
   {
@@ -207,63 +212,115 @@ public void draw()
 }
 
 public void mouseMoved() {
-    float mouseNormX = mouseX * invWidth;
-    float mouseNormY = mouseY * invHeight;
-    float mouseVelX = (mouseX - pmouseX) * invWidth;
-    float mouseVelY = (mouseY - pmouseY) * invHeight;
+  float mouseNormX = mouseX * invWidth;
+  float mouseNormY = mouseY * invHeight;
+  float mouseVelX = (mouseX - pmouseX) * invWidth;
+  float mouseVelY = (mouseY - pmouseY) * invHeight;
 
-    addForce(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
+  addForce(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
 }
 
 public void mousePressed() {
-    drawFluid ^= true;
+  drawFluid ^= true;
 }
 
 public void keyPressed() {
-    switch(key) {
-    case 'r': 
-        renderUsingVA ^= true; 
-        println("renderUsingVA: " + renderUsingVA);
-        break;
-    }
-    println(frameRate);
+  switch(key) {
+  case 'r': 
+    renderUsingVA ^= true; 
+    println("renderUsingVA: " + renderUsingVA);
+    break;
+  }
+  println(frameRate);
 }
 
 
 
 // add force and dye to fluid, and create particles
 public void addForce(float x, float y, float dx, float dy) {
-    float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
+  float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
 
-    if(speed > 0) {
-        if(x<0) x = 0; 
-        else if(x>1) x = 1;
-        if(y<0) y = 0; 
-        else if(y>1) y = 1;
+  if (speed > 0) {
+    if (x<0) x = 0; 
+    else if (x>1) x = 1;
+    if (y<0) y = 0; 
+    else if (y>1) y = 1;
 
-        float colorMult = 5;
-        float velocityMult = 30.0f;
+    float colorMult = 5;
+    float velocityMult = 30.0f;
 
-        int index = fluidSolver.getIndexForNormalizedPosition(x, y);
+    int index = fluidSolver.getIndexForNormalizedPosition(x, y);
 
-        int drawColor;
+    int drawColor;
 
-        colorMode(HSB, 360, 1, 1);
-        float hue = ((x + y) * 180 + frameCount) % 360;
-        drawColor = color(hue, 1, 1);
-        colorMode(RGB, 1);  
+    colorMode(HSB, 360, 1, 1);
+    float hue = ((x + y) * 180 + frameCount) % 360;
+    drawColor = color(hue, 1, 1);
+    colorMode(RGB, 1);  
 
-        fluidSolver.rOld[index]  += red(drawColor) * colorMult;
-        fluidSolver.gOld[index]  += green(drawColor) * colorMult;
-        fluidSolver.bOld[index]  += blue(drawColor) * colorMult;
+    fluidSolver.rOld[index]  += red(drawColor) * colorMult;
+    fluidSolver.gOld[index]  += green(drawColor) * colorMult;
+    fluidSolver.bOld[index]  += blue(drawColor) * colorMult;
 
-        particleSystem.addParticles(x * width, y * height, 10);
-        fluidSolver.uOld[index] += dx * velocityMult;
-        fluidSolver.vOld[index] += dy * velocityMult;
-    }
+    particleSystem.addParticles(x * width, y * height, 10);
+    fluidSolver.uOld[index] += dx * velocityMult;
+    fluidSolver.vOld[index] += dy * velocityMult;
+  }
 }
+
+
+class Ball
+{
+  int x;
+  int y;
+  int R;
+  int realr;
+  int timecount;
+
+  //Construct
+  Ball(int _x, int _y, int _realr, int _R)
+  {
+    x = _x;
+    y = _y;
+    realr = _realr;
+    R = _R;
+    timecount = 0;
+  }
+
+  public void draw()
+  {
+    if (timecount >= 2*R)
+    {
+      timecount -= 2*R;
+    }
+
+    timecount++;
+
+    stroke(255, 255, 255);
+    fill(255, 255, 255);
+    ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);
+    noFill();
+    for (int i=0;i<RINGNUM;i++)
+    {
+      int tempring = timecount + i*(4*R/RINGNUM);
+
+      if (2*R < tempring && tempring < 4*R)
+      {
+        //TODO: need improvement for gradation
+        stroke(255, 255, 255, 
+        255*(6*R-tempring)/(20*R));
+        //fill(0, 255, 0);
+        ellipse(x, y, tempring, tempring);
+        //TODO: change transparency of the ring
+      }
+    }
+  }
+}
+int CENTER_PULL_FACTOR = 300;
+
 class Fish
 {
+  float speed;
   float r, g, b;
   float x, y;   //location of fish
   float vx, vy; //speed of fish
@@ -279,7 +336,7 @@ class Fish
   Fish(float _x, float _y, 
   float _vx, float _vy, 
   int _id, 
-  float _r, float _g, float _b, 
+  float _r, float _g, float _b,float _speed, 
   Fish[] _others) 
   {
     x = _x;
@@ -291,6 +348,7 @@ class Fish
     r=_r;
     g=_g;
     b=_b;
+    speed = _speed;
   }
 
   public void move() {
@@ -299,10 +357,10 @@ class Fish
 
     //max speed check 
     float vVector = sqrt(vx * vx + vy * vy);
-    if (vVector > SPEED) 
+    if (vVector > speed) 
     {
-      vx = (vx / vVector) * SPEED;
-      vy = (vy / vVector) * SPEED;
+      vx = (vx / vVector) * speed;
+      vy = (vy / vVector) * speed;
     }
 
     x += vx;
@@ -452,79 +510,6 @@ class Fish
   }
 }
 
-class Ball
-{
-  int x;
-  int y;
-  int R;
-  int realr;
-  int timecount;
-
-  //Construct
-  Ball(int _x, int _y,int _realr, int _R)
-  {
-    x = _x;
-    y = _y;
-    realr = _realr;
-    R = _R;
-    timecount = 0;
-  }
-
-  public void draw()
-  {
-    if (timecount >= 2*R)
-    {
-      timecount -= 2*R;
-    }
-
-    timecount++;
-
-    stroke(255, 255, 255);
-    fill(255, 255, 255);
-    ellipse(x, y,2*realr,2*realr);// R*2, R*2);
-    noFill();
-    for (int i=0;i<RINGNUM;i++)
-    {
-      int tempring = timecount + i*(4*R/RINGNUM);
-
-      if (2*R < tempring && tempring < 4*R)
-      {
-        //TODO: need improvement for gradation
-        stroke(255, 255, 255, 
-        255*(6*R-tempring)/(20*R));
-        //fill(0, 255, 0);
-        ellipse(x, y, tempring, tempring);
-        //TODO: change transparency of the ring
-      }
-    }
-  }
-}
-
-class Field
-{
-  //construct
-  Field()
-  {
-    ;
-  }
-  public float GetPotential(float _x, float _y)
-  {
-    float xsq = 0;
-    float ysq = 0;
-    float p = 0;
-
-    for (int i = 0 ; i < BALLNUM ; i++)
-    {
-      xsq = sq(balls[i].x - _x); 
-      ysq = sq(balls[i].y - _y);
-
-      if (sq(balls[i].R) < xsq + ysq)
-        p += xsq;   
-      p += ysq;
-    }
-    return p;
-  }
-}
 
 /***********************************************************************
  

@@ -3,27 +3,31 @@ import msafluid.*;
 import processing.opengl.*;
 import javax.media.opengl.*;
 
-final float FLUID_WIDTH = 100;
 
+//Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
 
 MSAFluidSolver2D fluidSolver;
-
 ParticleSystem particleSystem;
 
 PImage imgFluid;
 boolean drawFluid = true;
+final float FLUID_WIDTH = 120;
 
+//Fish config
 float SPEED = 5;
 float R = 4;       
 int NUMBER = 20;   // number of fishes
-int BALLNUM = 8;
-int RINGNUM = 15;
+int FISHFORCE = 1500;
 
-Fish[] redfishes = new Fish[NUMBER];
-Fish[] bluefishes = new Fish[NUMBER];
-Fish[] greenfishes = new Fish[NUMBER];
+//Ball config
+int BALLNUM = 8;
+int BALLRINGS = 8;
+
+//Shoal system
+ShoalSystem shoalSystem = new ShoalSystem();
+
 
 float r1 = 1.0;   //param: shoal gathering
 float r2 = 0.1; //  param: avoid conflict with other fishes in shoal 
@@ -36,14 +40,11 @@ int redaddy = 0;
 int blueaddx = 100; //initial position of the blue shoal
 int blueaddy = 0;
 
-int greenaddx = 0;
+int greenaddx = 0;  //initial position of the green shoal
 int greenaddy = 0;
 
-
-
-int DIST_THRESHOLD = 30;
-
 int ballcount = 0;
+
 Ball[] balls = new Ball[BALLNUM];
 
 // margin for billiard pool edge
@@ -59,11 +60,11 @@ void setup()
   //282*2
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
-  //frameRate(30);
+  frameRate(30);
 
-  invWidth = 1.0f/width;
+  invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
-  aspectRatio = width * invHeight;
+  aspectRatio  = width * invHeight;
   aspectRatio2 = aspectRatio * aspectRatio;
 
   // create fluid and set options
@@ -76,110 +77,88 @@ void setup()
   // create particle system
   particleSystem = new ParticleSystem();
 
-  // init TUIO
-  initTUIO();
-
   stroke(255, 255, 255);
 
   img = loadImage("billiards.jpg");
   tint(255, 127);
 
-  float angle = TWO_PI / NUMBER;
+  shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1,    1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1,    1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  /*
   for (int i = 1; i <= NUMBER; i++)
-  {
-    float addx = cos(angle * i);
-    float addy = sin(angle * i);
-
-    redfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + redaddx, 
-    height / 2 + addy * 50 + redaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    1, 0, 0, SPEED,
-    redfishes);
-
-    bluefishes[i-1] = new Fish(
-    width / 2 + addx * 50 + blueaddx, 
-    height / 2 + addy * 50 + blueaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 0, 1, SPEED,
-    bluefishes);
-
-    greenfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + greenaddx, 
-    height / 2 + addy * 50 + greenaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 1, 0, SPEED,
-    greenfishes);
-  }
-
+   {
+   float addx = cos(angle * i);
+   float addy = sin(angle * i);
+   
+   redfishes[i-1] = new Fish(
+   width / 2 + addx * 50 + redaddx, 
+   height / 2 + addy * 50 + redaddy, 
+   random(- SPEED, SPEED) * addx, 
+   random(- SPEED, SPEED) * addy, 
+   i - 1, 
+   1, 0.75, 0.75, SPEED,
+   redfishes);
+   
+   bluefishes[i-1] = new Fish(
+   width / 2 + addx * 50 + blueaddx, 
+   height / 2 + addy * 50 + blueaddy, 
+   random(- SPEED, SPEED) * addx, 
+   random(- SPEED, SPEED) * addy, 
+   i - 1, 
+   0.75, 0.75, 1, SPEED,
+   bluefishes);
+   
+   greenfishes[i-1] = new Fish(
+   width / 2 + addx * 50 + greenaddx, 
+   height / 2 + addy * 50 + greenaddy, 
+   random(- SPEED, SPEED) * addx, 
+   random(- SPEED, SPEED) * addy, 
+   i - 1, 
+   0.75, 1, 0.75, SPEED,
+   greenfishes);
+   }
+   */
   ballcount = BALLNUM;
-  balls[0] = new Ball(200, 200, 25, 25);
-  balls[1] = new Ball(400, 400, 25, 25);
-  balls[2] = new Ball(200, 400, 50, 50);
-  balls[3] = new Ball(400, 200, 50, 50);
-  balls[4] = new Ball(600, 200, 25, 50);
-  balls[5] = new Ball(600, 400, 50, 50);
-  balls[6] = new Ball(800, 200, 50, 50);
-  balls[7] = new Ball(800, 400, 25, 50);
+  balls[0] = new Ball(200, 180, 50, 50, BALLRINGS);
+  balls[1] = new Ball(400, 380, 50, 50, BALLRINGS);
+  balls[2] = new Ball(200, 380, 50, 50, BALLRINGS);
+  balls[3] = new Ball(400, 180, 50, 50, BALLRINGS);
+  balls[4] = new Ball(600, 180, 50, 50, BALLRINGS);
+  balls[5] = new Ball(600, 380, 50, 50, BALLRINGS);
+  balls[6] = new Ball(800, 180, 50, 50, BALLRINGS);
+  balls[7] = new Ball(800, 380, 50, 50, BALLRINGS);
 }
 
 //main draw
 void draw()
 {
-  updateTUIO();
   fluidSolver.update();
 
   background(0, 0, 0);
   image(img, 0, 0, 498*2, 282*2);
 
-  if (drawFluid) {
-    for (int i=0; i<fluidSolver.getNumCells(); i++) {
+  if (drawFluid)
+  {
+    for (int i=0; i<fluidSolver.getNumCells(); i++)
+    {
       int d = 2;
       imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
     }  
-    imgFluid.updatePixels();//  fastblur(imgFluid, 2);
+    imgFluid.updatePixels();
     image(imgFluid, 0, 0, width, height);
   } 
 
   particleSystem.updateAndDraw();
+  shoalSystem.UpdateandDraw();
 
-  for (int i = 0; i < NUMBER; i++)
-  {
-    redfishes[i].clearVector();
-    bluefishes[i].clearVector();
-    greenfishes[i].clearVector();
-  }
 
-  for (int i = 0; i < NUMBER; i++) 
-  {
-    Fish fish = (Fish) redfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) bluefishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) greenfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-  }
   for (int i = 0 ; i < ballcount ; i++)
   {
     Ball ball = (Ball) balls[i];
-    ball.draw();
+    //ball.draw();
   }
 }
 
