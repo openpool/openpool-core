@@ -29,7 +29,7 @@ class ShoalSystem
       random(- speed, speed) * addy, 
       i - 1, 
       _R, _G, _B, speed
-      );
+        );
       shoal.add(fishtemp);
     }
 
@@ -37,16 +37,36 @@ class ShoalSystem
     return shoal;
   }
 
-  void UpdateandDraw()
+  void Update()
   { 
-    for (int i = 0 ; i < shoals.size() ; i++)
+    ListIterator iter_i = shoals.listIterator();
+    while (iter_i.hasNext ())
     {
-      Shoal shoal = (Shoal)shoals.get(i);
-      shoal.update(); 
-      shoal.draw(); 
+      Shoal shoal_i = (Shoal)iter_i.next();
+      Iterator iter_j = shoals.iterator();
+      while (iter_j.hasNext ())
+      {
+        Shoal shoal_j = (Shoal)iter_j.next();
+        if (shoal_i != shoal_j)
+        {
+          shoal_i.addForce((shoal_j.x-shoal_i.x), (shoal_j.y-shoal_i.y));
+        }
+      }
+      shoal_i.update();
+      iter_i.set(shoal_i);
     }
-       //  rule4();       
+    //  rule4();       
     return;
+  }
+
+  void Draw()
+  {
+    Iterator iter = shoals.iterator();
+    while (iter.hasNext ())
+    {
+      Shoal shoal = (Shoal)iter.next();
+      shoal.draw();
+    }
   }
 }
 

@@ -33,46 +33,45 @@ class Shoal
   //calc param1
   Fish shoalrules(int i, Fish fish_i)
   {
-      for (int j = 0 ; j< fishes.size() ; j++)
+    Iterator iter_j = fishes.iterator();
+    while (iter_j.hasNext ())
+    {
+      Fish fish_j = (Fish)iter_j.next();
+      if (fish_i != fish_j) 
       {
-        if (i != j) 
+
+        //rule1
+        fish_i.v1.x = fish_i.v1.x + fish_j.x;
+        fish_i.v1.y = fish_i.v1.y + fish_j.y;
+
+        //rule2
+        if (dist(fish_i.x, fish_i.y, fish_j.x, fish_j.y) < DIST_THRESHOLD)
         {
-          Fish fish_j = (Fish) fishes.get(j);
-
-          //rule1
-          fish_i.v1.x = fish_i.v1.x + fish_j.x;
-          fish_i.v1.y = fish_i.v1.y + fish_j.y;
-
-          //rule2
-          if (dist(fish_i.x, fish_i.y, fish_j.x, fish_j.y) < DIST_THRESHOLD)
-          {
-            fish_i.v2.x -= (fish_j.x - fish_i.x);
-            fish_i.v2.y -= (fish_j.y - fish_i.y);
-          }
-
-          //rule3
-          
-          fish_i.v3.x += fish_j.vx;
-          fish_i.v3.y += fish_j.vy;
-          
+          fish_i.v2.x -= (fish_j.x - fish_i.x);
+          fish_i.v2.y -= (fish_j.y - fish_i.y);
         }
-      }    
 
-      //rule1
-      fish_i.v1.x = ( fish_i.v1.x / (fishes.size() - 1)); 
-      fish_i.v1.y = ( fish_i.v1.y / (fishes.size() - 1));
+        //rule3         
+        fish_i.v3.x += fish_j.vx;
+        fish_i.v3.y += fish_j.vy;
+      }
+    }    
 
-      fish_i.v1.x = (fish_i.v1.x - fish_i.x) / CENTER_PULL_FACTOR;
-      fish_i.v1.y = (fish_i.v1.y - fish_i.y) / CENTER_PULL_FACTOR;
+    //rule1
+    fish_i.v1.x = ( fish_i.v1.x / (fishes.size() - 1)); 
+    fish_i.v1.y = ( fish_i.v1.y / (fishes.size() - 1));
 
-      //rule2 none
+    fish_i.v1.x = (fish_i.v1.x - fish_i.x) / CENTER_PULL_FACTOR;
+    fish_i.v1.y = (fish_i.v1.y - fish_i.y) / CENTER_PULL_FACTOR;
 
-      //rule3
-      fish_i.v3.x /= (fishes.size() - 1);
-      fish_i.v3.y /= (fishes.size() - 1);
+    //rule2 none
 
-      fish_i.v3.x = (fish_i.v3.x - fish_i.vx)/2;
-      fish_i.v3.y = (fish_i.v3.y - fish_i.vy)/2;
+    //rule3
+    fish_i.v3.x /= (fishes.size() - 1);
+    fish_i.v3.y /= (fishes.size() - 1);
+
+    fish_i.v3.x = (fish_i.v3.x - fish_i.vx)/2;
+    fish_i.v3.y = (fish_i.v3.y - fish_i.vy)/2;
 
     return fish_i;
   }//end shoalrules
@@ -107,36 +106,59 @@ class Shoal
 
     for (int i = 0 ; i < fishes.size() ; i++)
     {
-      x = x + ((Fish)fishes.get(i)).x;
-      y = y + ((Fish)fishes.get(i)).y;
+      Fish fish_i = (Fish)fishes.get(i);
+
+      x = x + fish_i.x;
+      y = y + fish_i.y;
+
+      fish_i.clearVector();
+      check(i, fish_i);
+      fish_i.move();
+      fishes.set(i, fish_i);
+      
+      vx = vx + fish_i.vx;
+      vy = vy + fish_i.vy;
+
+      addForceToFluid(fish_i.x/width, fish_i.y/height, -fish_i.vx/FISHFORCE, -fish_i.vy/FISHFORCE);
     }
     x = x / fishes.size();
     y = y / fishes.size();
 
-    for (int i = 0 ; i < fishes.size() ; i++)
-    {
-      Fish fish_i = (Fish)fishes.get(i);
-      fish_i.clearVector();
-      check(i,fish_i);
-      fish_i.move();
-      fishes.set(i,fish_i);
-      vx = vx + fish_i.vx;
-      vy = vy + fish_i.vy;
-
-      addForce(fish_i.x/width, fish_i.y/height, -fish_i.vx/FISHFORCE, -fish_i.vy/FISHFORCE);
-    }
-
     vx = vx / fishes.size();
     vy = vy / fishes.size();
+
     return;
+  }
+
+  void addForce(float _vx, float _vy)
+  {
+    ListIterator iter = fishes.listIterator();
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();  
+      fish.v4.x += _vx;
+      fish.v4.y += _vy;
+      iter.set(fish);
+    }
   }
 
   void draw()
   {    
-    for (int i = 0 ; i < fishes.size(); i++) 
+    Iterator iter = fishes.iterator();
+    while (iter.hasNext ())
     {
-      Fish fish_i = (Fish)fishes.get(i);  
-      fish_i.draw();
+      Fish fish = (Fish)iter.next();  
+      fish.draw();
+    }
+        
+    if(DEBUG)
+    {
+    noFill();
+    stroke(1,1,1);
+    ellipse(x, y, 100, 100);  
+    text("SHOAL", x, y);
+    text(x,x,y+15);
+    text(y,x,y+30);
     }
     return;
   }
