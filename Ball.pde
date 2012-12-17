@@ -20,8 +20,6 @@ class Ball
 
   void draw()
   {
-
-
     stroke(255, 255, 255);
     fill(255, 255, 255);
     ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);

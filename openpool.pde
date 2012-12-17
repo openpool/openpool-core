@@ -58,7 +58,7 @@ final float FLUID_WIDTH = 120;
 float SPEED = 5;
 float R = 4;       
 int NUMBER = 10;   // number of fishes
-int FISHFORCE = 1500;
+int FISHFORCE = 2000;
 
 //Ball config
 int BALLNUM = 8;
@@ -157,7 +157,6 @@ void draw()
   {
     timecount -= 2*50;
   }
-
   timecount++;
   //println(timecount);
 
@@ -202,14 +201,14 @@ void draw()
   clearBallandAvoid();
 
   //TODO:update Ball x&y here   
-  setBallandSetAvoid(200+timecount*2, 180, 50);
-  setBallandSetAvoid(200, 380-timecount*2, 50);
-  setBallandSetAvoid(400+timecount*2, 180, 50);
-  setBallandSetAvoid(400-timecount*2, 380, 50);
-  setBallandSetAvoid(600+timecount*2, 180, 50);
-  setBallandSetAvoid(600-timecount*2, 380, 50);
-  setBallandSetAvoid(800, 180+timecount*2, 50);
-  setBallandSetAvoid(800-timecount*2, 380, 50);
+  setBallandSetAvoid(200+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
+  setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
+  setBallandSetAvoid(400-timecount*2, 380, timecount/2);
+  setBallandSetAvoid(600+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
+  setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
+  setBallandSetAvoid(800-timecount*2, 380, timecount/2);
 
   if (DEBUG)
   {

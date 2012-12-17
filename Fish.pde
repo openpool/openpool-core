@@ -40,20 +40,31 @@ class Fish
   {
     vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x + r5 * v5.x;
     vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y + r5 * v5.y;
-    /*
-    print(" r1*v1.x:");    print(r1*v1.x);
-     print(" r1*v1.y:");    print(r1*v1.y); 
-     print(" r2*v2.x:");    print(r2*v2.x);
-     print(" r2*v2.y:");    print(r2*v2.y); 
-     print(" r3*v3.x:");    print(r3*v3.x);
-     print(" r3*v3.y:");    print(r3*v3.y); 
 
-    print(" r4*v4.x:");      print(r5*v5.x);
-    print(" r4*v4.y:");      println(r5*v5.y);
-        print(" r5*v5.x:");      print(r5*v5.x);
-    print(" r5*v5.y:");      println(r5*v5.y);
-     */
-     
+/*
+    print(" r1*v1.x:");    
+    print(r1*v1.x);
+    print(" r1*v1.y:");    
+    print(r1*v1.y); 
+    print(" r2*v2.x:");    
+    print(r2*v2.x);
+    print(" r2*v2.y:");    
+    print(r2*v2.y); 
+    print(" r3*v3.x:");    
+    print(r3*v3.x);
+    print(" r3*v3.y:");    
+    print(r3*v3.y); 
+
+    print(" r4*v4.x:");      
+    print(r5*v5.x);
+    print(" r4*v4.y:");      
+    println(r5*v5.y);
+    print(" r5*v5.x:");      
+    print(r5*v5.x);
+    print(" r5*v5.y:");      
+    println(r5*v5.y);
+*/
+
     //max speed check 
     float vVector = sqrt(vx * vx + vy * vy);
     if (vVector > speed) 

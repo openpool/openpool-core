@@ -151,9 +151,11 @@ class Shoal
       noFill();
       stroke(1, 1, 1);
       ellipse(x, y, SHOALCOLISION, SHOALCOLISION);  
-      text("SHOAL", x, y);
-      text(x, x, y+15);
-      text(y, x, y+30);
+      text("SHOAL", x+50, y+50);
+      text("x: ", x+50, y+50+15);
+      text(x, x+50+15, y+50+15);
+      text("y: ", x+50, y+50+30);
+      text(y, x+50+15, y+50+30);      
     }
     return;
   }
