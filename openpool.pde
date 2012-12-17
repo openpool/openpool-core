@@ -37,6 +37,9 @@ import msafluid.*;
 import processing.opengl.*;
 import javax.media.opengl.*;
 
+//Field
+Field field;
+
 //Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
@@ -73,7 +76,7 @@ float r1 = 1.0;   //param: shoal gathering
 float r2 = 0.1; //  param: avoid conflict with other fishes in shoal 
 float r3 = 0.5; // param: along with other fish in shoal
 float r4 = 1;   //  param: avoid other shoal
-float r5 = 50;   //  param: avoid balls
+float r5 = 100;   //  param: avoid balls
 
 int redaddx = -100; //initial position of the red shoal
 int redaddy = 0;
@@ -100,6 +103,12 @@ void setup()
   frameRate(30);
 
   timecount = 0;
+  
+  PVector v1 = new PVector(0+wband,0+hband);
+  PVector v2 = new PVector(width-wband,0+hband);
+  PVector v3 = new PVector(width-wband,height-hband);
+  PVector v4 = new PVector(0+wband,height-hband);
+  field = new Field(v1,v2,v3,v4);
 
   invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
@@ -126,8 +135,8 @@ void setup()
   shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, NUMBER, SPEED);
   shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, NUMBER, SPEED);
   shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, NUMBER, SPEED);
-  // shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
-  //  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
 
   ballSystem = new BallSystem();
 
@@ -150,8 +159,8 @@ void draw()
   }
 
   timecount++;
-  println(timecount);
-  
+  //println(timecount);
+
   background(0, 0, 0);
   image(img, 0, 0, 498*2, 282*2);
 
@@ -193,16 +202,20 @@ void draw()
   clearBallandAvoid();
 
   //TODO:update Ball x&y here   
-  setBallandSetAvoid(200, 180, 50);
-  setBallandSetAvoid(200, 380, 50);
-  setBallandSetAvoid(400, 180, 50);
-  setBallandSetAvoid(400, 380, 50);
-  setBallandSetAvoid(600, 180, 50);
-  setBallandSetAvoid(600, 380, 50);
-  setBallandSetAvoid(800, 180, 50);
-  setBallandSetAvoid(800, 380, 50);
+  setBallandSetAvoid(200+timecount*2, 180, 50);
+  setBallandSetAvoid(200, 380-timecount*2, 50);
+  setBallandSetAvoid(400+timecount*2, 180, 50);
+  setBallandSetAvoid(400-timecount*2, 380, 50);
+  setBallandSetAvoid(600+timecount*2, 180, 50);
+  setBallandSetAvoid(600-timecount*2, 380, 50);
+  setBallandSetAvoid(800, 180+timecount*2, 50);
+  setBallandSetAvoid(800-timecount*2, 380, 50);
 
-  if (!DEBUG)
+  if (DEBUG)
+  {
+    field.Draw();
+  }
+  else
   {
     ballSystem.draw();
   }
@@ -222,6 +235,19 @@ void mousePressed()
 {
   DEBUG^= true;
   drawFluid^=true;
+  OutputStatus();
+}
+
+void OutputStatus()
+{
+  if (DEBUG)
+  {
+    println("DEBUG MODE");
+  }
+  else
+  {
+    println("NORMAL MODE");
+  }
 }
 
 void keyPressed()
@@ -250,7 +276,7 @@ void clearBallandAvoid()
 void setBallandSetAvoid(int x, int y, int R)
 {
   ballSystem.addBall(x, y, R, R, BALLRINGS);
-  shoalSystem.addAvoidEllipseObject(x, y, R);
+  shoalSystem.addEllipseObject(x, y, R);
 }
 
 

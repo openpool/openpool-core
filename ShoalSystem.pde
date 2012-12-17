@@ -39,7 +39,7 @@ class ShoalSystem
     return shoal;
   }
 
-  void addAvoidEllipseObject(int x, int y, int R)
+  void addEllipseObject(int x, int y, int R)
   {
     EllipseObject obj = new EllipseObject(x, y, R);
     avoidEllipseObject.add(obj);
