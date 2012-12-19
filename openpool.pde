@@ -32,6 +32,7 @@
  * ***********************************************************************/
 
 import msafluid.*;
+import SimpleOpenNI.*;
 
 //OpenGL
 import processing.opengl.*;
@@ -39,6 +40,8 @@ import javax.media.opengl.*;
 
 //Field
 Field field;
+
+SimpleOpenNI kinect;
 
 //Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
@@ -63,6 +66,9 @@ int FISHFORCE = 2000;
 //Ball config
 int BALLNUM = 8;
 int BALLRINGS = 8;
+
+//backgrounddiff
+BackGroundDiff bg;
 
 //Shoal system
 ShoalSystem shoalSystem;
@@ -102,13 +108,27 @@ void setup()
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
   frameRate(30);
 
-  timecount = 0;
+  kinect = new SimpleOpenNI(this);            // SimpleOpenNIの初期化
+  if ( kinect.openFileRecording("straight.oni") == false)
+  {
+    println("can't find recorded file !!!!");
+    exit();
+  }
+  kinect.enableDepth();                       // 距離画像有効化
+  //kinect.enableRGB();                         // カラー画像有効化
+  kinect.update();
   
-  PVector v1 = new PVector(0+wband,0+hband);
-  PVector v2 = new PVector(width-wband,0+hband);
-  PVector v3 = new PVector(width-wband,height-hband);
-  PVector v4 = new PVector(0+wband,height-hband);
-  field = new Field(v1,v2,v3,v4);
+  //backgrounddiff
+  bg = new BackGroundDiff(kinect.depthWidth(), kinect.depthHeight(),kinect.depthImage().get(),kinect.depthMap());
+  bg.rememberBackground(kinect.depthImage());
+
+  timecount = 0;
+
+  PVector v1 = new PVector(0+wband, 0+hband);
+  PVector v2 = new PVector(width-wband, 0+hband);
+  PVector v3 = new PVector(width-wband, height-hband);
+  PVector v4 = new PVector(0+wband, height-hband);
+  field = new Field(v1, v2, v3, v4);
 
   invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
@@ -153,6 +173,9 @@ void setup()
 //main draw
 void draw()
 {
+  kinect.update();
+  bg.update(kinect.depthImage(),kinect.depthMap());
+  
   if (timecount >= 2*50)
   {
     timecount -= 2*50;
@@ -217,6 +240,7 @@ void draw()
   else
   {
     ballSystem.draw();
+    bg.draw();
   }
 }
 
