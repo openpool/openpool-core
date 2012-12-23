@@ -206,12 +206,19 @@ void draw()
 
   particleSystem.updateAndDraw();
 
+  Blob[] blobs=bg.draw();
   //draw balls
 
   //clear all Balls
   clearBallandAvoid();
+  
+  for(Blob blob:blobs)
+  {
+    setBallandSetAvoid(blob.centroid.x, blob.centroid.y, 30);
+  }
 
-  //TODO:update Ball x&y here   
+  //TODO:update Ball x&y here
+  /*  
   setBallandSetAvoid(200+timecount*2, 180, timecount/2);
   setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
   setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
@@ -220,7 +227,7 @@ void draw()
   setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
   setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
   setBallandSetAvoid(800-timecount*2, 380, timecount/2);
-
+*/
   if (DEBUG)
   {
     field.Draw();
@@ -228,7 +235,6 @@ void draw()
   else
   {
     ballSystem.draw();
-    bg.draw();
   }
 }
 
@@ -265,6 +271,9 @@ void keyPressed()
 {
   switch(key)
   {
+    case'b':
+    bg.rememberBackground();
+    break;
   case 'r': 
     renderUsingVA ^= true; 
     println("renderUsingVA: " + renderUsingVA);

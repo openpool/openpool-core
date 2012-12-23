@@ -8,7 +8,7 @@ class BackGroundDiff
   
   OpenCV opencv;
   Blob[] blobsArray = null;
-  float threshold = 0.2;
+  float threshold = 0.1;
   PImage depthImage;
   int[] depthMap;
   int depth_width;
@@ -17,7 +17,7 @@ class BackGroundDiff
   BackGroundDiff(SimpleOpenNI _kinect)
   {
     
-  kinect = _kinect;            // SimpleOpenNIの初期化
+  kinect = _kinect;           // SimpleOpenNIの初期化
   
   if ( kinect.openFileRecording("straight.oni") == false)
   {
@@ -35,18 +35,16 @@ class BackGroundDiff
     depthMap   = kinect.depthMap();
     opencv = new OpenCV();
     opencv.allocate(depth_width, depth_height);
-    rememberBackground(depthImage);
+    rememberBackground();
 
     update();
   }
 
   void update()
   {
-    depthImage = kinect.depthImage().get();
-    depthMap   = kinect.depthMap();
-
-    // Update the camera image
-    PImage depthImage = retrieveDepthImage();
+    kinect.update();
+    depthImage=kinect.depthImage().get();
+    //depthImage = retrieveDepthImage();
 
     // Calculate the diff image
     opencv.copy(depthImage);
@@ -55,20 +53,24 @@ class BackGroundDiff
     opencv.blur(3);
     opencv.threshold(threshold, "BINARY");
     depthImage = opencv.getBuffer();
-    depthImage = DilateWhite(depthImage, 1); //DilateElode(depthImage, 2);
+    depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
 
     // Detect blobs
     opencv.copy(depthImage);
-    blobsArray = opencv.blobs(25, 2000, 20, false, 100);
+    blobsArray = opencv.blobs(400, 1000, 20, false, 100);
   }
-  void rememberBackground(PImage _depthImage)
+  void rememberBackground()
   {
-    opencv.copy(_depthImage);
+    println("remember background!!!");
+    opencv.copy(kinect.depthImage().get());
     opencv.remember(); // Store in the first buffer.
   }
 
   PImage retrieveDepthImage()
   {
+    PImage depthImage = kinect.depthImage().get();
+    int[] depthMap   = kinect.depthMap();
+
     // Assume depth errors are caused by the black ball
     color white = color(255);
     for (int x = 0; x < depth_width; x ++) {
@@ -129,21 +131,21 @@ class BackGroundDiff
     return out;
   }
 
-  void draw()
+  Blob[] draw()
   {
-    opencv.copy(depthImage);
-    blobsArray = opencv.blobs(opencv.area()/1024, opencv.area()/100, 20, false, 100,false);
-
     java.awt.Point point = new java.awt.Point();
+    java.awt.Rectangle bounding_rect = new java.awt.Rectangle();
     for(Blob blob:blobsArray)
     {
       point = blob.centroid;
-      print("x:");
-      print(point.x);
-      print(" y:");
-      println(point.y);
+      bounding_rect = blob.rectangle;
+ 
+      //ellipse(point.x,point.y,10,10);
+      rect( bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height );
+
     }
-    //opencv.drawBlobs(blobsArray, 0, 0, 0.5);
+    image(depthImage,width-depthImage.width/2,0,depthImage.width/2,depthImage.height/2);
+    return blobsArray;
   }
 }
 

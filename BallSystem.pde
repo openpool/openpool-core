@@ -18,8 +18,6 @@ class BallSystem
   {
     int id =0;
     balls.clear();
-    ballsid.clear();
-    ballsid.add(i);
   }
   void draw()
   {
