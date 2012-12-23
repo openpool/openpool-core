@@ -26,37 +26,85 @@ import java.util.regex.*;
 
 public class openpool extends PApplet {
 
+/***********************************************************************
+ 
+ Copyright (c) takashyx 2012. ( http:/takashyx.com )
+ * All rights reserved.
+ 
+ For the Particle System MSAFluid
+ Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of MSA Visuals nor the names of its contributors 
+ *       may be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ * ***********************************************************************/
 
 
 
+//OpenGL
 
 
-final float FLUID_WIDTH = 50;
 
+//Field
+Field field;
+
+//Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
 
+//Fluid and Particle
 MSAFluidSolver2D fluidSolver;
-
 ParticleSystem particleSystem;
 
 PImage imgFluid;
 boolean drawFluid = true;
+boolean DEBUG = false;
+boolean noUpdate = false;
+final float FLUID_WIDTH = 120;
 
+//Fish config
 float SPEED = 5;
 float R = 4;       
-int NUMBER = 20;   // number of fishes
-int BALLNUM = 8;
-int RINGNUM = 15;
+int NUMBER = 10;   // number of fishes
+int FISHFORCE = 2000;
 
-Fish[] redfishes = new Fish[NUMBER];
-Fish[] bluefishes = new Fish[NUMBER];
-Fish[] greenfishes = new Fish[NUMBER];
+//Ball config
+int BALLNUM = 8;
+int BALLRINGS = 8;
+
+//Shoal system
+ShoalSystem shoalSystem;
+BallSystem ballSystem;
+
+float SHOALCOLISION = 100;
+
+int timecount;
 
 float r1 = 1.0f;   //param: shoal gathering
 float r2 = 0.1f; //  param: avoid conflict with other fishes in shoal 
 float r3 = 0.5f; // param: along with other fish in shoal
-float r4 = 0.1f;   //  param: avoid balls
+float r4 = 1;   //  param: avoid other shoal
+float r5 = 100;   //  param: avoid balls
 
 int redaddx = -100; //initial position of the red shoal
 int redaddy = 0;
@@ -64,15 +112,8 @@ int redaddy = 0;
 int blueaddx = 100; //initial position of the blue shoal
 int blueaddy = 0;
 
-int greenaddx = 0;
+int greenaddx = 0;  //initial position of the green shoal
 int greenaddy = 0;
-
-
-
-int DIST_THRESHOLD = 30;
-
-int ballcount = 0;
-Ball[] balls = new Ball[BALLNUM];
 
 // margin for billiard pool edge
 int wband = 80;
@@ -87,11 +128,19 @@ public void setup()
   //282*2
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
-  //frameRate(30);
+  frameRate(30);
 
-  invWidth = 1.0f/width;
+  timecount = 0;
+  
+  PVector v1 = new PVector(0+wband,0+hband);
+  PVector v2 = new PVector(width-wband,0+hband);
+  PVector v3 = new PVector(width-wband,height-hband);
+  PVector v4 = new PVector(0+wband,height-hband);
+  field = new Field(v1,v2,v3,v4);
+
+  invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
-  aspectRatio = width * invHeight;
+  aspectRatio  = width * invHeight;
   aspectRatio2 = aspectRatio * aspectRatio;
 
   // create fluid and set options
@@ -104,140 +153,162 @@ public void setup()
   // create particle system
   particleSystem = new ParticleSystem();
 
-  // init TUIO
-  initTUIO();
-
   stroke(255, 255, 255);
 
   img = loadImage("billiards.jpg");
   tint(255, 127);
 
-  float angle = TWO_PI / NUMBER;
-  for (int i = 1; i <= NUMBER; i++)
-  {
-    float addx = cos(angle * i);
-    float addy = sin(angle * i);
+  shoalSystem = new ShoalSystem();
 
-    redfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + redaddx, 
-    height / 2 + addy * 50 + redaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    1, 0, 0, SPEED,
-    redfishes);
+  shoalSystem.addShoal(1, 0.75f, 0.75f, redaddx, redaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75f, 1, 0.75f, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75f, 0.75f, 1, blueaddx, blueaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
 
-    bluefishes[i-1] = new Fish(
-    width / 2 + addx * 50 + blueaddx, 
-    height / 2 + addy * 50 + blueaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 0, 1, SPEED,
-    bluefishes);
+  ballSystem = new BallSystem();
 
-    greenfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + greenaddx, 
-    height / 2 + addy * 50 + greenaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 1, 0, SPEED,
-    greenfishes);
-  }
-
-  ballcount = BALLNUM;
-  balls[0] = new Ball(200, 200, 25, 25);
-  balls[1] = new Ball(400, 400, 25, 25);
-  balls[2] = new Ball(200, 400, 50, 50);
-  balls[3] = new Ball(400, 200, 50, 50);
-  balls[4] = new Ball(600, 200, 25, 50);
-  balls[5] = new Ball(600, 400, 50, 50);
-  balls[6] = new Ball(800, 200, 50, 50);
-  balls[7] = new Ball(800, 400, 25, 50);
+  setBallandSetAvoid(200, 180, 50);
+  setBallandSetAvoid(200, 380, 50);
+  setBallandSetAvoid(400, 180, 50);
+  setBallandSetAvoid(400, 380, 50);
+  setBallandSetAvoid(600, 180, 50);
+  setBallandSetAvoid(600, 380, 50);
+  setBallandSetAvoid(800, 180, 50);
+  setBallandSetAvoid(800, 380, 50);
 }
 
 //main draw
 public void draw()
 {
-  updateTUIO();
-  fluidSolver.update();
+  if (timecount >= 2*50)
+  {
+    timecount -= 2*50;
+  }
+  timecount++;
+  //println(timecount);
 
   background(0, 0, 0);
   image(img, 0, 0, 498*2, 282*2);
 
-  if (drawFluid) {
-    for (int i=0; i<fluidSolver.getNumCells(); i++) {
-      int d = 2;
-      imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
-    }  
-    imgFluid.updatePixels();//  fastblur(imgFluid, 2);
+  //Field interaction
+
+  //draw shoals
+  if (!noUpdate)
+  {
+    shoalSystem.Update();
+  }
+  shoalSystem.Draw();
+
+  //draw particles
+  if (!noUpdate)
+  {
+    fluidSolver.update();
+  }
+
+  if (drawFluid)
+  {
+    if (!noUpdate)
+    {
+      for (int i=0; i<fluidSolver.getNumCells(); i++)
+      {
+        int d = 1;
+        imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
+      }  
+
+      imgFluid.updatePixels();
+    }
     image(imgFluid, 0, 0, width, height);
   } 
 
   particleSystem.updateAndDraw();
 
-  for (int i = 0; i < NUMBER; i++)
+  //draw balls
+
+  //clear all Balls
+  clearBallandAvoid();
+
+  //TODO:update Ball x&y here   
+  setBallandSetAvoid(200+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
+  setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
+  setBallandSetAvoid(400-timecount*2, 380, timecount/2);
+  setBallandSetAvoid(600+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
+  setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
+  setBallandSetAvoid(800-timecount*2, 380, timecount/2);
+
+  if (DEBUG)
   {
-    redfishes[i].clearVector();
-    bluefishes[i].clearVector();
-    greenfishes[i].clearVector();
+    field.Draw();
   }
-
-  for (int i = 0; i < NUMBER; i++) 
+  else
   {
-    Fish fish = (Fish) redfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) bluefishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) greenfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-  }
-  for (int i = 0 ; i < ballcount ; i++)
-  {
-    Ball ball = (Ball) balls[i];
-    ball.draw();
+    ballSystem.draw();
   }
 }
 
-public void mouseMoved() {
+public void mouseMoved()
+{
   float mouseNormX = mouseX * invWidth;
   float mouseNormY = mouseY * invHeight;
   float mouseVelX = (mouseX - pmouseX) * invWidth;
   float mouseVelY = (mouseY - pmouseY) * invHeight;
 
-  addForce(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
+  addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
 }
 
-public void mousePressed() {
-  drawFluid ^= true;
+public void mousePressed()
+{
+  DEBUG^= true;
+  drawFluid^=true;
+  OutputStatus();
 }
 
-public void keyPressed() {
-  switch(key) {
+public void OutputStatus()
+{
+  if (DEBUG)
+  {
+    println("DEBUG MODE");
+  }
+  else
+  {
+    println("NORMAL MODE");
+  }
+}
+
+public void keyPressed()
+{
+  switch(key)
+  {
   case 'r': 
     renderUsingVA ^= true; 
     println("renderUsingVA: " + renderUsingVA);
     break;
+  case ' ':
+    noUpdate ^=true;
+    println("PAUSE/PLAY");
+    break;
   }
+  print("FRAMERATE: ");
   println(frameRate);
 }
 
+public void clearBallandAvoid()
+{
+  ballSystem.clearBall();
+  shoalSystem.clearAvoidEllipseObject();
+}
+
+public void setBallandSetAvoid(int x, int y, int R)
+{
+  ballSystem.addBall(x, y, R, R, BALLRINGS);
+  shoalSystem.addEllipseObject(x, y, R);
+}
 
 
 // add force and dye to fluid, and create particles
-public void addForce(float x, float y, float dx, float dy) {
+public void addForceToFluid(float x, float y, float dx, float dy) {
   float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
 
   if (speed > 0) {
@@ -268,38 +339,33 @@ public void addForce(float x, float y, float dx, float dy) {
   }
 }
 
-
 class Ball
 {
   int x;
   int y;
   int R;
   int realr;
-  int timecount;
+
+  int RINGNUM;
 
   //Construct
-  Ball(int _x, int _y, int _realr, int _R)
+  Ball(int _x, int _y, int _realr, int _R, int _RINGNUM)
   {
     x = _x;
     y = _y;
     realr = _realr;
     R = _R;
-    timecount = 0;
+    RINGNUM = _RINGNUM;
+
   }
 
   public void draw()
   {
-    if (timecount >= 2*R)
-    {
-      timecount -= 2*R;
-    }
-
-    timecount++;
-
     stroke(255, 255, 255);
     fill(255, 255, 255);
     ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);
     noFill();
+
     for (int i=0;i<RINGNUM;i++)
     {
       int tempring = timecount + i*(4*R/RINGNUM);
@@ -316,10 +382,96 @@ class Ball
     }
   }
 }
-int CENTER_PULL_FACTOR = 300;
+class BallSystem
+{
+  ArrayList balls;
+
+  BallSystem()
+  {
+    balls = new ArrayList();
+    return;
+  }
+  public void addBall(int _x, int _y, int _realr, int _R, int _RINGNUM)
+  {
+    Ball ball = new Ball(_x, _y, _realr, _R, _RINGNUM);
+    balls.add(ball);
+  }
+  
+  public void clearBall()
+  {
+    balls.clear();
+  }
+  public void draw()
+  {
+    Iterator iter = balls.iterator();
+    while(iter.hasNext())
+    {
+      Ball ball = (Ball)iter.next();
+      ball.draw();
+    }
+  }
+}
+class EllipseObject
+{
+  int x;
+  int y;
+  int R;
+  int ID;
+
+  EllipseObject(int _x, int _y, int _R)
+  {
+    x = _x;
+    y = _y;
+    R = _R;
+    //ID = hogefuga;
+  }
+
+  public void draw()
+  {
+    if (DEBUG)
+    {
+      ellipse(x, y, R*2, R*2);
+      text("object", x, y);
+      text("x:", x, y+15);
+      text(x, x+30, y+15);
+      text("y:", x, y+30);
+      text(y, x+30, y+30);
+      text("R:", x, y+45);
+      text(R, x+30, y+45);
+    }
+  }
+}
+
+class Field
+{
+  ArrayList AreaPoints;
+
+  Field(PVector p1, PVector p2, PVector p3, PVector p4)
+  {
+    AreaPoints = new ArrayList();
+    AreaPoints.add(p1);
+    AreaPoints.add(p2);
+    AreaPoints.add(p3);
+    AreaPoints.add(p4);
+  }
+  public void Draw()
+  {
+    Iterator iter = AreaPoints.iterator();
+    PVector v_start = (PVector) iter.next();
+    PVector v1 = v_start;
+    while (iter.hasNext ())
+    {
+      PVector v2 = (PVector)iter.next();
+      line(v1.x,v1.y,v2.x,v2.y);
+      v1=v2;
+    }
+    line(v1.x,v1.y,v_start.x,v_start.y);
+  }
+}
 
 class Fish
 {
+
   float speed;
   float r, g, b;
   float x, y;   //location of fish
@@ -328,32 +480,61 @@ class Fish
   PVector v2 = new PVector();  //for param2
   PVector v3 = new PVector();  //for param3
   PVector v4 = new PVector();  //for param4
+  PVector v5 = new PVector();  //for p
 
   int id;
-  Fish[] others;
+  // Fish[] others;
 
   //constructor
   Fish(float _x, float _y, 
   float _vx, float _vy, 
   int _id, 
-  float _r, float _g, float _b,float _speed, 
-  Fish[] _others) 
+  float _r, float _g, float _b, 
+  float _speed)
+    //Fish[] _others
   {
     x = _x;
     y = _y;
     vx = _vx;
     vy = _vy;
     id = _id;
-    others = _others;
+    //others = _others;
+
     r=_r;
     g=_g;
     b=_b;
     speed = _speed;
+    return;
   }
 
-  public void move() {
-    vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x;
-    vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y;
+  public void move()
+  {
+    vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x + r5 * v5.x;
+    vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y + r5 * v5.y;
+
+/*
+    print(" r1*v1.x:");    
+    print(r1*v1.x);
+    print(" r1*v1.y:");    
+    print(r1*v1.y); 
+    print(" r2*v2.x:");    
+    print(r2*v2.x);
+    print(" r2*v2.y:");    
+    print(r2*v2.y); 
+    print(" r3*v3.x:");    
+    print(r3*v3.x);
+    print(" r3*v3.y:");    
+    print(r3*v3.y); 
+
+    print(" r4*v4.x:");      
+    print(r5*v5.x);
+    print(" r4*v4.y:");      
+    println(r5*v5.y);
+    print(" r5*v5.x:");      
+    print(r5*v5.x);
+    print(" r5*v5.y:");      
+    println(r5*v5.y);
+*/
 
     //max speed check 
     float vVector = sqrt(vx * vx + vy * vy);
@@ -427,90 +608,27 @@ class Fish
     v3.y = 0;
     v4.x = 0;
     v4.y = 0;
-  }
-
-  //check rules
-  public void check() 
-  {
-    rule1();
-    rule2();
-    rule3();
-    rule4();
-  }
-
-  //calc param1
-  public void rule1()
-  {
-    for (int i = 0; i < NUMBER; i++) 
-    {
-      Fish otherfish = (Fish) others[i];
-      if (this != otherfish) 
-      {
-        v1.x += otherfish.x;
-        v1.y += otherfish.y;
-      } // end if
-    } // end for
-
-    v1.x /= (NUMBER - 1);
-    v1.y /= (NUMBER - 1);
-
-    v1.x = (v1.x - x) / CENTER_PULL_FACTOR;
-    v1.y = (v1.y - y) / CENTER_PULL_FACTOR;
-  }//end rule1
-
-
-  // calc param2
-  public void rule2()
-  {
-    for (int i = 0; i < NUMBER; i++) 
-    {
-      Fish otherfish = (Fish) others[i];
-      if (this != otherfish)
-      {
-        if (dist(x, y, otherfish.x, otherfish.y) < DIST_THRESHOLD)
-        {
-          v2.x -= otherfish.x - x;
-          v2.y -= otherfish.y - y;
-        } // end if
-      } // end if
-    }
-  }// end rule2
-
-  // calc param3
-  public void rule3()
-  {
-    for (int i = 0; i < NUMBER; i++)
-    {
-      Fish otherfish = (Fish) others[i];
-      if (this != otherfish)
-      {
-        v3.x += otherfish.vx;
-        v3.y += otherfish.vy;
-      } // end if
-    } // end for
-
-    v3.x /= (NUMBER - 1);
-    v3.y /= (NUMBER - 1);
-
-    v3.x = (v3.x - vx)/2;
-    v3.y = (v3.y - vy)/2;
-  }// end rule3
-
-  //calc param4
-  public void rule4()
-  {
-    for ( int j = 0;j < BALLNUM ; j++)
-    {
-      if (sq(balls[j].x - x) + sq(balls[j].y - y) < sq(balls[j].R))
-      {
-        v4.x += (x - balls[j].x);
-        v4.y += (y - balls[j].y);
-      }
-    }
+    v5.x = 0;
+    v5.y = 0;
+    //println("clearvector");
   }
 }
 
+class ObjectSystem
+{
+  ArrayList Objects;
+  ObjectSystem()
+  {
+    Objects = new ArrayList();
+  }
+  public int addEllipseObject()
+  {
+    //return ID of the created object
+    //return Objects.add(EllipseObject());
+    return 0;
+  }
 
+}
 /***********************************************************************
  
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
@@ -540,99 +658,97 @@ class Fish
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE. 
  *
- * ***********************************************************************/ 
+ * ***********************************************************************/
 
 class Particle {
-    final static float MOMENTUM = 0.5f;
-    final static float FLUID_FORCE = 0.6f;
+  final static float MOMENTUM = 0.5f;
+  final static float FLUID_FORCE = 0.6f;
 
-    float x, y;
-    float vx, vy;
-    float radius;       // particle's size
-    float alpha;
-    float mass;
+  float x, y;
+  float vx, vy;
+  float radius;       // particle's size
+  float alpha;
+  float mass;
 
-    public void init(float x, float y) {
-        this.x = x;
-        this.y = y;
-        vx = 0;
-        vy = 0;
-        radius = 5;
-        alpha  = random(0.3f, 1);
-        mass = random(0.1f, 1);
+  public void init(float x, float y) {
+    this.x = x;
+    this.y = y;
+    vx = 0;
+    vy = 0;
+    radius = 5;
+    alpha  = random(0.3f, 1);
+    mass = random(0.1f, 1);
+  }
+
+
+  public void update()
+  {
+    // only update if particle is visible
+    if (alpha == 0) return;
+
+    // read fluid info and add to velocity
+    int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x * invWidth, y * invHeight);
+    vx = fluidSolver.u[fluidIndex] * width * mass * FLUID_FORCE + vx * MOMENTUM;
+    vy = fluidSolver.v[fluidIndex] * height * mass * FLUID_FORCE + vy * MOMENTUM;
+
+    // update position
+    x += vx;
+    y += vy;
+
+    // bounce of edges
+    if (x<0) {
+      x = 0;
+      vx *= -1;
+    }
+    else if (x > width) {
+      x = width;
+      vx *= -1;
     }
 
-
-    public void update() {
-        // only update if particle is visible
-        if(alpha == 0) return;
-
-        // read fluid info and add to velocity
-        int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x * invWidth, y * invHeight);
-        vx = fluidSolver.u[fluidIndex] * width * mass * FLUID_FORCE + vx * MOMENTUM;
-        vy = fluidSolver.v[fluidIndex] * height * mass * FLUID_FORCE + vy * MOMENTUM;
-
-        // update position
-        x += vx;
-        y += vy;
-
-        // bounce of edges
-        if(x<0) {
-            x = 0;
-            vx *= -1;
-        }
-        else if(x > width) {
-            x = width;
-            vx *= -1;
-        }
-
-        if(y<0) {
-            y = 0;
-            vy *= -1;
-        }
-        else if(y > height) {
-            y = height;
-            vy *= -1;
-        }
-
-        // hackish way to make particles glitter when the slow down a lot
-        if(vx * vx + vy * vy < 1) {
-            vx = random(-1, 1);
-            vy = random(-1, 1);
-        }
-
-        // fade out a bit (and kill if alpha == 0);
-        alpha *= 0.999f;
-        if(alpha < 0.01f) alpha = 0;
-
+    if (y<0) {
+      y = 0;
+      vy *= -1;
+    }
+    else if (y > height) {
+      y = height;
+      vy *= -1;
     }
 
-
-    public void updateVertexArrays(int i, FloatBuffer posBuffer, FloatBuffer colBuffer) {
-        int vi = i * 4;
-        posBuffer.put(vi++, x - vx);
-        posBuffer.put(vi++, y - vy);
-        posBuffer.put(vi++, x);
-        posBuffer.put(vi++, y);
-
-        int ci = i * 6;
-        colBuffer.put(ci++, alpha);
-        colBuffer.put(ci++, alpha);
-        colBuffer.put(ci++, alpha);
-        colBuffer.put(ci++, alpha);
-        colBuffer.put(ci++, alpha);
-        colBuffer.put(ci++, alpha);
+    // hackish way to make particles glitter when the slow down a lot
+    if (vx * vx + vy * vy < 1) {
+      vx = random(-1, 1);
+      vy = random(-1, 1);
     }
 
+    // fade out a bit (and kill if alpha == 0);
+    alpha *= 0.999f;
+    if (alpha < 0.01f) alpha = 0;
+  }
 
-    public void drawOldSchool(GL gl) {
-        gl.glColor3f(alpha, alpha, alpha);
-        gl.glVertex2f(x-vx, y-vy);
-        gl.glVertex2f(x, y);
-    }
 
+  public void updateVertexArrays(int i, FloatBuffer posBuffer, FloatBuffer colBuffer) {
+    int vi = i * 4;
+    posBuffer.put(vi++, x - vx);
+    posBuffer.put(vi++, y - vy);
+    posBuffer.put(vi++, x);
+    posBuffer.put(vi++, y);
+
+    int ci = i * 6;
+    colBuffer.put(ci++, alpha);
+    colBuffer.put(ci++, alpha);
+    colBuffer.put(ci++, alpha);
+    colBuffer.put(ci++, alpha);
+    colBuffer.put(ci++, alpha);
+    colBuffer.put(ci++, alpha);
+  }
+
+
+  public void drawOldSchool(GL gl) {
+    gl.glColor3f(alpha, alpha, alpha);
+    gl.glVertex2f(x-vx, y-vy);
+    gl.glVertex2f(x, y);
+  }
 }
-
 
 
 
@@ -669,7 +785,7 @@ class Particle {
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE. 
  *
- * ***********************************************************************/ 
+ * ***********************************************************************/
 
 
 
@@ -677,137 +793,391 @@ class Particle {
 boolean renderUsingVA = true;
 
 public void fadeToColor(GL gl, float r, float g, float b, float speed) {
-    gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-    gl.glColor4f(r, g, b, speed);
-    gl.glBegin(GL.GL_QUADS);
-    gl.glVertex2f(0, 0);
-    gl.glVertex2f(width, 0);
-    gl.glVertex2f(width, height);
-    gl.glVertex2f(0, height);
-    gl.glEnd();
+  gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+  gl.glColor4f(r, g, b, speed);
+  gl.glBegin(GL.GL_QUADS);
+  gl.glVertex2f(0, 0);
+  gl.glVertex2f(width, 0);
+  gl.glVertex2f(width, height);
+  gl.glVertex2f(0, height);
+  gl.glEnd();
 }
 
 
 class ParticleSystem {
-    FloatBuffer posArray;
-    FloatBuffer colArray;
+  FloatBuffer posArray;
+  FloatBuffer colArray;
 
-    final static int maxParticles = 5000;
-    int curIndex;
+  final static int maxParticles = 5000;
+  int curIndex;
 
-    Particle[] particles;
+  Particle[] particles;
 
-    ParticleSystem() {
-        particles = new Particle[maxParticles];
-        for(int i=0; i<maxParticles; i++) particles[i] = new Particle();
-        curIndex = 0;
+  ParticleSystem() {
+    particles = new Particle[maxParticles];
+    for (int i=0; i<maxParticles; i++) particles[i] = new Particle();
+    curIndex = 0;
 
-        posArray = BufferUtil.newFloatBuffer(maxParticles * 2 * 2);// 2 coordinates per point, 2 points per particle (current and previous)
-        colArray = BufferUtil.newFloatBuffer(maxParticles * 3 * 2);
+    posArray = BufferUtil.newFloatBuffer(maxParticles * 2 * 2);// 2 coordinates per point, 2 points per particle (current and previous)
+    colArray = BufferUtil.newFloatBuffer(maxParticles * 3 * 2);
+  }
+
+
+  public void updateAndDraw() {
+    PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;         // processings opengl graphics object
+    GL gl = pgl.beginGL();                // JOGL's GL object
+
+    gl.glEnable( GL.GL_BLEND );             // enable blending
+    if (!drawFluid) fadeToColor(gl, 0, 0, 0, 0.05f);
+
+    gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);  // additive blending (ignore alpha)
+    gl.glEnable(GL.GL_LINE_SMOOTH);        // make points round
+    gl.glLineWidth(1);
+
+
+    if (renderUsingVA) {
+      for (int i=0; i<maxParticles; i++) {
+        if (particles[i].alpha > 0) {
+          particles[i].update();
+          particles[i].updateVertexArrays(i, posArray, colArray);
+        }
+      }    
+      gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+      gl.glVertexPointer(2, GL.GL_FLOAT, 0, posArray);
+
+      gl.glEnableClientState(GL.GL_COLOR_ARRAY);
+      gl.glColorPointer(3, GL.GL_FLOAT, 0, colArray);
+
+      gl.glDrawArrays(GL.GL_LINES, 0, maxParticles * 2);
+    } 
+    else {
+      gl.glBegin(GL.GL_LINES);               // start drawing points
+      for (int i=0; i<maxParticles; i++) {
+        if (particles[i].alpha > 0) {
+          particles[i].update();
+          particles[i].drawOldSchool(gl);    // use oldschool renderng
+        }
+      }
+      gl.glEnd();
     }
 
-
-    public void updateAndDraw(){
-        PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;         // processings opengl graphics object
-        GL gl = pgl.beginGL();                // JOGL's GL object
-
-        gl.glEnable( GL.GL_BLEND );             // enable blending
-        if(!drawFluid) fadeToColor(gl, 0, 0, 0, 0.05f);
-
-        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);  // additive blending (ignore alpha)
-        gl.glEnable(GL.GL_LINE_SMOOTH);        // make points round
-        gl.glLineWidth(1);
+    gl.glDisable(GL.GL_BLEND);
+    pgl.endGL();
+  }
 
 
-        if(renderUsingVA) {
-            for(int i=0; i<maxParticles; i++) {
-                if(particles[i].alpha > 0) {
-                    particles[i].update();
-                    particles[i].updateVertexArrays(i, posArray, colArray);
-                }
-            }    
-            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
-            gl.glVertexPointer(2, GL.GL_FLOAT, 0, posArray);
+  public void addParticles(float x, float y, int count ) {
+    for (int i=0; i<count; i++) addParticle(x + random(-15, 15), y + random(-15, 15));
+  }
 
-            gl.glEnableClientState(GL.GL_COLOR_ARRAY);
-            gl.glColorPointer(3, GL.GL_FLOAT, 0, colArray);
 
-            gl.glDrawArrays(GL.GL_LINES, 0, maxParticles * 2);
-        } 
-        else {
-            gl.glBegin(GL.GL_LINES);               // start drawing points
-            for(int i=0; i<maxParticles; i++) {
-                if(particles[i].alpha > 0) {
-                    particles[i].update();
-                    particles[i].drawOldSchool(gl);    // use oldschool renderng
-                }
-            }
-            gl.glEnd();
+  public void addParticle(float x, float y) {
+    particles[curIndex].init(x, y);
+    curIndex++;
+    if (curIndex >= maxParticles) curIndex = 0;
+  }
+}
+
+
+
+
+
+
+class Shoal
+{
+  ArrayList fishes;
+  float x, y;
+  float vx, vy;
+  int CENTER_PULL_FACTOR;
+  int DIST_THRESHOLD;
+
+  Shoal()
+  {
+    fishes = new ArrayList();
+    x=0;
+    y=0;
+    vx=0;
+    vy=0;
+
+    CENTER_PULL_FACTOR = 300;
+    DIST_THRESHOLD = 30;
+    return;
+  }
+
+  public void add(Fish _fish)
+  {
+    fishes.add(_fish);
+  }
+
+
+  public int size()
+  {
+    return fishes.size();
+  }
+
+  //calc param1
+  public Fish shoalrules(Fish fish_i)
+  {
+    Iterator iter_j = fishes.iterator();
+    while (iter_j.hasNext ())
+    {
+      Fish fish_j = (Fish)iter_j.next();
+      if (fish_i != fish_j) 
+      {
+        //rule1
+        fish_i.v1.x = fish_i.v1.x + fish_j.x;
+        fish_i.v1.y = fish_i.v1.y + fish_j.y;
+
+        //rule2
+        if (dist(fish_i.x, fish_i.y, fish_j.x, fish_j.y) < DIST_THRESHOLD)
+        {
+          fish_i.v2.x -= (fish_j.x - fish_i.x);
+          fish_i.v2.y -= (fish_j.y - fish_i.y);
         }
 
-        gl.glDisable(GL.GL_BLEND);
-        pgl.endGL();
+        //rule3         
+        fish_i.v3.x += fish_j.vx;
+        fish_i.v3.y += fish_j.vy;
+      }
+    }    
+
+    //rule1
+    fish_i.v1.x = ( fish_i.v1.x / (fishes.size() - 1)); 
+    fish_i.v1.y = ( fish_i.v1.y / (fishes.size() - 1));
+
+    fish_i.v1.x = (fish_i.v1.x - fish_i.x) / CENTER_PULL_FACTOR;
+    fish_i.v1.y = (fish_i.v1.y - fish_i.y) / CENTER_PULL_FACTOR;
+
+    //rule2 none
+
+    //rule3
+    fish_i.v3.x /= (fishes.size() - 1);
+    fish_i.v3.y /= (fishes.size() - 1);
+
+    fish_i.v3.x = (fish_i.v3.x - fish_i.vx)/2;
+    fish_i.v3.y = (fish_i.v3.y - fish_i.vy)/2;
+
+    return fish_i;
+  }//end shoalrules
+
+  public void clearVector()
+  {  
+    Iterator iter = fishes.iterator();
+
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();
+      fish.clearVector();
+    }
+  }
+  public void update()
+  {
+    x=0;
+    y=0;
+    vx=0;
+    vy=0;
+
+    Iterator iter = fishes.iterator();
+
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();
+
+      x = x + fish.x;
+      y = y + fish.y;
+
+      shoalrules(fish);
+      //rule4
+
+      fish.move();
+
+      vx = vx + fish.vx;
+      vy = vy + fish.vy;
+
+      addForceToFluid(fish.x/width, fish.y/height, -fish.vx/FISHFORCE, -fish.vy/FISHFORCE);
+    }
+    x = x / fishes.size();
+    y = y / fishes.size();
+
+    vx = vx / fishes.size();
+    vy = vy / fishes.size();
+
+    return;
+  }
+
+  public void addForce(float _vx, float _vy)
+  {
+    Iterator iter = fishes.iterator();
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();  
+      fish.v4.x = fish.v4.x + _vx;
+      fish.v4.y = fish.v4.y + _vy;
+      /*
+      print("addforce vx:");
+      print(vx);
+      print(" vy:");
+      println(vy);
+      */
+    }
+  }
+
+  public void draw()
+  {    
+    Iterator iter = fishes.iterator();
+    while (iter.hasNext ())
+    {
+      Fish fish = (Fish)iter.next();  
+      fish.draw();
     }
 
-
-    public void addParticles(float x, float y, int count ){
-        for(int i=0; i<count; i++) addParticle(x + random(-15, 15), y + random(-15, 15));
+    if (DEBUG)
+    {
+      noFill();
+      stroke(1, 1, 1);
+      ellipse(x, y, SHOALCOLISION, SHOALCOLISION);  
+      text("SHOAL", x+50, y+50);
+      text("x: ", x+50, y+50+15);
+      text(x, x+50+15, y+50+15);
+      text("y: ", x+50, y+50+30);
+      text(y, x+50+15, y+50+30);      
     }
-
-
-    public void addParticle(float x, float y) {
-        particles[curIndex].init(x, y);
-        curIndex++;
-        if(curIndex >= maxParticles) curIndex = 0;
-    }
-
+    return;
+  }
 }
 
+class ShoalSystem
+{
+  ArrayList shoals;
+  ArrayList avoidEllipseObject;
+  //construct
+  ShoalSystem()
+  {
+    shoals = new ArrayList();
+    avoidEllipseObject = new ArrayList();
+  }
+
+  public Shoal addShoal(
+  float _R, float _G, float _B, 
+  int _x, int _y, 
+  int _number, float speed)
+  {
+    Shoal shoal = new Shoal();
+
+    Fish[] fishes = new Fish[_number];
+    float angle = TWO_PI / _number;
+
+    for (int i = 1; i <= _number; i++)
+    {
+      float addx = cos(angle * i);
+      float addy = sin(angle * i);
+
+      Fish fishtemp = new Fish(
+      width / 2 + addx * 50 + _x, 
+      height / 2 + addy * 50 + _y, 
+      random(- speed, speed) * addx, 
+      random(- speed, speed) * addy, 
+      i - 1, 
+      _R, _G, _B, speed
+        );
+      shoal.add(fishtemp);
+    }
+
+    shoals.add(shoal);
+    return shoal;
+  }
+
+  public void addEllipseObject(int x, int y, int R)
+  {
+    EllipseObject obj = new EllipseObject(x, y, R);
+    avoidEllipseObject.add(obj);
+  }
+
+  public void clearAvoidEllipseObject()
+  {
+    avoidEllipseObject.clear();
+  }
+
+  public void Update()
+  { 
+    Iterator iter_i = shoals.iterator();  
+    while (iter_i.hasNext ())
+    {
+      Shoal shoal_i = (Shoal)iter_i.next();
+
+      shoal_i.clearVector();
+
+      Iterator iter_j = shoals.iterator();
+
+      while (iter_j.hasNext ())
+      {
+        Shoal shoal_j = (Shoal)iter_j.next();
+
+        if (shoal_i != shoal_j)
+        {
+          PVector force = new PVector();
+          force = AvoidEllipse(shoal_i.x, shoal_i.y, shoal_j.x, shoal_j.y, SHOALCOLISION);
+          shoal_i.addForce(force.x, force.y);
+        }
+      }
+
+      Iterator iter_f = (shoal_i.fishes).iterator();
+      while (iter_f.hasNext ())
+      {
+        Fish fish = (Fish)iter_f.next();
+        
+        Iterator iter_o = avoidEllipseObject.iterator();
+        PVector force = new PVector();
+        while (iter_o.hasNext ())
+        {
+          EllipseObject obj = (EllipseObject) iter_o.next();
+          force = AvoidEllipse(fish.x, fish.y, obj.x, obj.y, obj.R);
+          fish.v5.x = fish.v5.x + force.x;
+          fish.v5.y = fish.v5.y + force.y;
+        }       
+      }
+      shoal_i.update();
+
+    }
+
+    return;
+  }
 
 
+  public PVector AvoidEllipse(float _x, float _y, float _xb, float _yb, float R)
+  {
+    PVector v = new PVector();
+    v.x = 0;
+    v.y = 0;
 
+    if (sq(_x - _xb) + sq(_y - _yb) <sq(R))
+    {
+      if ((_x-_xb)!=0)
+      {
+        v.x = (_x-_xb)/abs(_x-_xb);
+      }
+      if ((_y-_yb)!=0)
+      {
+        v.y = (_y-_yb)/abs(_y-_yb);
+      }
+    }
+    return v;
+  }
 
-
-
-
-/***********************************************************************
- 
- Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
- *** The Mega Super Awesome Visuals Company ***
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of MSA Visuals nor the names of its contributors 
- *       may be used to endorse or promote products derived from this software
- *       without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
- * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE. 
- *
- * ***********************************************************************/ 
-
-public void initTUIO() {
-    // implemented in the TUIO example
-}
-
-
-public void updateTUIO() {
-    // implemented in the TUIO example
+  public void Draw()
+  {
+    Iterator iter_shoal = shoals.iterator();
+    while (iter_shoal.hasNext ())
+    {
+      Shoal shoal = (Shoal)iter_shoal.next();
+      shoal.draw();
+    }
+    Iterator iter = avoidEllipseObject.iterator();
+    while (iter.hasNext ())
+    {
+      ((EllipseObject)iter.next()).draw();
+    }
+  }
 }
 
   static public void main(String args[]) {

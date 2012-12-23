@@ -1,34 +1,82 @@
+/***********************************************************************
+ 
+ Copyright (c) takashyx 2012. ( http:/takashyx.com )
+ * All rights reserved.
+ 
+ For the Particle System MSAFluid
+ Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of MSA Visuals nor the names of its contributors 
+ *       may be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS 
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ * ***********************************************************************/
+
 import msafluid.*;
 
+//OpenGL
 import processing.opengl.*;
 import javax.media.opengl.*;
 
-final float FLUID_WIDTH = 50;
+//Field
+Field field;
 
+//Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
 
+//Fluid and Particle
 MSAFluidSolver2D fluidSolver;
-
 ParticleSystem particleSystem;
 
 PImage imgFluid;
 boolean drawFluid = true;
+boolean DEBUG = false;
+boolean noUpdate = false;
+final float FLUID_WIDTH = 120;
 
+//Fish config
 float SPEED = 5;
 float R = 4;       
-int NUMBER = 20;   // number of fishes
-int BALLNUM = 8;
-int RINGNUM = 15;
+int NUMBER = 10;   // number of fishes
+int FISHFORCE = 2000;
 
-Fish[] redfishes = new Fish[NUMBER];
-Fish[] bluefishes = new Fish[NUMBER];
-Fish[] greenfishes = new Fish[NUMBER];
+//Ball config
+int BALLNUM = 8;
+int BALLRINGS = 8;
+
+//Shoal system
+ShoalSystem shoalSystem;
+BallSystem ballSystem;
+
+float SHOALCOLISION = 100;
+
+int timecount;
 
 float r1 = 1.0;   //param: shoal gathering
 float r2 = 0.1; //  param: avoid conflict with other fishes in shoal 
 float r3 = 0.5; // param: along with other fish in shoal
-float r4 = 0.1;   //  param: avoid balls
+float r4 = 1;   //  param: avoid other shoal
+float r5 = 100;   //  param: avoid balls
 
 int redaddx = -100; //initial position of the red shoal
 int redaddy = 0;
@@ -36,15 +84,8 @@ int redaddy = 0;
 int blueaddx = 100; //initial position of the blue shoal
 int blueaddy = 0;
 
-int greenaddx = 0;
+int greenaddx = 0;  //initial position of the green shoal
 int greenaddy = 0;
-
-
-
-int DIST_THRESHOLD = 30;
-
-int ballcount = 0;
-Ball[] balls = new Ball[BALLNUM];
 
 // margin for billiard pool edge
 int wband = 80;
@@ -59,11 +100,19 @@ void setup()
   //282*2
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
-  //frameRate(30);
+  frameRate(30);
 
-  invWidth = 1.0f/width;
+  timecount = 0;
+  
+  PVector v1 = new PVector(0+wband,0+hband);
+  PVector v2 = new PVector(width-wband,0+hband);
+  PVector v3 = new PVector(width-wband,height-hband);
+  PVector v4 = new PVector(0+wband,height-hband);
+  field = new Field(v1,v2,v3,v4);
+
+  invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
-  aspectRatio = width * invHeight;
+  aspectRatio  = width * invHeight;
   aspectRatio2 = aspectRatio * aspectRatio;
 
   // create fluid and set options
@@ -76,140 +125,162 @@ void setup()
   // create particle system
   particleSystem = new ParticleSystem();
 
-  // init TUIO
-  initTUIO();
-
   stroke(255, 255, 255);
 
   img = loadImage("billiards.jpg");
   tint(255, 127);
 
-  float angle = TWO_PI / NUMBER;
-  for (int i = 1; i <= NUMBER; i++)
-  {
-    float addx = cos(angle * i);
-    float addy = sin(angle * i);
+  shoalSystem = new ShoalSystem();
 
-    redfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + redaddx, 
-    height / 2 + addy * 50 + redaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    1, 0, 0, SPEED,
-    redfishes);
+  shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
 
-    bluefishes[i-1] = new Fish(
-    width / 2 + addx * 50 + blueaddx, 
-    height / 2 + addy * 50 + blueaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 0, 1, SPEED,
-    bluefishes);
+  ballSystem = new BallSystem();
 
-    greenfishes[i-1] = new Fish(
-    width / 2 + addx * 50 + greenaddx, 
-    height / 2 + addy * 50 + greenaddy, 
-    random(- SPEED, SPEED) * addx, 
-    random(- SPEED, SPEED) * addy, 
-    i - 1, 
-    0, 1, 0, SPEED,
-    greenfishes);
-  }
-
-  ballcount = BALLNUM;
-  balls[0] = new Ball(200, 200, 25, 25);
-  balls[1] = new Ball(400, 400, 25, 25);
-  balls[2] = new Ball(200, 400, 50, 50);
-  balls[3] = new Ball(400, 200, 50, 50);
-  balls[4] = new Ball(600, 200, 25, 50);
-  balls[5] = new Ball(600, 400, 50, 50);
-  balls[6] = new Ball(800, 200, 50, 50);
-  balls[7] = new Ball(800, 400, 25, 50);
+  setBallandSetAvoid(200, 180, 50);
+  setBallandSetAvoid(200, 380, 50);
+  setBallandSetAvoid(400, 180, 50);
+  setBallandSetAvoid(400, 380, 50);
+  setBallandSetAvoid(600, 180, 50);
+  setBallandSetAvoid(600, 380, 50);
+  setBallandSetAvoid(800, 180, 50);
+  setBallandSetAvoid(800, 380, 50);
 }
 
 //main draw
 void draw()
 {
-  updateTUIO();
-  fluidSolver.update();
+  if (timecount >= 2*50)
+  {
+    timecount -= 2*50;
+  }
+  timecount++;
+  //println(timecount);
 
   background(0, 0, 0);
   image(img, 0, 0, 498*2, 282*2);
 
-  if (drawFluid) {
-    for (int i=0; i<fluidSolver.getNumCells(); i++) {
-      int d = 2;
-      imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
-    }  
-    imgFluid.updatePixels();//  fastblur(imgFluid, 2);
+  //Field interaction
+
+  //draw shoals
+  if (!noUpdate)
+  {
+    shoalSystem.Update();
+  }
+  shoalSystem.Draw();
+
+  //draw particles
+  if (!noUpdate)
+  {
+    fluidSolver.update();
+  }
+
+  if (drawFluid)
+  {
+    if (!noUpdate)
+    {
+      for (int i=0; i<fluidSolver.getNumCells(); i++)
+      {
+        int d = 1;
+        imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
+      }  
+
+      imgFluid.updatePixels();
+    }
     image(imgFluid, 0, 0, width, height);
   } 
 
   particleSystem.updateAndDraw();
 
-  for (int i = 0; i < NUMBER; i++)
+  //draw balls
+
+  //clear all Balls
+  clearBallandAvoid();
+
+  //TODO:update Ball x&y here   
+  setBallandSetAvoid(200+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
+  setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
+  setBallandSetAvoid(400-timecount*2, 380, timecount/2);
+  setBallandSetAvoid(600+timecount*2, 180, timecount/2);
+  setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
+  setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
+  setBallandSetAvoid(800-timecount*2, 380, timecount/2);
+
+  if (DEBUG)
   {
-    redfishes[i].clearVector();
-    bluefishes[i].clearVector();
-    greenfishes[i].clearVector();
+    field.Draw();
   }
-
-  for (int i = 0; i < NUMBER; i++) 
+  else
   {
-    Fish fish = (Fish) redfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) bluefishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-
-    fish = (Fish) greenfishes[i];
-    fish.check();
-    fish.move();
-    fish.draw();
-    addForce(fish.x/width, fish.y/height, -fish.vx/5000, -fish.vy/5000);
-  }
-  for (int i = 0 ; i < ballcount ; i++)
-  {
-    Ball ball = (Ball) balls[i];
-    ball.draw();
+    ballSystem.draw();
   }
 }
 
-void mouseMoved() {
+void mouseMoved()
+{
   float mouseNormX = mouseX * invWidth;
   float mouseNormY = mouseY * invHeight;
   float mouseVelX = (mouseX - pmouseX) * invWidth;
   float mouseVelY = (mouseY - pmouseY) * invHeight;
 
-  addForce(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
+  addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
 }
 
-void mousePressed() {
-  drawFluid ^= true;
+void mousePressed()
+{
+  DEBUG^= true;
+  drawFluid^=true;
+  OutputStatus();
 }
 
-void keyPressed() {
-  switch(key) {
+void OutputStatus()
+{
+  if (DEBUG)
+  {
+    println("DEBUG MODE");
+  }
+  else
+  {
+    println("NORMAL MODE");
+  }
+}
+
+void keyPressed()
+{
+  switch(key)
+  {
   case 'r': 
     renderUsingVA ^= true; 
     println("renderUsingVA: " + renderUsingVA);
     break;
+  case ' ':
+    noUpdate ^=true;
+    println("PAUSE/PLAY");
+    break;
   }
+  print("FRAMERATE: ");
   println(frameRate);
 }
 
+void clearBallandAvoid()
+{
+  ballSystem.clearBall();
+  shoalSystem.clearAvoidEllipseObject();
+}
+
+void setBallandSetAvoid(int x, int y, int R)
+{
+  ballSystem.addBall(x, y, R, R, BALLRINGS);
+  shoalSystem.addEllipseObject(x, y, R);
+}
 
 
 // add force and dye to fluid, and create particles
-void addForce(float x, float y, float dx, float dy) {
+void addForceToFluid(float x, float y, float dx, float dy) {
   float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
 
   if (speed > 0) {
