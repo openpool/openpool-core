@@ -31,7 +31,7 @@ class BackGroundDiff
     depth_width = kinect.depthWidth();
     depth_height =kinect.depthHeight();
 
-    depthImage = kinect.depthImage().get();
+    depthImage = kinect.depthImage();
     depthMap   = kinect.depthMap();
     opencv = new OpenCV();
     opencv.allocate(depth_width, depth_height);
@@ -42,9 +42,12 @@ class BackGroundDiff
 
   void update()
   {
+    
     kinect.update();
-    depthImage=kinect.depthImage().get();
-    //depthImage = retrieveDepthImage();
+ 
+    depthImage=kinect.depthImage();
+   
+   depthImage = retrieveDepthImage();
 
     // Calculate the diff image
     opencv.copy(depthImage);
@@ -57,18 +60,20 @@ class BackGroundDiff
 
     // Detect blobs
     opencv.copy(depthImage);
+    
     blobsArray = opencv.blobs(400, 1000, 20, false, 100);
+    
   }
   void rememberBackground()
   {
     println("remember background!!!");
-    opencv.copy(kinect.depthImage().get());
+    opencv.copy(kinect.depthImage());
     opencv.remember(); // Store in the first buffer.
   }
 
   PImage retrieveDepthImage()
   {
-    PImage depthImage = kinect.depthImage().get();
+    PImage depthImage = kinect.depthImage();
     int[] depthMap   = kinect.depthMap();
 
     // Assume depth errors are caused by the black ball
