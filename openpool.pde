@@ -41,8 +41,6 @@ import javax.media.opengl.*;
 //Field
 Field field;
 
-SimpleOpenNI kinect;
-
 //Particle fluid config
 float invWidth, invHeight;    // inverse of screen dimensions
 float aspectRatio, aspectRatio2;
@@ -68,6 +66,7 @@ int BALLNUM = 8;
 int BALLRINGS = 8;
 
 //backgrounddiff
+SimpleOpenNI kinect;
 BackGroundDiff bg;
 
 //Shoal system
@@ -107,21 +106,11 @@ void setup()
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
   frameRate(30);
-
-  kinect = new SimpleOpenNI(this);            // SimpleOpenNIの初期化
-  if ( kinect.openFileRecording("straight.oni") == false)
-  {
-    println("can't find recorded file !!!!");
-    exit();
-  }
-  kinect.enableDepth();                       // 距離画像有効化
-  //kinect.enableRGB();                         // カラー画像有効化
-  kinect.update();
   
   //backgrounddiff
-  bg = new BackGroundDiff(kinect.depthWidth(), kinect.depthHeight(),kinect.depthImage().get(),kinect.depthMap());
-  bg.rememberBackground(kinect.depthImage());
-
+  kinect = new SimpleOpenNI(this);
+  bg = new BackGroundDiff(kinect);
+ 
   timecount = 0;
 
   PVector v1 = new PVector(0+wband, 0+hband);
@@ -173,8 +162,7 @@ void setup()
 //main draw
 void draw()
 {
-  kinect.update();
-  bg.update(kinect.depthImage(),kinect.depthMap());
+  bg.update();
   
   if (timecount >= 2*50)
   {

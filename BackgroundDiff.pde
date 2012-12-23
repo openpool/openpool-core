@@ -1,7 +1,11 @@
 import monclubelec.javacvPro.*;
+import SimpleOpenNI.*;
+
 class BackGroundDiff
 {
   // OpenCV
+  SimpleOpenNI kinect;
+  
   OpenCV opencv;
   Blob[] blobsArray = null;
   float threshold = 0.2;
@@ -10,24 +14,36 @@ class BackGroundDiff
   int depth_width;
   int depth_height;
 
-  BackGroundDiff(int _depth_width, int _depth_height, PImage _depthImage, int[] _depthMap)
+  BackGroundDiff(SimpleOpenNI _kinect)
   {
-    depth_width = _depth_width;
-    depth_height = _depth_height;
+    
+  kinect = _kinect;            // SimpleOpenNIの初期化
+  
+  if ( kinect.openFileRecording("straight.oni") == false)
+  {
+    println("can't find recorded file !!!!");
+    exit();
+  }
+  kinect.enableDepth();                       // 距離画像有効化
+  //kinect.enableRGB();                         // カラー画像有効化
+  kinect.update();
+  
+    depth_width = kinect.depthWidth();
+    depth_height =kinect.depthHeight();
 
-    depthImage = _depthImage;
-    depthMap   = _depthMap;
+    depthImage = kinect.depthImage().get();
+    depthMap   = kinect.depthMap();
     opencv = new OpenCV();
-    opencv.allocate(_depth_width, _depth_height);
-    rememberBackground(_depthImage);
+    opencv.allocate(depth_width, depth_height);
+    rememberBackground(depthImage);
 
-    update(_depthImage, _depthMap);
+    update();
   }
 
-  void update(PImage _depthImage, int[] _depthMap)
+  void update()
   {
-    depthImage = _depthImage.get();
-    depthMap   = _depthMap;
+    depthImage = kinect.depthImage().get();
+    depthMap   = kinect.depthMap();
 
     // Update the camera image
     PImage depthImage = retrieveDepthImage();
@@ -116,7 +132,7 @@ class BackGroundDiff
   void draw()
   {
     opencv.copy(depthImage);
-    blobsArray = opencv.blobs(25, 2000, 20, false, 100);
+    blobsArray = opencv.blobs(opencv.area()/1024, opencv.area()/100, 20, false, 100,false);
 
     java.awt.Point point = new java.awt.Point();
     for(Blob blob:blobsArray)
