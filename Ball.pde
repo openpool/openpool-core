@@ -1,7 +1,5 @@
 class Ball
 {
-  int id;
-  
   int x;
   int y;
   int vx;
