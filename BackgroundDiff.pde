@@ -44,19 +44,19 @@ class BackGroundDiff
   {
     
     kinect.update();
- 
     depthImage=kinect.depthImage();
-   
-   depthImage = retrieveDepthImage();
+    depthImage = retrieveDepthImage();
+
 
     // Calculate the diff image
     opencv.copy(depthImage);
+
     opencv.absDiff(); // result stored in the secondary memory.
     opencv.restore2(); // restore the secondary memory data to the main buffer
     opencv.blur(3);
     opencv.threshold(threshold, "BINARY");
     depthImage = opencv.getBuffer();
-    depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
+    //depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
 
     // Detect blobs
     opencv.copy(depthImage);
@@ -64,6 +64,7 @@ class BackGroundDiff
     blobsArray = opencv.blobs(400, 1000, 20, false, 100);
     
   }
+  
   void rememberBackground()
   {
     println("remember background!!!");

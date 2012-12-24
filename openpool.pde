@@ -1,9 +1,12 @@
 /***********************************************************************
  
- Copyright (c) takashyx 2012. ( http:/takashyx.com )
+ Copyright (c) takashyx 2012. ( http://takashyx.com )
  * All rights reserved.
  
- For the Particle System MSAFluid
+ This work is licensed under a Creative Commons Attribution-ShareAlike
+ 3.0 Unported License.(http://creativecommons.org/licenses/by-sa/3.0/)
+
+ For the Particle System MSAFluid:
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
  *
  * Redistribution and use in source and binary forms, with or without
