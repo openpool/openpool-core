@@ -5,7 +5,7 @@ class BackGroundDiff
 {
   // OpenCV
   SimpleOpenNI kinect;
-  
+
   OpenCV opencv;
   Blob[] blobsArray = null;
   float threshold = 0.1;
@@ -16,18 +16,18 @@ class BackGroundDiff
 
   BackGroundDiff(SimpleOpenNI _kinect)
   {
-    
-  kinect = _kinect;           // SimpleOpenNIの初期化
-  
-  if ( kinect.openFileRecording("straight.oni") == false)
-  {
-    println("can't find recorded file !!!!");
-    exit();
-  }
-  kinect.enableDepth();                       // 距離画像有効化
-  //kinect.enableRGB();                         // カラー画像有効化
-  kinect.update();
-  
+
+    kinect = _kinect;           // SimpleOpenNIの初期化
+
+    if ( kinect.openFileRecording("straight.oni") == false)
+    {
+      println("can't find recorded file !!!!");
+      exit();
+    }
+    kinect.enableDepth();                       // 距離画像有効化
+    //kinect.enableRGB();                         // カラー画像有効化
+    kinect.update();
+
     depth_width = kinect.depthWidth();
     depth_height =kinect.depthHeight();
 
@@ -41,30 +41,26 @@ class BackGroundDiff
   }
 
   void update()
-  {
-    
+  {    
     kinect.update();
-    depthImage=kinect.depthImage();
-    depthImage = retrieveDepthImage();
-
+    depthImage = kinect.depthImage();
+    //depthImage = retrieveDepthImage();
 
     // Calculate the diff image
     opencv.copy(depthImage);
 
     opencv.absDiff(); // result stored in the secondary memory.
     opencv.restore2(); // restore the secondary memory data to the main buffer
-    opencv.blur(3);
+    //opencv.blur(5);
     opencv.threshold(threshold, "BINARY");
     depthImage = opencv.getBuffer();
-    //depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
+    depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
 
     // Detect blobs
     opencv.copy(depthImage);
-    
-    blobsArray = opencv.blobs(400, 1000, 20, false, 100);
-    
+    blobsArray = opencv.blobs(350, 700, 15, false, 100);
   }
-  
+
   void rememberBackground()
   {
     println("remember background!!!");
@@ -79,9 +75,12 @@ class BackGroundDiff
 
     // Assume depth errors are caused by the black ball
     color white = color(255);
-    for (int x = 0; x < depth_width; x ++) {
-      for (int y = 0; y < depth_height; y ++) {
-        if (depthMap[x + y * depth_width] <= 0) {
+    for (int x = 0; x < depth_width; x ++)
+    {
+      for (int y = 0; y < depth_height; y ++)
+      {
+        if (depthMap[x + y * depth_width] <= 0)
+        {
           depthImage.set(x, y, white);
         }
       }
@@ -139,18 +138,22 @@ class BackGroundDiff
 
   Blob[] draw()
   {
-    java.awt.Point point = new java.awt.Point();
-    java.awt.Rectangle bounding_rect = new java.awt.Rectangle();
-    for(Blob blob:blobsArray)
+    if (DEBUG)
     {
-      point = blob.centroid;
-      bounding_rect = blob.rectangle;
- 
-      //ellipse(point.x,point.y,10,10);
-      rect( bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height );
+      java.awt.Point point = new java.awt.Point();
+      java.awt.Rectangle bounding_rect = new java.awt.Rectangle();
+      for (Blob blob:blobsArray)
+      {
+        point = blob.centroid;
+        bounding_rect = blob.rectangle;
 
+        //ellipse(point.x,point.y,10,10);
+        rect( bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height );
+        text( str(blob.area), point.x, point.y-10);
+      }
+
+      image(depthImage, width-depthImage.width/2, 0, depthImage.width/2, depthImage.height/2);
     }
-    image(depthImage,width-depthImage.width/2,0,depthImage.width/2,depthImage.height/2);
     return blobsArray;
   }
 }
