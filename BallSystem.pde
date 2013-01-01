@@ -1,9 +1,10 @@
 class BallSystem
 {
   ArrayList balls;
-
+  
   BallSystem()
   {
+    int i=0;
     balls = new ArrayList();
     return;
   }
@@ -15,6 +16,7 @@ class BallSystem
   
   void clearBall()
   {
+    int id =0;
     balls.clear();
   }
   void draw()

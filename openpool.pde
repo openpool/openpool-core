@@ -1,9 +1,12 @@
 /***********************************************************************
  
- Copyright (c) takashyx 2012. ( http:/takashyx.com )
+ Copyright (c) takashyx 2012. ( http://takashyx.com )
  * All rights reserved.
  
- For the Particle System MSAFluid
+ This work is licensed under a Creative Commons Attribution-ShareAlike
+ 3.0 Unported License.(http://creativecommons.org/licenses/by-sa/3.0/)
+ 
+ For the Particle System MSAFluid:
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +35,7 @@
  * ***********************************************************************/
 
 import msafluid.*;
+import SimpleOpenNI.*;
 
 //OpenGL
 import processing.opengl.*;
@@ -63,6 +67,11 @@ int FISHFORCE = 2000;
 //Ball config
 int BALLNUM = 8;
 int BALLRINGS = 8;
+
+//backgrounddiff
+SimpleOpenNI kinect;
+BackGroundDiff bg;
+Blob[] blobs;
 
 //Shoal system
 ShoalSystem shoalSystem;
@@ -100,15 +109,19 @@ void setup()
   //282*2
   size(996, 564, OPENGL);
   hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
-  frameRate(30);
+  //frameRate(30);
+
+  //backgrounddiff
+  kinect = new SimpleOpenNI(this);
+  bg = new BackGroundDiff(kinect);
 
   timecount = 0;
-  
-  PVector v1 = new PVector(0+wband,0+hband);
-  PVector v2 = new PVector(width-wband,0+hband);
-  PVector v3 = new PVector(width-wband,height-hband);
-  PVector v4 = new PVector(0+wband,height-hband);
-  field = new Field(v1,v2,v3,v4);
+
+  PVector v1 = new PVector(0+wband, 0+hband);
+  PVector v2 = new PVector(width-wband, 0+hband);
+  PVector v3 = new PVector(width-wband, height-hband);
+  PVector v4 = new PVector(0+wband, height-hband);
+  field = new Field(v1, v2, v3, v4);
 
   invWidth  = 1.0f/width;
   invHeight = 1.0f/height;
@@ -153,6 +166,8 @@ void setup()
 //main draw
 void draw()
 {
+  bg.update();
+
   if (timecount >= 2*50)
   {
     timecount -= 2*50;
@@ -160,9 +175,11 @@ void draw()
   timecount++;
   //println(timecount);
 
-  background(0, 0, 0);
-  image(img, 0, 0, 498*2, 282*2);
-
+  background(0);
+  if (DEBUG)
+  {
+    image(img, 0, 0, 498*2, 282*2);
+  }
   //Field interaction
 
   //draw shoals
@@ -193,23 +210,32 @@ void draw()
     image(imgFluid, 0, 0, width, height);
   } 
 
+  blobs = bg.draw();
+  //draw balls
+
   particleSystem.updateAndDraw();
 
-  //draw balls
 
   //clear all Balls
   clearBallandAvoid();
 
-  //TODO:update Ball x&y here   
-  setBallandSetAvoid(200+timecount*2, 180, timecount/2);
-  setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
-  setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
-  setBallandSetAvoid(400-timecount*2, 380, timecount/2);
-  setBallandSetAvoid(600+timecount*2, 180, timecount/2);
-  setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
-  setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
-  setBallandSetAvoid(800-timecount*2, 380, timecount/2);
+  for (Blob blob:blobs)
+  {
+    setBallandSetAvoid(blob.centroid.x, blob.centroid.y, 30);
+  }
 
+
+  //TODO:update Ball x&y here
+  /*  
+   setBallandSetAvoid(200+timecount*2, 180, timecount/2);
+   setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
+   setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
+   setBallandSetAvoid(400-timecount*2, 380, timecount/2);
+   setBallandSetAvoid(600+timecount*2, 180, timecount/2);
+   setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
+   setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
+   setBallandSetAvoid(800-timecount*2, 380, timecount/2);
+   */
   if (DEBUG)
   {
     field.Draw();
@@ -253,6 +279,9 @@ void keyPressed()
 {
   switch(key)
   {
+  case'b':
+    bg.rememberBackground();
+    break;
   case 'r': 
     renderUsingVA ^= true; 
     println("renderUsingVA: " + renderUsingVA);
