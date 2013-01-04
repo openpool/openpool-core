@@ -1,5 +1,6 @@
 import monclubelec.javacvPro.*;
 import SimpleOpenNI.*;
+import java.awt.*;
 
 class BackGroundDiff
 {
@@ -8,16 +9,27 @@ class BackGroundDiff
 
   OpenCV opencv;
   Blob[] blobsArray = null;
+  ArrayList Points;
   float threshold = 0.1;
   PImage depthImage;
   int[] depthMap;
   int depth_width;
   int depth_height;
 
+  int   pos[][] = {
+    {
+      0, 0
+    }
+    , {
+      400, 300
+    }
+  };
+
   BackGroundDiff(SimpleOpenNI _kinect)
   {
-
     kinect = _kinect;           // SimpleOpenNIの初期化
+
+    Points = new ArrayList();
 
     if ( kinect.openFileRecording("straight.oni") == false)
     {
@@ -136,25 +148,56 @@ class BackGroundDiff
     return out;
   }
 
-  Blob[] draw()
+  void draw()
   {
+    Points.clear();    
+
+    Point point = new Point();
+    for (Blob blob:blobsArray)
+    {
+      point.x = (blob.centroid.x* (pos[1][0]-pos[0][0])) / depthImage.width + pos[0][0];
+      point.y = (blob.centroid.y* (pos[1][1]-pos[0][1])) / depthImage.height + pos[0][1]; 
+      Points.add(point);
+
+      if (DEBUG)
+      {
+
+        //noFill();
+        //ellipse(point.x, point.y, 30, 30);
+
+        line(point.x-50, point.y, point.x+50, point.y);
+        line(point.x, point.y-50, point.x, point.y+50);
+
+        text( str(blob.area), point.x, point.y-30);
+      }
+    }
+
     if (DEBUG)
     {
-      java.awt.Point point = new java.awt.Point();
-      java.awt.Rectangle bounding_rect = new java.awt.Rectangle();
-      for (Blob blob:blobsArray)
-      {
-        point = blob.centroid;
-        bounding_rect = blob.rectangle;
+      line(pos[0][0], pos[0][1], pos[1][0], pos[0][1]);
+      text("X:", pos[0][0]+10, pos[0][1]+10);
+      text(pos[0][0], pos[0][0]+20, pos[0][1]+10);
+      text("Y:", pos[0][0]+10, pos[0][1]+20);
+      text(pos[0][1], pos[0][0]+20, pos[0][1]+20);
 
-        //ellipse(point.x,point.y,10,10);
-        rect( bounding_rect.x, bounding_rect.y, bounding_rect.width, bounding_rect.height );
-        text( str(blob.area), point.x, point.y-10);
-      }
-
-      image(depthImage, width-depthImage.width/2, 0, depthImage.width/2, depthImage.height/2);
+      //line(pos[1][0], pos[0][1], pos[1][0], pos[1][1]);
+      //line(pos[1][0], pos[1][1], pos[0][0], pos[1][1]);
+      //line(pos[0][0], pos[1][1], pos[0][0], pos[0][1]);
+      text("X:", pos[1][0]+10, pos[1][1]+10);
+      text(pos[1][0], pos[1][0]+20, pos[1][1]+10);
+      text("Y:", pos[1][0]+10, pos[1][1]+20);
+      text(pos[1][1], pos[1][0]+20, pos[1][1]+20);
+      image(depthImage, pos[0][0], pos[0][1], pos[1][0]-pos[0][0], pos[1][1]-pos[0][1]);
     }
-    return blobsArray;
   }
+
+  /*Point TranslateXY(Point in)
+   {
+   Point out;
+   out.x = in.x*(pos[1][0]-pos[0][0]/depthImage.width) + pos[0][0];
+   out.y = in.y*(pos[1][1]-pos[0][1]/depthImage.height) + pos[0][1];
+   return out;
+   };
+   */
 }
 

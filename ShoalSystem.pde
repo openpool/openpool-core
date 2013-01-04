@@ -124,10 +124,12 @@ class ShoalSystem
       Shoal shoal = (Shoal)iter_shoal.next();
       shoal.draw();
     }
+    
     Iterator iter = avoidEllipseObject.iterator();
     while (iter.hasNext ())
     {
-      ((EllipseObject)iter.next()).draw();
+      EllipseObject EO = (EllipseObject)iter.next();
+      EO.draw();
     }
   }
 }

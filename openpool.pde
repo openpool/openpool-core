@@ -33,7 +33,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE. 
  *
  * ***********************************************************************/
-
+import java.awt.*;
 import msafluid.*;
 import SimpleOpenNI.*;
 
@@ -55,7 +55,6 @@ ParticleSystem particleSystem;
 PImage imgFluid;
 boolean drawFluid = true;
 boolean DEBUG = false;
-boolean noUpdate = false;
 final float FLUID_WIDTH = 120;
 
 //Fish config
@@ -71,11 +70,14 @@ int BALLRINGS = 8;
 //backgrounddiff
 SimpleOpenNI kinect;
 BackGroundDiff bg;
-Blob[] blobs;
 
 //Shoal system
 ShoalSystem shoalSystem;
 BallSystem ballSystem;
+
+
+int   selected = -1;  // �I������Ă��钸�_
+
 
 float SHOALCOLISION = 100;
 
@@ -153,21 +155,22 @@ void setup()
 
   ballSystem = new BallSystem();
 
+  /*
   setBallandSetAvoid(200, 180, 50);
-  setBallandSetAvoid(200, 380, 50);
-  setBallandSetAvoid(400, 180, 50);
-  setBallandSetAvoid(400, 380, 50);
-  setBallandSetAvoid(600, 180, 50);
-  setBallandSetAvoid(600, 380, 50);
-  setBallandSetAvoid(800, 180, 50);
-  setBallandSetAvoid(800, 380, 50);
+   setBallandSetAvoid(200, 380, 50);
+   setBallandSetAvoid(400, 180, 50);
+   setBallandSetAvoid(400, 380, 50);
+   setBallandSetAvoid(600, 180, 50);
+   setBallandSetAvoid(600, 380, 50);
+   setBallandSetAvoid(800, 180, 50);
+   setBallandSetAvoid(800, 380, 50);
+   */
 }
 
 //main draw
 void draw()
 {
-  bg.update();
-
+  background(0);
   if (timecount >= 2*50)
   {
     timecount -= 2*50;
@@ -175,74 +178,77 @@ void draw()
   timecount++;
   //println(timecount);
 
-  background(0);
+
   if (DEBUG)
   {
     image(img, 0, 0, 498*2, 282*2);
+    field.Draw();
   }
-  //Field interaction
 
   //draw shoals
-  if (!noUpdate)
-  {
-    shoalSystem.Update();
-  }
+  shoalSystem.Update();
   shoalSystem.Draw();
 
   //draw particles
-  if (!noUpdate)
-  {
-    fluidSolver.update();
-  }
+  fluidSolver.update();
 
   if (drawFluid)
   {
-    if (!noUpdate)
+    for (int i=0; i<fluidSolver.getNumCells(); i++)
     {
-      for (int i=0; i<fluidSolver.getNumCells(); i++)
-      {
-        int d = 1;
-        imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
-      }  
+      int d = 1;
+      imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
+    }  
 
-      imgFluid.updatePixels();
-    }
+    imgFluid.updatePixels();
     image(imgFluid, 0, 0, width, height);
   } 
-
-  blobs = bg.draw();
-  //draw balls
-
-  particleSystem.updateAndDraw();
-
-
   //clear all Balls
   clearBallandAvoid();
 
-  for (Blob blob:blobs)
+  bg.update();
+  bg.draw();
+  //draw balls
+  int itercount=0;
+  Iterator iter = bg.Points.iterator();
+  while (iter.hasNext ())
   {
-    setBallandSetAvoid(blob.centroid.x, blob.centroid.y, 30);
+    Point point = (Point)iter.next();
+    setBallandSetAvoid(point.x, point.y, 30);
+    itercount++;
   }
-
-
-  //TODO:update Ball x&y here
-  /*  
-   setBallandSetAvoid(200+timecount*2, 180, timecount/2);
-   setBallandSetAvoid(200, 380-timecount*2, 50-timecount/2);
-   setBallandSetAvoid(400+timecount*2, 180, 50-timecount/2);
-   setBallandSetAvoid(400-timecount*2, 380, timecount/2);
-   setBallandSetAvoid(600+timecount*2, 180, timecount/2);
-   setBallandSetAvoid(600-timecount*2, 380, 50-timecount/2);
-   setBallandSetAvoid(800, 180+timecount*2, 50-timecount/2);
-   setBallandSetAvoid(800-timecount*2, 380, timecount/2);
-   */
   if (DEBUG)
   {
-    field.Draw();
+    text("ball count:", 20, 20);
+    text(bg.Points.size(), 100, 20);
   }
-  else
+  if (!DEBUG)
   {
-    ballSystem.draw();
+        ballSystem.draw();
+    particleSystem.updateAndDraw();
+
+  }
+
+  //////////////////////////////////////////////////  
+  if ( mousePressed && selected >= 0 )
+  {
+    bg.pos[selected][0] = mouseX;
+    bg.pos[selected][1] = mouseY;
+  }
+  else 
+  {
+    float min_d = 20; 
+    selected = -1;
+    for (int i=0; i<2; i++) {
+      float d = dist( mouseX, mouseY, bg.pos[i][0], bg.pos[i][1] );
+      if ( d < min_d ) {
+        min_d = d;
+        selected = i;
+      }
+    }
+  }
+  if ( selected >= 0 ) {
+    ellipse( mouseX, mouseY, 20, 20 );
   }
 }
 
@@ -258,9 +264,7 @@ void mouseMoved()
 
 void mousePressed()
 {
-  DEBUG^= true;
-  drawFluid^=true;
-  OutputStatus();
+  ;
 }
 
 void OutputStatus()
@@ -287,8 +291,9 @@ void keyPressed()
     println("renderUsingVA: " + renderUsingVA);
     break;
   case ' ':
-    noUpdate ^=true;
-    println("PAUSE/PLAY");
+    DEBUG^= true;
+    drawFluid^=true;
+    OutputStatus();
     break;
   }
   print("FRAMERATE: ");
@@ -309,7 +314,8 @@ void setBallandSetAvoid(int x, int y, int R)
 
 
 // add force and dye to fluid, and create particles
-void addForceToFluid(float x, float y, float dx, float dy) {
+void addForceToFluid(float x, float y, float dx, float dy)
+{
   float speed = dx * dx  + dy * dy * aspectRatio2;    // balance the x and y components of speed with the screen aspect ratio
 
   if (speed > 0) {
