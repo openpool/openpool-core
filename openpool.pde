@@ -210,23 +210,24 @@ void draw()
   bg.draw();
   //draw balls
   int itercount=0;
-  Iterator iter = bg.Points.iterator();
+  ArrayList bgPoints = bg.bgPoints;
+  Iterator iter = bgPoints.iterator();
   while (iter.hasNext ())
   {
-    Point point = (Point)iter.next();
-    setBallandSetAvoid(point.x, point.y, 30);
+    Point pt = (Point)iter.next();
+    setBallandSetAvoid(pt.x, pt.y, 30);
     itercount++;
-  }
-  if (DEBUG)
-  {
-    text("ball count:", 20, 20);
-    text(bg.Points.size(), 100, 20);
+
+    if (DEBUG)
+    {
+      text("ball count:", 20, 20);
+      text(bgPoints.size(), 100, 20);
+    }
   }
   if (!DEBUG)
   {
-        ballSystem.draw();
+    ballSystem.draw();
     particleSystem.updateAndDraw();
-
   }
 
   //////////////////////////////////////////////////  

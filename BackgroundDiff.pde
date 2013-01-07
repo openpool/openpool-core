@@ -9,7 +9,7 @@ class BackGroundDiff
 
   OpenCV opencv;
   Blob[] blobsArray = null;
-  ArrayList Points;
+  ArrayList bgPoints;
   float threshold = 0.1;
   PImage depthImage;
   int[] depthMap;
@@ -29,7 +29,7 @@ class BackGroundDiff
   {
     kinect = _kinect;           // SimpleOpenNIの初期化
 
-    Points = new ArrayList();
+    bgPoints = new ArrayList();
 
     if ( kinect.openFileRecording("straight.oni") == false)
     {
@@ -150,14 +150,15 @@ class BackGroundDiff
 
   void draw()
   {
-    Points.clear();    
+    bgPoints.clear();    
 
-    Point point = new Point();
+    
     for (Blob blob:blobsArray)
     {
-      point.x = (blob.centroid.x* (pos[1][0]-pos[0][0])) / depthImage.width + pos[0][0];
-      point.y = (blob.centroid.y* (pos[1][1]-pos[0][1])) / depthImage.height + pos[0][1]; 
-      Points.add(point);
+      Point pt = new Point();
+      pt.x = (blob.centroid.x* (pos[1][0]-pos[0][0])) / depthImage.width + pos[0][0];
+      pt.y = (blob.centroid.y* (pos[1][1]-pos[0][1])) / depthImage.height + pos[0][1]; 
+      bgPoints.add(pt);
 
       if (DEBUG)
       {
@@ -165,10 +166,10 @@ class BackGroundDiff
         //noFill();
         //ellipse(point.x, point.y, 30, 30);
 
-        line(point.x-50, point.y, point.x+50, point.y);
-        line(point.x, point.y-50, point.x, point.y+50);
+        line(pt.x-50, pt.y, pt.x+50, pt.y);
+        line(pt.x, pt.y-50, pt.x, pt.y+50);
 
-        text( str(blob.area), point.x, point.y-30);
+        text( str(blob.area), pt.x, pt.y-30);
       }
     }
 
