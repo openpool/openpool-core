@@ -60,7 +60,7 @@ final float FLUID_WIDTH = 120;
 //Fish config
 float SPEED = 5;
 float R = 4;       
-int NUMBER = 10;   // number of fishes
+int FISHNUMBER = 10;   // number of fishes
 int FISHFORCE = 2000;
 
 //Ball config
@@ -147,11 +147,11 @@ void setup()
 
   shoalSystem = new ShoalSystem();
 
-  shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, NUMBER, SPEED);
+  shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
 
   ballSystem = new BallSystem();
 
@@ -217,12 +217,11 @@ void draw()
     Point pt = (Point)iter.next();
     setBallandSetAvoid(pt.x, pt.y, 30);
     itercount++;
-
-    if (DEBUG)
-    {
-      text("ball count:", 20, 20);
-      text(bgPoints.size(), 100, 20);
-    }
+  }
+  if (DEBUG)
+  {
+    text("ball count:", 900, 20);
+    text(bgPoints.size(), 970, 20);
   }
   if (!DEBUG)
   {
@@ -310,7 +309,7 @@ void clearBallandAvoid()
 void setBallandSetAvoid(int x, int y, int R)
 {
   ballSystem.addBall(x, y, R, R, BALLRINGS);
-  shoalSystem.addEllipseObject(x, y, R);
+  shoalSystem.addEllipseObject(x, y, R*2);
 }
 
 

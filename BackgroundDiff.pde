@@ -56,7 +56,7 @@ class BackGroundDiff
   {    
     kinect.update();
     depthImage = kinect.depthImage();
-    //depthImage = retrieveDepthImage();
+    depthImage = retrieveDepthImage();
 
     // Calculate the diff image
     opencv.copy(depthImage);
@@ -66,11 +66,11 @@ class BackGroundDiff
     //opencv.blur(5);
     opencv.threshold(threshold, "BINARY");
     depthImage = opencv.getBuffer();
-    depthImage = DilateWhite(depthImage, 3); //DilateElode(depthImage, 2);
-
+    depthImage = DilateWhite(depthImage, 2);
+    
     // Detect blobs
     opencv.copy(depthImage);
-    blobsArray = opencv.blobs(350, 700, 15, false, 100);
+    blobsArray = opencv.blobs(350, 750, 15, false, 100);
   }
 
   void rememberBackground()
@@ -162,32 +162,37 @@ class BackGroundDiff
 
       if (DEBUG)
       {
-
-        //noFill();
-        //ellipse(point.x, point.y, 30, 30);
-
         line(pt.x-50, pt.y, pt.x+50, pt.y);
         line(pt.x, pt.y-50, pt.x, pt.y+50);
-
         text( str(blob.area), pt.x, pt.y-30);
       }
     }
 
     if (DEBUG)
     {
-      line(pos[0][0], pos[0][1], pos[1][0], pos[0][1]);
-      text("X:", pos[0][0]+10, pos[0][1]+10);
-      text(pos[0][0], pos[0][0]+20, pos[0][1]+10);
-      text("Y:", pos[0][0]+10, pos[0][1]+20);
-      text(pos[0][1], pos[0][0]+20, pos[0][1]+20);
+      //draw an arrow
+      line(pos[0][0], pos[0][1], pos[0][0]+5, pos[0][1]);
+      line(pos[0][0], pos[0][1], pos[0][0], pos[0][1]+5);
+      line(pos[0][0], pos[0][1], pos[0][0]+10, pos[0][1]+10);
+      
+      //draw xy
+      text("X:", pos[0][0]+20, pos[0][1]+20);
+      text(pos[0][0], pos[0][0]+30, pos[0][1]+20);
+      text("Y:", pos[0][0]+20, pos[0][1]+30);
+      text(pos[0][1], pos[0][0]+30, pos[0][1]+30);
 
-      //line(pos[1][0], pos[0][1], pos[1][0], pos[1][1]);
-      //line(pos[1][0], pos[1][1], pos[0][0], pos[1][1]);
-      //line(pos[0][0], pos[1][1], pos[0][0], pos[0][1]);
-      text("X:", pos[1][0]+10, pos[1][1]+10);
-      text(pos[1][0], pos[1][0]+20, pos[1][1]+10);
-      text("Y:", pos[1][0]+10, pos[1][1]+20);
-      text(pos[1][1], pos[1][0]+20, pos[1][1]+20);
+      //draw an arrow
+      line(pos[1][0], pos[1][1], pos[1][0]-5, pos[1][1]);
+      line(pos[1][0], pos[1][1], pos[1][0], pos[1][1]-5);
+      line(pos[1][0], pos[1][1], pos[1][0]-10, pos[1][1]-10);
+      
+      //draw xy
+      text("X:", pos[1][0]-50, pos[1][1]-10);
+      text(pos[1][0], pos[1][0]-40, pos[1][1]-10);
+      text("Y:", pos[1][0]-50, pos[1][1]-20);
+      text(pos[1][1], pos[1][0]-40, pos[1][1]-20);
+      
+      //draw depthimage
       image(depthImage, pos[0][0], pos[0][1], pos[1][0]-pos[0][0], pos[1][1]-pos[0][1]);
     }
   }
