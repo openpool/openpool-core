@@ -5,7 +5,7 @@ import java.awt.*;
 class BackGroundDiff
 {
   // OpenCV
-  SimpleOpenNI kinect;
+  //SimpleOpenNI kinect1;
 
   OpenCV opencv;
   Blob[] blobsArray = null;
@@ -25,26 +25,34 @@ class BackGroundDiff
     }
   };
 
-  BackGroundDiff(SimpleOpenNI _kinect)
+  BackGroundDiff(SimpleOpenNI _kinect1, SimpleOpenNI _kinect2)
   {
-    kinect = _kinect;           // SimpleOpenNIの初期化
+    kinect1 = _kinect1;           // SimpleOpenNIの初期化
 
     bgPoints = new ArrayList();
 
-    if ( kinect.openFileRecording("straight.oni") == false)
+    if ( kinect1.openFileRecording("straight1.oni") == false)
     {
-      println("can't find recorded file !!!!");
+      println("can't find recorded file1 !!!!");
       exit();
     }
-    kinect.enableDepth();                       // 距離画像有効化
+    if ( _kinect1.openFileRecording("straight2.oni") == false)
+    {
+      println("can't find recorded file2 !!!!");
+      exit();
+    }
+    _kinect1.enableDepth();                       // 距離画像有効化
+    _kinect2.enableDepth();
     //kinect.enableRGB();                         // カラー画像有効化
-    kinect.update();
+    _kinect1.update();
+    _kinect2.update();
 
-    depth_width = kinect.depthWidth();
-    depth_height =kinect.depthHeight();
+    depth_width  = _kinect1.depthWidth() + _kinect2.depthWidth();
+    depth_height = _kinect1.depthHeight();
 
-    depthImage = kinect.depthImage();
-    depthMap   = kinect.depthMap();
+    depthImage = combineDepthImage(_kinect1.depthImage(), _kinect2.depthImage());
+    depthMap   = combineDepthMap( _kinect1.depthMap(), _kinect2.depthMap(), _kinect1.depthImage(), _kinect2.depthImage());
+
     opencv = new OpenCV();
     opencv.allocate(depth_width, depth_height);
     rememberBackground();
@@ -52,10 +60,12 @@ class BackGroundDiff
     update();
   }
 
-  void update()
+  void update()  
   {    
-    kinect.update();
-    depthImage = kinect.depthImage();
+    kinect1.update();
+    kinect2.update();
+
+    depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
     depthImage = retrieveDepthImage();
 
     // Calculate the diff image
@@ -63,27 +73,27 @@ class BackGroundDiff
 
     opencv.absDiff(); // result stored in the secondary memory.
     opencv.restore2(); // restore the secondary memory data to the main buffer
-    //opencv.blur(5);
+    opencv.blur(3);
     opencv.threshold(threshold, "BINARY");
     depthImage = opencv.getBuffer();
-    depthImage = DilateWhite(depthImage, 2);
-    
+    depthImage = DilateWhite(depthImage, 5);
+
     // Detect blobs
     opencv.copy(depthImage);
-    blobsArray = opencv.blobs(350, 750, 15, false, 100);
+    blobsArray = opencv.blobs(200, 800, 15, false, 100);
   }
 
   void rememberBackground()
   {
     println("remember background!!!");
-    opencv.copy(kinect.depthImage());
+    opencv.copy(combineDepthImage(kinect1.depthImage(), kinect2.depthImage()));
     opencv.remember(); // Store in the first buffer.
   }
 
   PImage retrieveDepthImage()
   {
-    PImage depthImage = kinect.depthImage();
-    int[] depthMap   = kinect.depthMap();
+    PImage depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
+    int[] depthMap = combineDepthMap(kinect1.depthMap(), kinect2.depthMap(), kinect1.depthImage(), kinect2.depthImage());
 
     // Assume depth errors are caused by the black ball
     color white = color(255);
@@ -152,7 +162,7 @@ class BackGroundDiff
   {
     bgPoints.clear();    
 
-    
+
     for (Blob blob:blobsArray)
     {
       Point pt = new Point();
@@ -174,7 +184,7 @@ class BackGroundDiff
       line(pos[0][0], pos[0][1], pos[0][0]+5, pos[0][1]);
       line(pos[0][0], pos[0][1], pos[0][0], pos[0][1]+5);
       line(pos[0][0], pos[0][1], pos[0][0]+10, pos[0][1]+10);
-      
+
       //draw xy
       text("X:", pos[0][0]+20, pos[0][1]+20);
       text(pos[0][0], pos[0][0]+30, pos[0][1]+20);
@@ -185,25 +195,56 @@ class BackGroundDiff
       line(pos[1][0], pos[1][1], pos[1][0]-5, pos[1][1]);
       line(pos[1][0], pos[1][1], pos[1][0], pos[1][1]-5);
       line(pos[1][0], pos[1][1], pos[1][0]-10, pos[1][1]-10);
-      
+
       //draw xy
       text("X:", pos[1][0]-50, pos[1][1]-10);
       text(pos[1][0], pos[1][0]-40, pos[1][1]-10);
       text("Y:", pos[1][0]-50, pos[1][1]-20);
       text(pos[1][1], pos[1][0]-40, pos[1][1]-20);
-      
+
       //draw depthimage
       image(depthImage, pos[0][0], pos[0][1], pos[1][0]-pos[0][0], pos[1][1]-pos[0][1]);
     }
   }
 
-  /*Point TranslateXY(Point in)
-   {
-   Point out;
-   out.x = in.x*(pos[1][0]-pos[0][0]/depthImage.width) + pos[0][0];
-   out.y = in.y*(pos[1][1]-pos[0][1]/depthImage.height) + pos[0][1];
-   return out;
-   };
-   */
+  PImage combineDepthImage(PImage img1, PImage img2)
+  {
+    PImage retImage;
+    retImage = createImage(img1.width+img2.width, img1.height, ARGB);
+    retImage.loadPixels();
+
+    for (int i=0; i<img1.height; i++)
+    {
+      for (int j=0; i<img1.width;i++)
+      {
+        img.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
+      }
+      for (int j=0; j<img2.width;i++)
+      {
+        img.pixels[(retImage.width*i)+img1.width+j] = img.pixels[img2.width*i+j];
+      }
+    }
+    return retImage;
+  };
+  int[] combineDepthMap(int[] map1, int[] map2, PImage img1, PImage img2)
+  {
+    PImage retImage;
+    int[] ret = new int[(img1.width+img2.width)*img1.height];
+
+
+
+    for (int i=0; i<img1.height; i++)
+    {
+      for (int j=0; i<img1.width;i++)
+      {
+        ret[((img1.width+img2.width)*i)+j] = map1[img1.width*i+j];
+      }
+      for (int j=0; j<img2.width;i++)
+      {
+        ret[((img1.width+img2.width)*i)+img1.width+j] = map2[img2.width*i+j];
+      }
+    }
+    return ret;
+  };
 }
 

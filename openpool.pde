@@ -68,7 +68,9 @@ int BALLNUM = 8;
 int BALLRINGS = 8;
 
 //backgrounddiff
-SimpleOpenNI kinect;
+SimpleOpenNI kinect1;
+SimpleOpenNI kinect2;
+
 BackGroundDiff bg;
 
 //Shoal system
@@ -114,8 +116,10 @@ void setup()
   //frameRate(30);
 
   //backgrounddiff
-  kinect = new SimpleOpenNI(this);
-  bg = new BackGroundDiff(kinect);
+  kinect1 = new SimpleOpenNI(0,this);
+  kinect2 = new SimpleOpenNI(1,this);
+  
+  bg = new BackGroundDiff(kinect1,kinect2);
 
   timecount = 0;
 
