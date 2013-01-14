@@ -31,18 +31,6 @@ class BackGroundDiff
 
     bgPoints = new ArrayList();
 
-    if ( kinect1.openFileRecording("straight1.oni") == false)
-    {
-      println("can't find recorded file1 !!!!");
-      exit();
-    }
-    if ( _kinect1.openFileRecording("straight2.oni") == false)
-    {
-      println("can't find recorded file2 !!!!");
-      exit();
-    }
-    _kinect1.enableDepth();                       // 距離画像有効化
-    _kinect2.enableDepth();
     //kinect.enableRGB();                         // カラー画像有効化
     _kinect1.update();
     _kinect2.update();
@@ -215,17 +203,18 @@ class BackGroundDiff
 
     for (int i=0; i<img1.height; i++)
     {
-      for (int j=0; i<img1.width;i++)
+      for (int j=0; j<img1.width;j++)
       {
-        img.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
+         retImage.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
       }
-      for (int j=0; j<img2.width;i++)
+      for (int j=0; j<img2.width;j++)
       {
-        img.pixels[(retImage.width*i)+img1.width+j] = img.pixels[img2.width*i+j];
+        retImage.pixels[(retImage.width*i)+img1.width+j] = img2.pixels[img2.width*i+j];
       }
     }
     return retImage;
   };
+  
   int[] combineDepthMap(int[] map1, int[] map2, PImage img1, PImage img2)
   {
     PImage retImage;
@@ -235,11 +224,11 @@ class BackGroundDiff
 
     for (int i=0; i<img1.height; i++)
     {
-      for (int j=0; i<img1.width;i++)
+      for (int j=0; j<img1.width;j++)
       {
         ret[((img1.width+img2.width)*i)+j] = map1[img1.width*i+j];
       }
-      for (int j=0; j<img2.width;i++)
+      for (int j=0; j<img2.width;j++)
       {
         ret[((img1.width+img2.width)*i)+img1.width+j] = map2[img2.width*i+j];
       }

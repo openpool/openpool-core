@@ -116,9 +116,38 @@ void setup()
   //frameRate(30);
 
   //backgrounddiff
-  kinect1 = new SimpleOpenNI(0,this);
-  kinect2 = new SimpleOpenNI(1,this);
-  
+  kinect1 = new SimpleOpenNI(1,this);
+  kinect2 = new SimpleOpenNI(0,this);
+      /*
+    if ( kinect1.openFileRecording("straight1.oni") == false)
+    {
+      println("can't find recorded file1 !!!!");
+      exit();
+    }
+    if ( _kinect1.openFileRecording("straight2.oni") == false)
+    {
+      println("can't find recorded file2 !!!!");
+      exit();
+    }
+    */
+     // enable depthMap generation 
+  if(kinect1.enableDepth() == false)
+  {
+     println("Can't open the depthMap of cam1, maybe the camera is not connected!"); 
+     exit();
+     return;
+  }
+ 
+  // enable depthMap generation 
+  if(kinect2.enableDepth() == false)
+  {
+     println("Can't open the depthMap of cam2, maybe the camera is not connected!"); 
+     exit();
+     return;
+  }
+    kinect1.enableDepth();                       // 距離画像有効化
+    kinect2.enableDepth();
+    
   bg = new BackGroundDiff(kinect1,kinect2);
 
   timecount = 0;
