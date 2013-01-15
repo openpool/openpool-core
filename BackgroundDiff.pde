@@ -18,16 +18,16 @@ class BackGroundDiff
 
   int   pos[][] = {
     {
-      0, 0
+      50, 50
     }
     , {
-      400, 300
+      640+50, 240+50
     }
   };
 
   BackGroundDiff(SimpleOpenNI _kinect1, SimpleOpenNI _kinect2)
   {
-    kinect1 = _kinect1;           // SimpleOpenNIの初期化
+    //kinect1 = _kinect1;           // SimpleOpenNIの初期化
 
     bgPoints = new ArrayList();
 
@@ -53,7 +53,7 @@ class BackGroundDiff
     kinect1.update();
     kinect2.update();
 
-    depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
+    //depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
     depthImage = retrieveDepthImage();
 
     // Calculate the diff image
@@ -74,7 +74,7 @@ class BackGroundDiff
   void rememberBackground()
   {
     println("remember background!!!");
-    opencv.copy(combineDepthImage(kinect1.depthImage(), kinect2.depthImage()));
+    opencv.copy(retrieveDepthImage());
     opencv.remember(); // Store in the first buffer.
   }
 
@@ -168,9 +168,18 @@ class BackGroundDiff
 
     if (DEBUG)
     {
+      stroke(255,255,  0);
+      fill(255,255, 0);
+      //draw image boundingbox
+      line(pos[0][0],pos[0][1],pos[1][0],pos[0][1]);
+      line(pos[1][0],pos[0][1],pos[1][0],pos[1][1]);
+      line(pos[1][0],pos[1][1],pos[0][0],pos[1][1]);
+      line(pos[0][0],pos[1][1],pos[0][0],pos[0][1]);
+      
       //draw an arrow
-      line(pos[0][0], pos[0][1], pos[0][0]+5, pos[0][1]);
-      line(pos[0][0], pos[0][1], pos[0][0], pos[0][1]+5);
+
+      line(pos[0][0], pos[0][1], pos[0][0]+8, pos[0][1]+4);
+      line(pos[0][0], pos[0][1], pos[0][0]+4, pos[0][1]+8);
       line(pos[0][0], pos[0][1], pos[0][0]+10, pos[0][1]+10);
 
       //draw xy
@@ -180,8 +189,8 @@ class BackGroundDiff
       text(pos[0][1], pos[0][0]+30, pos[0][1]+30);
 
       //draw an arrow
-      line(pos[1][0], pos[1][1], pos[1][0]-5, pos[1][1]);
-      line(pos[1][0], pos[1][1], pos[1][0], pos[1][1]-5);
+      line(pos[1][0], pos[1][1], pos[1][0]-8, pos[1][1]-4);
+      line(pos[1][0], pos[1][1], pos[1][0]-4, pos[1][1]-8);
       line(pos[1][0], pos[1][1], pos[1][0]-10, pos[1][1]-10);
 
       //draw xy
@@ -189,6 +198,9 @@ class BackGroundDiff
       text(pos[1][0], pos[1][0]-40, pos[1][1]-10);
       text("Y:", pos[1][0]-50, pos[1][1]-20);
       text(pos[1][1], pos[1][0]-40, pos[1][1]-20);
+
+      noFill();
+      stroke(255, 255, 255);
 
       //draw depthimage
       image(depthImage, pos[0][0], pos[0][1], pos[1][0]-pos[0][0], pos[1][1]-pos[0][1]);
@@ -205,7 +217,7 @@ class BackGroundDiff
     {
       for (int j=0; j<img1.width;j++)
       {
-         retImage.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
+        retImage.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
       }
       for (int j=0; j<img2.width;j++)
       {
@@ -214,7 +226,7 @@ class BackGroundDiff
     }
     return retImage;
   };
-  
+
   int[] combineDepthMap(int[] map1, int[] map2, PImage img1, PImage img2)
   {
     PImage retImage;
