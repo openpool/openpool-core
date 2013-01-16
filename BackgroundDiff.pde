@@ -38,7 +38,7 @@ class BackGroundDiff
     depth_width  = _kinect1.depthWidth() + _kinect2.depthWidth();
     depth_height = _kinect1.depthHeight();
 
-    depthImage = combineDepthImage(_kinect1.depthImage(), _kinect2.depthImage());
+    depthImage = combineDepthImage(_kinect1.depthImage(), _kinect2.depthImage(),0,0,0,0);
     depthMap   = combineDepthMap( _kinect1.depthMap(), _kinect2.depthMap(), _kinect1.depthImage(), _kinect2.depthImage());
 
     opencv = new OpenCV();
@@ -53,7 +53,6 @@ class BackGroundDiff
     kinect1.update();
     kinect2.update();
 
-    //depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
     depthImage = retrieveDepthImage();
 
     // Calculate the diff image
@@ -80,7 +79,7 @@ class BackGroundDiff
 
   PImage retrieveDepthImage()
   {
-    PImage depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage());
+    PImage depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage(),0,0,0,0);
     int[] depthMap = combineDepthMap(kinect1.depthMap(), kinect2.depthMap(), kinect1.depthImage(), kinect2.depthImage());
 
     // Assume depth errors are caused by the black ball
@@ -207,21 +206,95 @@ class BackGroundDiff
     }
   }
 
-  PImage combineDepthImage(PImage img1, PImage img2)
+  PImage combineDepthImage(PImage img1, PImage img2, int img1x, int img1y, int img2x, int img2y)
   {
     PImage retImage;
     retImage = createImage(img1.width+img2.width, img1.height, ARGB);
     retImage.loadPixels();
 
-    for (int i=0; i<img1.height; i++)
+    //put img1 into retImage;
+    if (img1y >= 0)
     {
-      for (int j=0; j<img1.width;j++)
+      for (int i=0; i<(img1.height-img1y); i++)
       {
-        retImage.pixels[(retImage.width*i)+j] = img1.pixels[img1.width*i+j];
+        if (img1x >= 0)
+        {
+          for (int j=0; j<(img1.width-img1x);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img1y))+(j+img1x)] = img1.pixels[img1.width*i+j];
+          }
+        }
+        else
+        {
+          for (int j= -img1x; j<(img1.width);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img1y))+(j+img1x)] = img1.pixels[img1.width*i+j];
+          }
+        }
       }
-      for (int j=0; j<img2.width;j++)
+    }
+
+    else
+    {
+      for (int i= -img1y; i<img1.height; i++)
       {
-        retImage.pixels[(retImage.width*i)+img1.width+j] = img2.pixels[img2.width*i+j];
+        if (img1x >= 0)
+        {
+          for (int j=0; j<(img1.width-img1x);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img1y))+(j+img1x)] = img1.pixels[img1.width*i+j];
+          }
+        }
+        else
+        {
+          for (int j= -img1x; j<(img1.width);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img1y))+(j+img1x)] = img1.pixels[img1.width*i+j];
+          }
+        }
+      }
+    }
+
+    //put img2 into retImage
+    if (img2y >= 0)
+    {
+      for (int i=0; i<(img2.height-img2y); i++)
+      {
+        if (img2x >= 0)
+        {
+          for (int j=0; j<(img2.width-img2x);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img2y))+(j+img2x)+img1.width] = img2.pixels[img2.width*i+j];
+          }
+        }
+        else
+        {
+          for (int j= -img2x; j<(img2.width);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img2y))+(j+img2x)+img1.width] = img2.pixels[img2.width*i+j];
+          }
+        }
+      }
+    }
+
+    else
+    {
+      for (int i= -img2y; i<img2.height; i++)
+      {
+        if (img2x >= 0)
+        {
+          for (int j=0; j<(img2.width-img2x);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img2y))+(j+img2x)+img1.width] = img2.pixels[img2.width*i+j];
+          }
+        }
+        else
+        {
+          for (int j= -img2x; j<(img2.width);j++)
+          {
+            retImage.pixels[(retImage.width*(i+img2y))+(j+img2x)+img1.width] = img2.pixels[img2.width*i+j];
+          }
+        }
       }
     }
     return retImage;
