@@ -1,3 +1,4 @@
+package openpool;
 class Ball
 {
   int x;

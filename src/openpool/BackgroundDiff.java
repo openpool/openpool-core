@@ -1,3 +1,4 @@
+package openpool;
 import monclubelec.javacvPro.*;
 import SimpleOpenNI.*;
 import java.awt.*;

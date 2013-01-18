@@ -1,3 +1,4 @@
+package openpool;
 /***********************************************************************
  
  Copyright (c) takashyx 2012. ( http://takashyx.com )

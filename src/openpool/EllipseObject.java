@@ -1,3 +1,4 @@
+package openpool;
 class EllipseObject
 {
   int x;

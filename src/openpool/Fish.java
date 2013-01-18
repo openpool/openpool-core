@@ -1,3 +1,4 @@
+package openpool;
 import processing.core.PVector;
 
 class Fish
