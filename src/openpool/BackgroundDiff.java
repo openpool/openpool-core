@@ -1,8 +1,10 @@
 package openpool;
-import monclubelec.javacvPro.*;
 import SimpleOpenNI.*;
 import java.awt.*;
 import java.util.ArrayList;
+
+import com.googlecode.javacv.Blobs;
+import com.googlecode.javacv.JavaCV;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -13,8 +15,8 @@ class BackGroundDiff
   SimpleOpenNI kinect1;
   SimpleOpenNI kinect2;
 
-  OpenCV opencv;
-  Blob[] blobsArray = null;
+  JavaCV opencv;
+  Blobs blobsArray = null;
   ArrayList<Point> bgPoints;
   float threshold = 0.1f;
   PImage depthImage;
@@ -48,8 +50,7 @@ class BackGroundDiff
     depthImage = combineDepthImage(kinect1.depthImage(), kinect2.depthImage(), 0, 0, 0, 0);
     depthMap   = combineDepthMap( kinect1.depthMap(), kinect2.depthMap(), kinect1.depthImage(), kinect2.depthImage());
 
-    opencv = new OpenCV();
-    opencv.allocate(depth_width, depth_height);
+    opencv = new JavaCV();
     rememberBackground();
 
     update();

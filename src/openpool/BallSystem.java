@@ -8,7 +8,6 @@ class BallSystem
 
   BallSystem()
   {
-    int i=0;
     balls = new ArrayList<Ball>();
     return;
   }
@@ -20,7 +19,6 @@ class BallSystem
 
   void clearBall()
   {
-    int id =0;
     balls.clear();
   }
   void draw(OpenPool op)

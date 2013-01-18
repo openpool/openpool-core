@@ -42,10 +42,6 @@ import msafluid.*;
 import SimpleOpenNI.*;
 import processing.core.*;
 
-//OpenGL
-import processing.opengl.*;
-import javax.media.opengl.*;
-
 public class OpenPool {
 PApplet pa;
 
@@ -114,6 +110,8 @@ PImage img;
 public OpenPool(PApplet pa) 
 {
   this.pa = pa;
+  pa.registerMouseEvent(this);
+  pa.registerKeyEvent(this);
 
   //498*2
   //282*2
@@ -203,7 +201,10 @@ public OpenPool(PApplet pa)
 }
 
 //main draw
-void draw()
+/**
+ * Call this from Processing code.
+ */
+public void draw()
 {
   pa.background(0);
   if (timecount >= 2*50)
@@ -243,15 +244,12 @@ void draw()
 
   bg.update();
   bg.draw(this);
-  //draw balls
-  int itercount=0;
   ArrayList<Point> bgPoints = bg.bgPoints;
   Iterator<Point> iter = bgPoints.iterator();
   while (iter.hasNext ())
   {
-    Point pt = (Point)iter.next();
+    Point pt = iter.next();
     setBallandSetAvoid(pt.x, pt.y, 30);
-    itercount++;
   }
   if (DEBUG)
   {
@@ -322,8 +320,8 @@ void keyPressed()
     bg.rememberBackground();
     break;
   case 'r': 
-    renderUsingVA ^= true; 
-    println("renderUsingVA: " + renderUsingVA);
+    particleSystem.renderUsingVA ^= true; 
+    PApplet.println("renderUsingVA: " + particleSystem.renderUsingVA);
     break;
   case ' ':
     DEBUG^= true;

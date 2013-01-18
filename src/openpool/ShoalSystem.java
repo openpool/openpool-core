@@ -23,7 +23,6 @@ class ShoalSystem
   {
     Shoal shoal = new Shoal();
 
-    Fish[] fishes = new Fish[_number];
     float angle = (float) (Math.PI * 2 / _number);
 
     for (int i = 1; i <= _number; i++)
