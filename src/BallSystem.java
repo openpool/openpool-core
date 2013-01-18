@@ -1,11 +1,14 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
 class BallSystem
 {
-  ArrayList balls;
+  ArrayList<Ball> balls;
 
   BallSystem()
   {
     int i=0;
-    balls = new ArrayList();
+    balls = new ArrayList<Ball>();
     return;
   }
   void addBall(int _x, int _y, int _realr, int _R, int _RINGNUM)
@@ -19,13 +22,13 @@ class BallSystem
     int id =0;
     balls.clear();
   }
-  void draw()
+  void draw(OpenPool op)
   {
-    Iterator iter = balls.iterator();
+    Iterator<Ball> iter = balls.iterator();
     while (iter.hasNext ())
     {
       Ball ball = (Ball)iter.next();
-      ball.draw();    
+      ball.draw(op);
     }
   }
 }

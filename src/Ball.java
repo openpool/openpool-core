@@ -24,24 +24,24 @@ class Ball
 
   }
 
-  void draw()
+  void draw(OpenPool op)
   {
-    stroke(255, 255, 255);
-    fill(255, 255, 255);
-    ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);
-    noFill();
+    op.pa.stroke(255, 255, 255);
+    op.pa.fill(255, 255, 255);
+    op.pa.ellipse(x, y, 2*realr, 2*realr);// R*2, R*2);
+    op.pa.noFill();
 
     for (int i=0;i<RINGNUM;i++)
     {
-      int tempring = timecount + i*(4*R/RINGNUM);
+      int tempring = op.timecount + i*(4*R/RINGNUM);
 
       if (2*R < tempring && tempring < 4*R)
       {
         //TODO: need improvement for gradation
-        stroke(255, 255, 255, 
+    	op.pa.stroke(255, 255, 255, 
         255*(6*R-tempring)/(20*R));
         //fill(0, 255, 0);
-        ellipse(x, y, tempring, tempring);
+    	op.pa.ellipse(x, y, tempring, tempring);
         //TODO: change transparency of the ring
       }
     }

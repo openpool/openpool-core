@@ -1,6 +1,11 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import processing.core.PApplet;
+
 class Shoal
 {
-  ArrayList fishes;
+  ArrayList<Fish> fishes;
   float x, y;
   float vx, vy;
   int CENTER_PULL_FACTOR;
@@ -8,7 +13,7 @@ class Shoal
 
   Shoal()
   {
-    fishes = new ArrayList();
+    fishes = new ArrayList<Fish>();
     x=0;
     y=0;
     vx=0;
@@ -18,6 +23,7 @@ class Shoal
     DIST_THRESHOLD = 30;
     return;
   }
+  
 
   void add(Fish _fish)
   {
@@ -33,7 +39,7 @@ class Shoal
   //calc param1
   Fish shoalrules(Fish fish_i)
   {
-    Iterator iter_j = fishes.iterator();
+    Iterator<Fish> iter_j = fishes.iterator();
     while (iter_j.hasNext ())
     {
       Fish fish_j = (Fish)iter_j.next();
@@ -44,7 +50,7 @@ class Shoal
         fish_i.v1.y = fish_i.v1.y + fish_j.y;
 
         //rule2
-        if (dist(fish_i.x, fish_i.y, fish_j.x, fish_j.y) < DIST_THRESHOLD)
+        if (PApplet.dist(fish_i.x, fish_i.y, fish_j.x, fish_j.y) < DIST_THRESHOLD)
         {
           fish_i.v2.x -= (fish_j.x - fish_i.x);
           fish_i.v2.y -= (fish_j.y - fish_i.y);
@@ -77,26 +83,26 @@ class Shoal
 
   void clearVector()
   {  
-    Iterator iter = fishes.iterator();
+    Iterator<Fish> iter = fishes.iterator();
 
-    while (iter.hasNext ())
+    while (iter.hasNext())
     {
-      Fish fish = (Fish)iter.next();
+      Fish fish = iter.next();
       fish.clearVector();
     }
   }
-  void update()
+  void update(OpenPool op)
   {
     x=0;
     y=0;
     vx=0;
     vy=0;
 
-    Iterator iter = fishes.iterator();
+    Iterator<Fish> iter = fishes.iterator();
 
-    while (iter.hasNext ())
+    while (iter.hasNext())
     {
-      Fish fish = (Fish)iter.next();
+      Fish fish = iter.next();
 
       x = x + fish.x;
       y = y + fish.y;
@@ -104,12 +110,12 @@ class Shoal
       shoalrules(fish);
       //rule4
 
-      fish.move();
+      fish.move(op);
 
       vx = vx + fish.vx;
       vy = vy + fish.vy;
 
-      addForceToFluid(fish.x/width, fish.y/height, -fish.vx/FISHFORCE, -fish.vy/FISHFORCE);
+      op.addForceToFluid(fish.x/op.pa.width, fish.y/op.pa.height, -fish.vx/op.FISHFORCE, -fish.vy/op.FISHFORCE);
     }
     x = x / fishes.size();
     y = y / fishes.size();
@@ -122,10 +128,10 @@ class Shoal
 
   void addForce(float _vx, float _vy)
   {
-    Iterator iter = fishes.iterator();
-    while (iter.hasNext ())
+    Iterator<Fish> iter = fishes.iterator();
+    while (iter.hasNext())
     {
-      Fish fish = (Fish)iter.next();  
+      Fish fish = iter.next();  
       fish.v4.x = fish.v4.x + _vx;
       fish.v4.y = fish.v4.y + _vy;
       /*
@@ -137,25 +143,25 @@ class Shoal
     }
   }
 
-  void draw()
+  void draw(OpenPool op)
   {    
-    Iterator iter = fishes.iterator();
-    while (iter.hasNext ())
+    Iterator<Fish> iter = fishes.iterator();
+    while (iter.hasNext())
     {
-      Fish fish = (Fish)iter.next();  
-      fish.draw();
+      Fish fish = iter.next();  
+      fish.draw(op);
     }
 
-    if (DEBUG)
+    if (OpenPool.DEBUG)
     {
-      noFill();
-      stroke(1, 1, 1);
-      ellipse(x, y, SHOALCOLISION, SHOALCOLISION);  
-      text("SHOAL", x+50, y+50);
-      text("x: ", x+50, y+50+15);
-      text(x, x+50+15, y+50+15);
-      text("y: ", x+50, y+50+30);
-      text(y, x+50+15, y+50+30);      
+      op.pa.noFill();
+      op.pa.stroke(1, 1, 1);
+      op.pa.ellipse(x, y, op.SHOALCOLISION, op.SHOALCOLISION);
+      op.pa.text("SHOAL", x+50, y+50);
+      op.pa.text("x: ", x+50, y+50+15);
+      op.pa.text(x, x+50+15, y+50+15);
+      op.pa.text("y: ", x+50, y+50+30);
+      op.pa.text(y, x+50+15, y+50+30);      
     }
     return;
   }

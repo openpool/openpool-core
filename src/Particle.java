@@ -1,3 +1,7 @@
+import java.nio.FloatBuffer;
+
+import javax.media.opengl.GL;
+
 /***********************************************************************
  
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
@@ -30,8 +34,8 @@
  * ***********************************************************************/
 
 class Particle {
-  final static float MOMENTUM = 0.5;
-  final static float FLUID_FORCE = 0.6;
+  final static float MOMENTUM = 0.5f;
+  final static float FLUID_FORCE = 0.6f;
 
   float x, y;
   float vx, vy;
@@ -45,20 +49,20 @@ class Particle {
     vx = 0;
     vy = 0;
     radius = 5;
-    alpha  = random(0.3, 1);
-    mass = random(0.1, 1);
+    alpha  = (float) (Math.random() * 0.7 + 0.3); // [0.3-1.0]
+    mass = (float) (Math.random() * 0.9 + 0.1); // [0.1-1.0]
   }
 
 
-  void update()
+  void update(OpenPool op)
   {
     // only update if particle is visible
     if (alpha == 0) return;
 
     // read fluid info and add to velocity
-    int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x * invWidth, y * invHeight);
-    vx = fluidSolver.u[fluidIndex] * width * mass * FLUID_FORCE + vx * MOMENTUM;
-    vy = fluidSolver.v[fluidIndex] * height * mass * FLUID_FORCE + vy * MOMENTUM;
+    int fluidIndex = op.fluidSolver.getIndexForNormalizedPosition(x * op.invWidth, y * op.invHeight);
+    vx = op.fluidSolver.u[fluidIndex] * op.pa.width * mass * FLUID_FORCE + vx * MOMENTUM;
+    vy = op.fluidSolver.v[fluidIndex] * op.pa.height * mass * FLUID_FORCE + vy * MOMENTUM;
 
     // update position
     x += vx;
@@ -69,8 +73,8 @@ class Particle {
       x = 0;
       vx *= -1;
     }
-    else if (x > width) {
-      x = width;
+    else if (x > op.pa.width) {
+      x = op.pa.width;
       vx *= -1;
     }
 
@@ -78,15 +82,15 @@ class Particle {
       y = 0;
       vy *= -1;
     }
-    else if (y > height) {
-      y = height;
+    else if (y > op.pa.height) {
+      y = op.pa.height;
       vy *= -1;
     }
 
     // hackish way to make particles glitter when the slow down a lot
     if (vx * vx + vy * vy < 1) {
-      vx = random(-1, 1);
-      vy = random(-1, 1);
+      vx = (float) (Math.random() * 2 - 1); // [-1.0 - 1.0]
+      vy = (float) (Math.random() * 2 - 1); // [-1.0 - 1.0] 
     }
 
     // fade out a bit (and kill if alpha == 0);
@@ -118,10 +122,3 @@ class Particle {
     gl.glVertex2f(x, y);
   }
 }
-
-
-
-
-
-
-

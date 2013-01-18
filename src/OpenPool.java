@@ -34,12 +34,19 @@
  *
  * ***********************************************************************/
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import msafluid.*;
 import SimpleOpenNI.*;
+import processing.core.*;
 
 //OpenGL
 import processing.opengl.*;
 import javax.media.opengl.*;
+
+public class OpenPool {
+PApplet pa;
 
 //Field
 Field field;
@@ -54,7 +61,7 @@ ParticleSystem particleSystem;
 
 PImage imgFluid;
 boolean drawFluid = true;
-boolean DEBUG = false;
+static boolean DEBUG = false;
 final float FLUID_WIDTH = 120;
 
 //Fish config
@@ -66,10 +73,6 @@ int FISHFORCE = 2000;
 //Ball config
 int BALLNUM = 8;
 int BALLRINGS = 8;
-
-//backgrounddiff
-SimpleOpenNI kinect1;
-SimpleOpenNI kinect2;
 
 BackGroundDiff bg;
 
@@ -85,9 +88,9 @@ float SHOALCOLISION = 100;
 
 int timecount;
 
-float r1 = 1.0;   //param: shoal gathering
-float r2 = 0.1; //  param: avoid conflict with other fishes in shoal 
-float r3 = 0.5; // param: along with other fish in shoal
+float r1 = 1.0f;   //param: shoal gathering
+float r2 = 0.1f; //  param: avoid conflict with other fishes in shoal 
+float r3 = 0.5f; // param: along with other fish in shoal
 float r4 = 1;   //  param: avoid other shoal
 float r5 = 100;   //  param: avoid balls
 
@@ -107,17 +110,19 @@ int hband = 80;
 //img for billiard pool background
 PImage img;
 
-void setup() 
+public OpenPool(PApplet pa) 
 {
+  this.pa = pa;
+
   //498*2
   //282*2
-  size(996, 564, OPENGL);
-  hint( ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
+  pa.size(996, 564, PApplet.OPENGL);
+  pa.hint( PApplet.ENABLE_OPENGL_4X_SMOOTH );    // Turn on 4X antialiasing
   //frameRate(30);
 
   //backgrounddiff
-  kinect1 = new SimpleOpenNI(1,this);
-  kinect2 = new SimpleOpenNI(0,this);
+  SimpleOpenNI kinect1 = new SimpleOpenNI(1, pa);
+  SimpleOpenNI kinect2 = new SimpleOpenNI(0, pa);
       /*
     if ( kinect1.openFileRecording("straight1.oni") == false)
     {
@@ -133,17 +138,13 @@ void setup()
      // enable depthMap generation 
   if(kinect1.enableDepth() == false)
   {
-     println("Can't open the depthMap of cam1, maybe the camera is not connected!"); 
-     exit();
-     return;
+     throw new IllegalStateException("Can't open the depthMap of cam1, maybe the camera is not connected!");
   }
  
   // enable depthMap generation 
   if(kinect2.enableDepth() == false)
   {
-     println("Can't open the depthMap of cam2, maybe the camera is not connected!"); 
-     exit();
-     return;
+     throw new IllegalStateException("Can't open the depthMap of cam2, maybe the camera is not connected!");
   }
     kinect1.enableDepth();                       // 距離画像有効化
     kinect2.enableDepth();
@@ -153,38 +154,38 @@ void setup()
   timecount = 0;
 
   PVector v1 = new PVector(0+wband, 0+hband);
-  PVector v2 = new PVector(width-wband, 0+hband);
-  PVector v3 = new PVector(width-wband, height-hband);
-  PVector v4 = new PVector(0+wband, height-hband);
+  PVector v2 = new PVector(pa.width-wband, 0+hband);
+  PVector v3 = new PVector(pa.width-wband, pa.height-hband);
+  PVector v4 = new PVector(0+wband, pa.height-hband);
   field = new Field(v1, v2, v3, v4);
 
-  invWidth  = 1.0f/width;
-  invHeight = 1.0f/height;
-  aspectRatio  = width * invHeight;
+  invWidth  = 1.0f/pa.width;
+  invHeight = 1.0f/pa.height;
+  aspectRatio  = pa.width * invHeight;
   aspectRatio2 = aspectRatio * aspectRatio;
 
   // create fluid and set options
-  fluidSolver = new MSAFluidSolver2D((int)(FLUID_WIDTH), (int)(FLUID_WIDTH * height/width));
-  fluidSolver.enableRGB(true).setFadeSpeed(0.05).setDeltaT(0.5).setVisc(0.001);
+  fluidSolver = new MSAFluidSolver2D((int)(FLUID_WIDTH), (int)(FLUID_WIDTH * pa.height/pa.width));
+  fluidSolver.enableRGB(true).setFadeSpeed(0.05f).setDeltaT(0.5f).setVisc(0.001f);
 
   // create image to hold fluid picture
-  imgFluid = createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), RGB);
+  imgFluid = pa.createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), PApplet.RGB);
 
   // create particle system
   particleSystem = new ParticleSystem();
 
-  stroke(255, 255, 255);
+  pa.stroke(255, 255, 255);
 
-  img = loadImage("billiards.jpg");
-  tint(255, 127);
+  img = pa.loadImage("billiards.jpg");
+  pa.tint(255, 127);
 
-  shoalSystem = new ShoalSystem();
+  shoalSystem = new ShoalSystem(this);
 
-  shoalSystem.addShoal(1, 0.75, 0.75, redaddx, redaddy, FISHNUMBER, SPEED);
-  shoalSystem.addShoal(0.75, 1, 0.75, greenaddx, greenaddy, FISHNUMBER, SPEED);
-  shoalSystem.addShoal(0.75, 0.75, 1, blueaddx, blueaddy, FISHNUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
-  shoalSystem.addShoal(   1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(this, 1, 0.75f, 0.75f, redaddx, redaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(this, 0.75f, 1, 0.75f, greenaddx, greenaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(this, 0.75f, 0.75f, 1, blueaddx, blueaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(this,     1, 1,     1, greenaddx, greenaddy, FISHNUMBER, SPEED);
+  shoalSystem.addShoal(this,     1, 1,     1, greenaddx, greenaddy, FISHNUMBER, SPEED);
 
   ballSystem = new BallSystem();
 
@@ -203,7 +204,7 @@ void setup()
 //main draw
 void draw()
 {
-  background(0);
+  pa.background(0);
   if (timecount >= 2*50)
   {
     timecount -= 2*50;
@@ -214,13 +215,13 @@ void draw()
 
   if (DEBUG)
   {
-    image(img, 0, 0, 498*2, 282*2);
-    field.Draw();
+    pa.image(img, 0, 0, 498*2, 282*2);
+    field.Draw(this);
   }
 
   //draw shoals
-  shoalSystem.Update();
-  shoalSystem.Draw();
+  shoalSystem.Update(this);
+  shoalSystem.Draw(this);
 
   //draw particles
   fluidSolver.update();
@@ -230,21 +231,21 @@ void draw()
     for (int i=0; i<fluidSolver.getNumCells(); i++)
     {
       int d = 1;
-      imgFluid.pixels[i] = color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
+      imgFluid.pixels[i] = pa.color(fluidSolver.r[i] * d, fluidSolver.g[i] * d, fluidSolver.b[i] * d);
     }  
 
     imgFluid.updatePixels();
-    image(imgFluid, 0, 0, width, height);
+    pa.image(imgFluid, 0, 0, pa.width, pa.height);
   } 
   //clear all Balls
   clearBallandAvoid();
 
   bg.update();
-  bg.draw();
+  bg.draw(this);
   //draw balls
   int itercount=0;
-  ArrayList bgPoints = bg.bgPoints;
-  Iterator iter = bgPoints.iterator();
+  ArrayList<Point> bgPoints = bg.bgPoints;
+  Iterator<Point> iter = bgPoints.iterator();
   while (iter.hasNext ())
   {
     Point pt = (Point)iter.next();
@@ -253,27 +254,27 @@ void draw()
   }
   if (DEBUG)
   {
-    text("ball count:", 900, 20);
-    text(bgPoints.size(), 970, 20);
+    pa.text("ball count:", 900, 20);
+    pa.text(bgPoints.size(), 970, 20);
   }
   if (!DEBUG)
   {
-    ballSystem.draw();
-    particleSystem.updateAndDraw();
+    ballSystem.draw(this);
+    particleSystem.updateAndDraw(this);
   }
 
   //////////////////////////////////////////////////  
-  if ( mousePressed && selected >= 0 )
+  if ( pa.mousePressed && selected >= 0 )
   {
-    bg.pos[selected][0] = mouseX;
-    bg.pos[selected][1] = mouseY;
+    bg.pos[selected][0] = pa.mouseX;
+    bg.pos[selected][1] = pa.mouseY;
   }
   else 
   {
     float min_d = 20; 
     selected = -1;
     for (int i=0; i<2; i++) {
-      float d = dist( mouseX, mouseY, bg.pos[i][0], bg.pos[i][1] );
+      float d = PApplet.dist( pa.mouseX, pa.mouseY, bg.pos[i][0], bg.pos[i][1] );
       if ( d < min_d ) {
         min_d = d;
         selected = i;
@@ -281,16 +282,16 @@ void draw()
     }
   }
   if ( selected >= 0 ) {
-    ellipse( mouseX, mouseY, 20, 20 );
+    pa.ellipse( pa.mouseX, pa.mouseY, 20, 20 );
   }
 }
 
 void mouseMoved()
 {
-  float mouseNormX = mouseX * invWidth;
-  float mouseNormY = mouseY * invHeight;
-  float mouseVelX = (mouseX - pmouseX) * invWidth;
-  float mouseVelY = (mouseY - pmouseY) * invHeight;
+  float mouseNormX = pa.mouseX * invWidth;
+  float mouseNormY = pa.mouseY * invHeight;
+  float mouseVelX = (pa.mouseX - pa.pmouseX) * invWidth;
+  float mouseVelY = (pa.mouseY - pa.pmouseY) * invHeight;
 
   addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
 }
@@ -304,17 +305,17 @@ void OutputStatus()
 {
   if (DEBUG)
   {
-    println("DEBUG MODE");
+    PApplet.println("DEBUG MODE");
   }
   else
   {
-    println("NORMAL MODE");
+    PApplet.println("NORMAL MODE");
   }
 }
 
 void keyPressed()
 {
-  switch(key)
+  switch(pa.key)
   {
   case'b':
     bg.rememberBackground();
@@ -329,8 +330,8 @@ void keyPressed()
     OutputStatus();
     break;
   }
-  print("FRAMERATE: ");
-  println(frameRate);
+  PApplet.print("FRAMERATE: ");
+  PApplet.println(pa.frameRate);
 }
 
 void clearBallandAvoid()
@@ -362,20 +363,21 @@ void addForceToFluid(float x, float y, float dx, float dy)
 
     int index = fluidSolver.getIndexForNormalizedPosition(x, y);
 
-    color drawColor;
+    int drawColor;
 
-    colorMode(HSB, 360, 1, 1);
-    float hue = ((x + y) * 180 + frameCount) % 360;
-    drawColor = color(hue, 1, 1);
-    colorMode(RGB, 1);  
+    pa.colorMode(PApplet.HSB, 360, 1, 1);
+    float hue = ((x + y) * 180 + pa.frameCount) % 360;
+    drawColor = pa.color(hue, 1, 1);
+    pa.colorMode(PApplet.RGB, 1);  
 
-    fluidSolver.rOld[index]  += red(drawColor) * colorMult;
-    fluidSolver.gOld[index]  += green(drawColor) * colorMult;
-    fluidSolver.bOld[index]  += blue(drawColor) * colorMult;
+    fluidSolver.rOld[index]  += pa.red(drawColor) * colorMult;
+    fluidSolver.gOld[index]  += pa.green(drawColor) * colorMult;
+    fluidSolver.bOld[index]  += pa.blue(drawColor) * colorMult;
 
-    particleSystem.addParticles(x * width, y * height, 10);
+    particleSystem.addParticles(x * pa.width, y * pa.height, 10);
     fluidSolver.uOld[index] += dx * velocityMult;
     fluidSolver.vOld[index] += dy * velocityMult;
   }
 }
 
+}

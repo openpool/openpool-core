@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="code/core.jar"/>
+	<classpathentry kind="lib" path="lib/javacv/javacpp.jar"/>
+	<classpathentry kind="lib" path="lib/javacv/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/javacv/javacv.jar"/>
+	<classpathentry kind="lib" path="lib/MSAFluid/library/MSAFluid.jar"/>
+	<classpathentry kind="lib" path="lib/SimpleOpenNI/library/SimpleOpenNI.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/lib/SimpleOpenNI/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/opengl/library/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/opengl/library/jogl.jar"/>
+	<classpathentry kind="lib" path="lib/opengl/library/opengl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/lib/opengl/library/windows64"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

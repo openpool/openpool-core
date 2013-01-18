@@ -1,15 +1,21 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import processing.core.PVector;
+
 class ShoalSystem
 {
-  ArrayList shoals;
-  ArrayList avoidEllipseObject;
+  ArrayList<Shoal> shoals;
+  ArrayList<EllipseObject> avoidEllipseObject;
   //construct
-  ShoalSystem()
+  ShoalSystem(OpenPool op)
   {
-    shoals = new ArrayList();
-    avoidEllipseObject = new ArrayList();
+    shoals = new ArrayList<Shoal>();
+    avoidEllipseObject = new ArrayList<EllipseObject>();
   }
 
   Shoal addShoal(
+  OpenPool op,
   float _R, float _G, float _B, 
   int _x, int _y, 
   int _number, float speed)
@@ -17,18 +23,18 @@ class ShoalSystem
     Shoal shoal = new Shoal();
 
     Fish[] fishes = new Fish[_number];
-    float angle = TWO_PI / _number;
+    float angle = (float) (Math.PI * 2 / _number);
 
     for (int i = 1; i <= _number; i++)
     {
-      float addx = cos(angle * i);
-      float addy = sin(angle * i);
+      float addx = (float) Math.cos(angle * i);
+      float addy = (float) Math.sin(angle * i);
 
       Fish fishtemp = new Fish(
-      width / 2 + addx * 50 + _x, 
-      height / 2 + addy * 50 + _y, 
-      random(- speed, speed) * addx, 
-      random(- speed, speed) * addy, 
+      op.pa.width / 2 + addx * 50 + _x, 
+      op.pa.height / 2 + addy * 50 + _y, 
+      (float) (Math.random() - 0.5) * speed * addx, 
+      (float) (Math.random() - 0.5) * speed * addy, 
       i - 1, 
       _R, _G, _B, speed
         );
@@ -50,35 +56,35 @@ class ShoalSystem
     avoidEllipseObject.clear();
   }
 
-  void Update()
+  void Update(OpenPool op)
   { 
-    Iterator iter_i = shoals.iterator();  
+    Iterator<Shoal> iter_i = shoals.iterator();  
     while (iter_i.hasNext ())
     {
       Shoal shoal_i = (Shoal)iter_i.next();
 
       shoal_i.clearVector();
 
-      Iterator iter_j = shoals.iterator();
+      Iterator<Shoal> iter_j = shoals.iterator();
 
       while (iter_j.hasNext ())
       {
-        Shoal shoal_j = (Shoal)iter_j.next();
+        Shoal shoal_j = iter_j.next();
 
         if (shoal_i != shoal_j)
         {
           PVector force = new PVector();
-          force = AvoidEllipse(shoal_i.x, shoal_i.y, shoal_j.x, shoal_j.y, SHOALCOLISION);
+          force = AvoidEllipse(shoal_i.x, shoal_i.y, shoal_j.x, shoal_j.y, op.SHOALCOLISION);
           shoal_i.addForce(force.x, force.y);
         }
       }
 
-      Iterator iter_f = (shoal_i.fishes).iterator();
+      Iterator<Fish> iter_f = (shoal_i.fishes).iterator();
       while (iter_f.hasNext ())
       {
         Fish fish = (Fish)iter_f.next();
         
-        Iterator iter_o = avoidEllipseObject.iterator();
+        Iterator<EllipseObject> iter_o = avoidEllipseObject.iterator();
         PVector force = new PVector();
         while (iter_o.hasNext ())
         {
@@ -88,7 +94,7 @@ class ShoalSystem
           fish.v5.y = fish.v5.y + force.y;
         }       
       }
-      shoal_i.update();
+      shoal_i.update(op);
 
     }
 
@@ -106,31 +112,33 @@ class ShoalSystem
     {
       if ((_x-_xb)!=0)
       {
-        v.x = (_x-_xb)/abs(_x-_xb);
+        v.x = (_x-_xb)/Math.abs(_x-_xb);
       }
       if ((_y-_yb)!=0)
       {
-        v.y = (_y-_yb)/abs(_y-_yb);
+        v.y = (_y-_yb)/Math.abs(_y-_yb);
       }
     }
     return v;
   }
 
-  void Draw()
+  void Draw(OpenPool op)
   {
-    Iterator iter_shoal = shoals.iterator();
+    Iterator<Shoal> iter_shoal = shoals.iterator();
     while (iter_shoal.hasNext ())
     {
-      Shoal shoal = (Shoal)iter_shoal.next();
-      shoal.draw();
+      Shoal shoal = iter_shoal.next();
+      shoal.draw(op);
     }
     
-    Iterator iter = avoidEllipseObject.iterator();
+    Iterator<EllipseObject> iter = avoidEllipseObject.iterator();
     while (iter.hasNext ())
     {
       EllipseObject EO = (EllipseObject)iter.next();
-      EO.draw();
+      EO.draw(op);
     }
   }
+
+  private float sq(float a) { return a*a; }
 }
 

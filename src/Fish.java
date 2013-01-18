@@ -1,3 +1,5 @@
+import processing.core.PVector;
+
 class Fish
 {
 
@@ -36,10 +38,10 @@ class Fish
     return;
   }
 
-  void move()
+  void move(OpenPool op)
   {
-    vx += r1 * v1.x + r2 * v2.x + r3 * v3.x + r4 * v4.x + r5 * v5.x;
-    vy += r1 * v1.y + r2 * v2.y + r3 * v3.y + r4 * v4.y + r5 * v5.y;
+    vx += op.r1 * v1.x + op.r2 * v2.x + op.r3 * v3.x + op.r4 * v4.x + op.r5 * v5.x;
+    vy += op.r1 * v1.y + op.r2 * v2.y + op.r3 * v3.y + op.r4 * v4.y + op.r5 * v5.y;
 
 /*
     print(" r1*v1.x:");    
@@ -66,7 +68,7 @@ class Fish
 */
 
     //max speed check 
-    float vVector = sqrt(vx * vx + vy * vy);
+    float vVector = (float) Math.sqrt(vx * vx + vy * vy);
     if (vVector > speed) 
     {
       vx = (vx / vVector) * speed;
@@ -76,53 +78,53 @@ class Fish
     x += vx;
     y += vy;
 
-    if (x - R <= 0 + wband) 
+    if (x - op.R <= 0 + op.wband) 
     {
-      x = R + wband;
+      x = op.R + op.wband;
       vx *= -1;
     }
-    if (x + R >= (width - wband)) 
+    if (x + op.R >= (op.pa.width - op.wband)) 
     {
-      x = width - wband - R;
+      x = op.pa.width - op.wband - op.R;
       vx *= -1;
     }
 
-    if (y - R <= 0 + hband) 
+    if (y - op.R <= 0 + op.hband) 
     {
-      y = R + hband;
+      y = op.R + op.hband;
       vy *= -1;
     }
-    if (y + R >= height - hband) 
+    if (y + op.R >= op.pa.height - op.hband) 
     {
-      y = height - R - hband;
+      y = op.pa.height - op.R - op.hband;
       vy *= -1;
     }
   }
 
-  void draw() 
+  void draw(OpenPool op) 
   {
     float dx = 0;
     float dy = 0;
     float rtemp;
 
-    noStroke();
-    fill(r, g, b, 100);
+    op.pa.noStroke();
+    op.pa.fill(r, g, b, 100);
 
     for (int i = 0 ; i < 5 ; i++)
     {
       dx = -vx * 5 * i / 10;
       dy = -vy * 5 * i / 10;
-      rtemp = R * (5-i) / 10;
-      ellipse(x-dx, y-dy, rtemp * 2, rtemp * 2);
+      rtemp = op.R * (5-i) / 10;
+      op.pa.ellipse(x-dx, y-dy, rtemp * 2, rtemp * 2);
     }
     for (int i = 0 ; i < 10 ; i++ )
     {
-      noStroke();
-      fill(r, g, b, 100);//255*((i)/10));
+      op.pa.noStroke();
+      op.pa.fill(r, g, b, 100);//255*((i)/10));
       dx = -vx * 5 * i / 10;
       dy = -vy * 5 * i / 10;
-      rtemp = R * (10-i) / 10;
-      ellipse(x+dx, y+dy, rtemp * 2, rtemp * 2);
+      rtemp = op.R * (10-i) / 10;
+      op.pa.ellipse(x+dx, y+dy, rtemp * 2, rtemp * 2);
     }
   }
 
