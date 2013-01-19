@@ -110,8 +110,6 @@ PImage img;
 public OpenPool(PApplet pa) 
 {
   this.pa = pa;
-  pa.registerMouseEvent(this);
-  pa.registerKeyEvent(this);
 
   //498*2
   //282*2
@@ -285,7 +283,7 @@ public void draw()
   }
 }
 
-void mouseMoved()
+public void mouseMoved()
 {
   float mouseNormX = pa.mouseX * invWidth;
   float mouseNormY = pa.mouseY * invHeight;
@@ -293,11 +291,6 @@ void mouseMoved()
   float mouseVelY = (pa.mouseY - pa.pmouseY) * invHeight;
 
   addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
-}
-
-void mousePressed()
-{
-  ;
 }
 
 void OutputStatus()
@@ -312,7 +305,7 @@ void OutputStatus()
   }
 }
 
-void keyPressed()
+public void keyPressed()
 {
   switch(pa.key)
   {
