@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="src.app"/>
 	<classpathentry kind="lib" path="code/core.jar"/>
-	<classpathentry kind="lib" path="lib/javacv/javacpp.jar"/>
+	<classpathentry kind="lib" path="lib/javacv/javacpp.jar" sourcepath="lib/javacv/javacpp-0.3-java-src.zip"/>
 	<classpathentry kind="lib" path="lib/javacv/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="lib/javacv/javacv.jar"/>
+	<classpathentry kind="lib" path="lib/javacv/javacv.jar" sourcepath="lib/javacv/javacv-0.3-java-src.zip"/>
 	<classpathentry kind="lib" path="lib/MSAFluid/library/MSAFluid.jar"/>
 	<classpathentry kind="lib" path="lib/SimpleOpenNI/library/SimpleOpenNI.jar">
 		<attributes>
