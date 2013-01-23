@@ -41,6 +41,7 @@ import java.util.Iterator;
 import msafluid.*;
 import SimpleOpenNI.*;
 import processing.core.*;
+import processing.opengl.PGraphicsOpenGL;
 
 public class OpenPool {
 PApplet pa;
