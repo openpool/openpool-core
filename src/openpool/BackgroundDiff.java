@@ -58,7 +58,7 @@ class BackGroundDiff
     depth_height = kinect1.depthHeight();
 
     currentImage = opencv_core.cvCreateImage(
-    		opencv_core.cvSize(depth_width, depth_height), opencv_core.IPL_DEPTH_8U, 1);
+    		opencv_core.cvSize(depth_width, depth_height), opencv_core.IPL_DEPTH_8U, 4);
     backgroundImage = opencv_core.cvCloneImage(
     		currentImage);
 
@@ -262,7 +262,7 @@ class BackGroundDiff
   
   void copyImage(IplImage target,
 		  PImage source, int x, int y, int width, int height) {
-	    IplImage iplImage1 = IplImage.createFrom((BufferedImage)kinect1.depthImage().getImage());
+	    IplImage iplImage1 = IplImage.createFrom((BufferedImage)source.getImage());
 	    opencv_core.cvSetImageROI(target, opencv_core.cvRect(
 	    		x, y,
 	    		width, height));

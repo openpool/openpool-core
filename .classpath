@@ -3,20 +3,24 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src.app"/>
 	<classpathentry kind="lib" path="code/core.jar"/>
-	<classpathentry kind="lib" path="lib/javacv/javacpp.jar" sourcepath="lib/javacv/javacpp-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="lib/javacv/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="lib/javacv/javacv.jar" sourcepath="lib/javacv/javacv-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="lib/MSAFluid/library/MSAFluid.jar"/>
-	<classpathentry kind="lib" path="lib/SimpleOpenNI/library/SimpleOpenNI.jar">
+	<classpathentry kind="lib" path="libs/javacv/javacpp.jar" sourcepath="libs/javacv/javacpp-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/javacv/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="libs/javacv/javacv.jar" sourcepath="libs/javacv/javacv-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/MSAFluid/library/MSAFluid.jar"/>
+	<classpathentry kind="lib" path="libs/SimpleOpenNI/library/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/lib/SimpleOpenNI/library"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/SimpleOpenNI/library"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/opengl/library/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="lib/opengl/library/jogl.jar"/>
-	<classpathentry kind="lib" path="lib/opengl/library/opengl.jar">
+	<classpathentry kind="lib" path="libs/opengl/library/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="libs/opengl/library/jogl.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/lib/opengl/library/windows64"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/opengl/library/windows64"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/opengl/library/opengl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/opengl/library/windows64"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

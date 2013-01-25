@@ -121,7 +121,8 @@ public OpenPool(PApplet pa)
   //backgrounddiff
   SimpleOpenNI kinect1 = new SimpleOpenNI(1, pa);
   SimpleOpenNI kinect2 = new SimpleOpenNI(0, pa);
-      /*
+  
+    /*
     if ( kinect1.openFileRecording("straight1.oni") == false)
     {
       println("can't find recorded file1 !!!!");
@@ -133,7 +134,8 @@ public OpenPool(PApplet pa)
       exit();
     }
     */
-     // enable depthMap generation 
+  
+  // enable depthMap generation 
   if(kinect1.enableDepth() == false)
   {
      throw new IllegalStateException("Can't open the depthMap of cam1, maybe the camera is not connected!");
@@ -144,8 +146,9 @@ public OpenPool(PApplet pa)
   {
      throw new IllegalStateException("Can't open the depthMap of cam2, maybe the camera is not connected!");
   }
-    kinect1.enableDepth();                       // 距離画像有効化
-    kinect2.enableDepth();
+    
+  kinect1.enableDepth();
+  kinect2.enableDepth();
     
   bg = new BackGroundDiff(kinect1,kinect2);
 
@@ -184,19 +187,19 @@ public OpenPool(PApplet pa)
   shoalSystem.addShoal(this, 0.75f, 0.75f, 1, blueaddx, blueaddy, FISHNUMBER, SPEED);
   shoalSystem.addShoal(this,     1, 1,     1, greenaddx, greenaddy, FISHNUMBER, SPEED);
   shoalSystem.addShoal(this,     1, 1,     1, greenaddx, greenaddy, FISHNUMBER, SPEED);
-
+  
   ballSystem = new BallSystem();
 
   /*
   setBallandSetAvoid(200, 180, 50);
-   setBallandSetAvoid(200, 380, 50);
-   setBallandSetAvoid(400, 180, 50);
-   setBallandSetAvoid(400, 380, 50);
-   setBallandSetAvoid(600, 180, 50);
-   setBallandSetAvoid(600, 380, 50);
-   setBallandSetAvoid(800, 180, 50);
-   setBallandSetAvoid(800, 380, 50);
-   */
+  setBallandSetAvoid(200, 380, 50);
+  setBallandSetAvoid(400, 180, 50);
+  setBallandSetAvoid(400, 380, 50);
+  setBallandSetAvoid(600, 180, 50);
+  setBallandSetAvoid(600, 380, 50);
+  setBallandSetAvoid(800, 180, 50);
+  setBallandSetAvoid(800, 380, 50);
+  */
 }
 
 //main draw
@@ -245,6 +248,7 @@ public void draw()
   bg.draw(this);
   ArrayList<Point> bgPoints = bg.bgPoints;
   Iterator<Point> iter = bgPoints.iterator();
+  
   while (iter.hasNext ())
   {
     Point pt = iter.next();
@@ -313,10 +317,12 @@ public void keyPressed()
   case'b':
     bg.rememberBackground();
     break;
+    
   case 'r': 
     particleSystem.renderUsingVA ^= true; 
     PApplet.println("renderUsingVA: " + particleSystem.renderUsingVA);
     break;
+    
   case ' ':
     DEBUG^= true;
     drawFluid^=true;
