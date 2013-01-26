@@ -20,10 +20,10 @@ public class OpenPoolExample extends PApplet {
 		}
 		op = new OpenPool(this,
 				userDir + "\\data\\straight1.oni");
-		op.setDebugMode(true);
+		op.setConfigMode(true);
 	}
 	
 	public void draw() {
-		op.draw();
+		
 	}
 }

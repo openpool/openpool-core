@@ -1,31 +1,67 @@
 package openpool;
 
 import SimpleOpenNI.*;
+
 import java.awt.image.BufferedImage;
 import com.googlecode.javacv.Blobs;
-import com.googlecode.javacv.JavaCV;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 import processing.core.PImage;
 
-class BallDetector implements Runnable {
-	JavaCV opencv;
-	SimpleOpenNI cam1;
-	SimpleOpenNI cam2;
+public class BallDetector implements Runnable {
+	private SimpleOpenNI cam1;
+	private SimpleOpenNI cam2;
 
-	IplImage currentImage;
-	IplImage backgroundImage;
-	IplImage temporaryImage;
-	BufferedImage currentBufferedImage;
+	private int depthWidth;
+	private int depthHeight;
 
-	Blobs blobs = null;
-	double threshold = 0.1;
-	int depthWidth;
-	int depthHeight;
+	/**
+	 * 1 channel grayscale image.
+	 */
+	private IplImage currentImage;
+
+	/**
+	 * 1 channel grayscale image.
+	 */
+	private IplImage backgroundImage;
+
+	/**
+	 * 4 channel full color (+ alpha) image.
+	 */
+	private IplImage temporaryImage;
+
+	/**
+	 * Background-substracted image.
+	 */
+	private BufferedImage diffImage;
+
+	/**
+	 * Final result image.
+	 */
+	private BufferedImage resultImage;
+
+	/**
+	 * Blob detector. (Current detection results.)
+	 */
+	private Blobs blobs = null;
+
+	/**
+	 * Threshold for binarization.
+	 */
+	private double threshold = 10;
+
+	/**
+	 * Offset for the first camera.
+	 */
+	private int x1 = 0, y1 = 0;
+
+	/**
+	 * Offset for the second camera.
+	 */
+	private int x2 = 0, y2 = 0;
 
 	BallDetector(SimpleOpenNI cam1, SimpleOpenNI cam2) {
-		opencv = new JavaCV();
 		this.cam1 = cam1;
 		this.cam2 = cam2;
 
@@ -42,8 +78,17 @@ class BallDetector implements Runnable {
 
 		currentImage = cvCreateImage(
 				cvSize(depthWidth, depthHeight),
+				IPL_DEPTH_8U, 1);
+
+		temporaryImage = cvCreateImage(
+				cvSize(depthWidth, depthHeight),
 				IPL_DEPTH_8U, 4);
-		currentBufferedImage = new BufferedImage(
+
+		diffImage = new BufferedImage(
+				currentImage.width(), currentImage.height(),
+				BufferedImage.TYPE_INT_ARGB);
+
+		resultImage = new BufferedImage(
 				currentImage.width(), currentImage.height(),
 				BufferedImage.TYPE_INT_ARGB);
 		
@@ -63,14 +108,19 @@ class BallDetector implements Runnable {
 		// Calculate the diff image
 		cvAbsDiff(currentImage, backgroundImage, currentImage);
 
-		// Blur
-		cvSmooth(currentImage, currentImage, CV_BLUR_NO_SCALE, 3);
+		// Comment out the line below when calculating difference between full color (+ alpha) images.
+		// cvAddS(currentImage, cvScalar(0, 0, 0, 255), currentImage, null);
+
+		synchronized (this) {
+			cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
+			temporaryImage.copyTo(diffImage);
+		}
 
 		// Binarization
-		cvThreshold(currentImage, currentImage, threshold, threshold, CV_THRESH_BINARY);
+		cvThreshold(currentImage, currentImage, getThreshold(), 255, CV_THRESH_BINARY);
 
 		// Dilation
-		cvDilate(currentImage, currentImage, null, 5);
+		// cvDilate(currentImage, currentImage, null, 5);
 
 		// Detect blobs
 		// http://code.google.com/p/javacv/source/browse/samples/BlobDemo.java
@@ -81,51 +131,72 @@ class BallDetector implements Runnable {
 				6);
 
 		synchronized (this) {
-			currentImage.copyTo(currentBufferedImage);
+			cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
+			temporaryImage.copyTo(resultImage);
 		}
 	}
 
-	void rememberBackground() {
+	public BufferedImage getDiffImage() {
+		return diffImage;
+	}
+
+	public BufferedImage getImage() {
+		return resultImage;
+	}
+
+	public double getThreshold() {
+		return threshold;
+	}
+
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
+	}
+
+	public void rememberBackground() {
 		retrieveDepthImage(backgroundImage);
 	}
 
-	void retrieveDepthImage(IplImage target) {
-		if (cam2 == null) {
-			copyImage(target, cam1.depthImage(), 0, 0, cam1.depthWidth(), cam1.depthHeight());
-			fixDepthImage(target, cam1.depthMap(), 0, 0, cam1.depthWidth(), cam1.depthHeight());
-		} else {
-			combineDepthImage(target, cam1.depthImage(), cam2.depthImage(),
-					0, 0, cam1.depthWidth(), cam1.depthHeight(),
-					0, 0, cam2.depthWidth(), cam2.depthHeight());
-			fixDepthImage(target, cam1.depthMap(), cam2.depthMap(),
-					0, 0, cam1.depthWidth(), cam1.depthHeight(),
-					0, 0, cam2.depthWidth(), cam2.depthHeight());
+	private void retrieveDepthImage(IplImage target) {
+		copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+		fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+
+		if (cam2 != null) {
+			copyImage(target, cam2.depthImage(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
+			fillDepthErrorHoles(target, cam2.depthMap(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
 		}
+
+		// Blur
+		// FIXME This code breaks the target image. Need to investigate the correct use of this method.
+		// cvSmooth(target, target, CV_BLUR_NO_SCALE, 3);
 	}
 
-	void combineDepthImage(IplImage combined, PImage img1, PImage img2,
-			int img1x, int img1y, int img1w, int img1h, int img2x, int img2y,
-			int img2w, int img2h) {
-		copyImage(combined, img1, img1x, img1y, img1w, img1h);
-		copyImage(combined, img2, img2x, img2y, img2w, img2h);
-	}
-
-	void copyImage(IplImage target, PImage source,
+	/**
+	 * Copy image region from PImage to IplImage.
+	 * @param target Target IplImage object
+	 * @param source Source PImage object
+	 * @param x Target x-coordinate
+	 * @param y Target y-coordinate
+	 * @param width Target width
+	 * @param height Target height
+	 */
+	private void copyImage(IplImage target, PImage source,
 			int x, int y, int width, int height) {
-		IplImage tmp = IplImage.createFrom((BufferedImage) source.getImage());
-		cvSetImageCOI(tmp, 0);
+		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 		cvSetImageROI(target, cvRect(x, y, width, height));
-		cvCopy(tmp, target);
+		cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+		// cvReleaseImage(sourceImage);
 	}
 
-	void fixDepthImage(IplImage combined, int[] img1, int[] img2,
-			int img1x, int img1y, int img1w, int img1h,
-			int img2x, int img2y, int img2w, int img2h) {
-		fixDepthImage(combined, img1, img1x, img1y, img1w, img1h);
-		fixDepthImage(combined, img2, img2x, img2y, img2w, img2h);
-	}
-
-	void fixDepthImage(IplImage target, int[] depthMap,
+	/**
+	 * Fill black holes caused by IR absorption.
+	 * @param target Target IplImage (1 channel grayscale)
+	 * @param depthMap Source depth map
+	 * @param x Target x-coordinate
+	 * @param y Target y-coordinate
+	 * @param width Target width
+	 * @param height Target height
+	 */
+	private void fillDepthErrorHoles(IplImage target, int[] depthMap,
 			int x, int y, int width, int height) {
 		CvMat mat = target.asCvMat();
 		for (int targetX = x >= 0 ? x : 0; targetX < target.width(); targetX++) {
@@ -134,10 +205,17 @@ class BallDetector implements Runnable {
 
 				// Assume depth errors are caused by the black ball
 				if (depth <= 0) {
-					// bb1.put(targetX + targetY * width, (byte) 0xff);
-					mat.put(targetX + targetY * width, 0xffffff);
+					mat.put(targetX + targetY * width, 0xff);
 				}
 			}
 		}
+	}
+	
+	public void dispose() {
+		/*
+		cvReleaseImage(currentImage);
+		cvReleaseImage(backgroundImage);
+		cvReleaseImage(temporaryImage);
+		*/
 	}
 }
