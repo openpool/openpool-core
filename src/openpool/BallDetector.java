@@ -98,7 +98,7 @@ public class BallDetector implements Runnable {
 		rememberBackground();
 	}
 
-	public void run() {
+	public synchronized void run() {
 		cam1.update();
 		if (cam2 != null) {
 			cam2.update();
@@ -112,10 +112,8 @@ public class BallDetector implements Runnable {
 		// Comment out the line below when calculating difference between full color (+ alpha) images.
 		// cvAddS(currentImage, cvScalar(0, 0, 0, 255), currentImage, null);
 
-		synchronized (this) {
-			cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
-			temporaryImage.copyTo(diffImage);
-		}
+		cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
+		temporaryImage.copyTo(diffImage);
 
 		// Binarization
 		cvThreshold(currentImage, currentImage, getThreshold(), 255, CV_THRESH_BINARY);
@@ -128,26 +126,27 @@ public class BallDetector implements Runnable {
         CvSeq contours = new CvSeq();
         CvSeq ptr = new CvSeq();
         CvMemStorage mem = cvCreateMemStorage(0);
-        cvFindContours(currentImage, mem, contours, sizeof(CvContour.class) , CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+        int count = cvFindContours(currentImage, mem, contours, sizeof(CvContour.class) , CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
 
-        Random rand = new Random();
-        for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
-        	double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
-        	if (area > 16) {
-	            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
-	            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
-	            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
-	            // TODO Add this to the list of active balls.
-        	}
+        if (count > 0) {
+	        Random rand = new Random();
+	        for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
+	        	double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
+	        	if (area > 9) {
+		            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+		            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
+		            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+		            
+		            // TODO Add this to the list of active balls.
+	        	}
+	        }
+			cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
         }
-		cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
 
 		cvClearMemStorage(mem);
 		cvReleaseMemStorage(mem);
 
-        synchronized (this) {
-			temporaryImage.copyTo(resultImage);
-		}
+		temporaryImage.copyTo(resultImage);
 	}
 
 	public BufferedImage getDiffImage() {
@@ -166,7 +165,7 @@ public class BallDetector implements Runnable {
 		this.threshold = threshold;
 	}
 
-	public void rememberBackground() {
+	public synchronized void rememberBackground() {
 		retrieveDepthImage(backgroundImage);
 	}
 
