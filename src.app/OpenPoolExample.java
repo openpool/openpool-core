@@ -1,3 +1,5 @@
+import java.io.File;
+
 import openpool.OpenPool;
 import processing.core.PApplet;
 
@@ -11,18 +13,17 @@ public class OpenPoolExample extends PApplet {
 	OpenPool op;
 	
 	public void setup() {
-		op = new OpenPool(this);
+		String userDir = System.getProperty("user.dir");
+		String binPath = File.separatorChar + "bin";
+		if (userDir.endsWith(binPath)) {
+			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+		}
+		op = new OpenPool(this,
+				userDir + "\\data\\straight1.oni");
+		op.setDebugMode(true);
 	}
 	
 	public void draw() {
 		op.draw();
-	}
-	
-	public void mouseMoved() {
-		op.mouseMoved();
-	}
-	
-	public void keyPressed() {
-		op.keyPressed();
 	}
 }

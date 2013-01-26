@@ -21,6 +21,7 @@ class BallSystem
   {
     balls.clear();
   }
+
   void draw(OpenPool op)
   {
     Iterator<Ball> iter = balls.iterator();

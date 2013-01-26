@@ -25,4 +25,11 @@ class Ball
 
   }
 
+  void draw(OpenPool op)
+  {
+    op.pa.stroke(255, 255, 255);
+    op.pa.fill(255, 255, 255);
+    op.pa.ellipse(x, y, 2*realr, 2*realr);
+    op.pa.noFill();
+  }
 }
