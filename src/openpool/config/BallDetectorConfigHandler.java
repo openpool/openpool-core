@@ -71,8 +71,8 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 	@Override
 	public void mouseEvent(MouseEvent e) {
 		mouseHovering = e.getX() >= 10 && e.getX() <= op.getWidth() - 10
-				&& e.getY() >= op.getHeight() - 30
-				&& e.getY() <= op.getHeight() - 15;
+				&& e.getY() >= op.getHeight() - 40
+				&& e.getY() <= op.getHeight() - 5;
 		switch (e.getID()) {
 		case MouseEvent.MOUSE_PRESSED:
 			if (!mouseHovering) break;

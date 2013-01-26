@@ -2,8 +2,16 @@ package openpool;
 
 import SimpleOpenNI.*;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
-import com.googlecode.javacv.Blobs;
+import java.util.Random;
+
+import com.googlecode.javacv.cpp.opencv_core.CvContour;
+import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
+import com.googlecode.javacv.cpp.opencv_core.CvScalar;
+import com.googlecode.javacv.cpp.opencv_core.CvSeq;
+
+import static com.googlecode.javacpp.Loader.sizeof;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
@@ -42,11 +50,6 @@ public class BallDetector implements Runnable {
 	private BufferedImage resultImage;
 
 	/**
-	 * Blob detector. (Current detection results.)
-	 */
-	private Blobs blobs = null;
-
-	/**
 	 * Threshold for binarization.
 	 */
 	private double threshold = 10;
@@ -64,8 +67,6 @@ public class BallDetector implements Runnable {
 	BallDetector(SimpleOpenNI cam1, SimpleOpenNI cam2) {
 		this.cam1 = cam1;
 		this.cam2 = cam2;
-
-		blobs = new Blobs();
 
 		cam1.update();
 		depthWidth = cam1.depthWidth();
@@ -122,16 +123,22 @@ public class BallDetector implements Runnable {
 		// Dilation
 		// cvDilate(currentImage, currentImage, null, 5);
 
-		// Detect blobs
-		// http://code.google.com/p/javacv/source/browse/samples/BlobDemo.java
-		blobs.BlobAnalysis(currentImage,
-				-1, -1, // ROI start col, row
-				-1, -1, // ROI cols, rows
-				1, // border (0 = black; 1 = white)
-				6);
+        cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
 
-		synchronized (this) {
-			cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
+        CvSeq contours = new CvSeq();
+        CvSeq ptr = new CvSeq();
+        CvMemStorage mem = cvCreateMemStorage(0);
+        cvFindContours(currentImage, mem, contours, sizeof(CvContour.class) , CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+
+        Random rand = new Random();
+        for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
+            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
+            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+        }
+		cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
+
+        synchronized (this) {
 			temporaryImage.copyTo(resultImage);
 		}
 	}
@@ -184,6 +191,7 @@ public class BallDetector implements Runnable {
 		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 		cvSetImageROI(target, cvRect(x, y, width, height));
 		cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+		cvResetImageROI(target);
 		// cvReleaseImage(sourceImage);
 	}
 
@@ -205,7 +213,7 @@ public class BallDetector implements Runnable {
 
 				// Assume depth errors are caused by the black ball
 				if (depth <= 0) {
-					mat.put(targetX + targetY * width, 0xff);
+					mat.put(targetX + targetY * width, 0);
 				}
 			}
 		}

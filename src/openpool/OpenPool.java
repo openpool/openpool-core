@@ -163,7 +163,7 @@ public class OpenPool {
 	}
 
 	/**
-	 * Call this from Processing code.
+	 * This method is called BEFORE draw() of the processing sketch.
 	 */
 	public void pre() {
 		if (!isConfigMode) {
@@ -221,6 +221,8 @@ public class OpenPool {
 		future.cancel(true);
 		ballDetector.dispose();
 	}
+
+	// Getters and setters follow:
 
 	public int getWidth() { return pa.getWidth(); }
 	
