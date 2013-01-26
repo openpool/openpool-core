@@ -132,11 +132,18 @@ public class BallDetector implements Runnable {
 
         Random rand = new Random();
         for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
-            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
-            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
-            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+        	double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
+        	if (area > 16) {
+	            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+	            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
+	            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
+	            // TODO Add this to the list of active balls.
+        	}
         }
 		cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
+
+		cvClearMemStorage(mem);
+		cvReleaseMemStorage(mem);
 
         synchronized (this) {
 			temporaryImage.copyTo(resultImage);
