@@ -8,6 +8,7 @@ void setup() {
 }
 
 void draw() {
+  op.updateBalls();
   for (Ball ball : op.balls) {
     ball.draw(op);
   }
