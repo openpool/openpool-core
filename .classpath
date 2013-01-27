@@ -2,20 +2,19 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src.app"/>
-	<classpathentry kind="lib" path="libs/core.jar"/>
-	<classpathentry kind="lib" path="libs/javacpp.jar" sourcepath="libs/javacpp-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="libs/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="libs/javacv.jar" sourcepath="libs/javacv-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="libs/MSAFluid.jar"/>
-	<classpathentry kind="lib" path="libs/SimpleOpenNI.jar">
+	<classpathentry kind="lib" path="lib/javacpp.jar" sourcepath="lib/javacpp-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="lib/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/javacv.jar" sourcepath="lib/javacv-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="lib/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/library"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-amd64.jar"/>
-	<classpathentry kind="lib" path="libs/jogl-all-natives-windows-amd64.jar"/>
-	<classpathentry kind="lib" path="libs/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="libs/jogl-all.jar"/>
+	<classpathentry kind="lib" path="core/library/core.jar"/>
+	<classpathentry kind="lib" path="core/library/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="core/library/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="core/library/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="core/library/jogl-all.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

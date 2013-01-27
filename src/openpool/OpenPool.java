@@ -1,8 +1,8 @@
 package openpool;
 
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -97,13 +97,22 @@ public class OpenPool {
 
 		// Set window size.
 		pa.size(498*2, 282*2);
-		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH); // Turn on 4X antialiasing
+
+		// For Processing 2.0b
+		pa.smooth(4);
+		pa.registerMethod("mouseEvent", this);
+		pa.registerMethod("keyEvent", this);
+		pa.registerMethod("dispose", this);
+		pa.registerMethod("pre", this);
 		
-		// Register event handlers.
-		pa.registerMouseEvent(this);
-		pa.registerKeyEvent(this);
-		pa.registerDispose(this);
-		pa.registerPre(this);
+		// For Processing 1.5.1
+		//	Turn on 4X antialiasing
+		//pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
+		//	Register event handlers.
+		//pa.registerMouseEvent(this);
+		//pa.registerKeyEvent(this);
+		//pa.registerDispose(this);
+		//pa.registerPre(this);
 
 		// Initialize OpenNI drivers.
 		initOpenNI(numCamera, cam1FileName, cam2FileName);
@@ -205,14 +214,14 @@ public class OpenPool {
 		}
 		
 		// Switch between config modes.
-		if (e.getID() == KeyEvent.KEY_RELEASED) {
+		if (e.getAction() == KeyEvent.RELEASE) {
 			switch(e.getKeyCode()) {
-			case KeyEvent.VK_RIGHT:
-			case KeyEvent.VK_NUMPAD6:
+			case java.awt.event.KeyEvent.VK_RIGHT:
+			case java.awt.event.KeyEvent.VK_NUMPAD6:
 				currentModeIndex = (currentModeIndex + 1) % configHandlers.length;
 				break;
-			case KeyEvent.VK_LEFT:
-			case KeyEvent.VK_NUMPAD4:
+			case java.awt.event.KeyEvent.VK_LEFT:
+			case java.awt.event.KeyEvent.VK_NUMPAD4:
 				currentModeIndex = (currentModeIndex + configHandlers.length - 1) % configHandlers.length;
 				break;
 			}

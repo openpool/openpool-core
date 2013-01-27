@@ -1,7 +1,7 @@
 package openpool.config;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 
 public abstract class ConfigHandlerAbstractImpl implements ConfigHandler {
 

@@ -45,7 +45,7 @@
 	<property name="project.tmp" location="tmp"/>
 	<property name="project.web" location="web"/>
 	<property name="project.data" location="data"/>
-	<property name="project.lib" location="libs"/>
+	<property name="project.lib" location="lib"/>
 	<property name="project.bin" location="bin"/>
 	<property name="project.bin.data" location="${project.bin}/data"/>
 	<property name="project.examples" location="examples"/>
@@ -174,6 +174,11 @@ ${line}
 	  	<copy todir="${project.tmp}/${project.name}/${folder}">
   			<fileset dir="${project.lib}" excludes="README" />
 	  	</copy>
+		<copy todir="${project.tmp}/${project.name}">
+			<!-- This entry is added by arc@dmz -->
+			<fileset file="README.txt" />
+			<fileset file="LICENSE.txt" />
+		</copy>
 	</target>
 	
 	

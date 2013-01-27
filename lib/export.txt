@@ -1,0 +1,7 @@
+applet=SimpleOpenNI.jar
+
+application.macosx=SimpleOpenNI.jar,libSimpleOpenNI.jnilib,javacpp.jar,javacv.jar,javacv-macosx-x86_64.jar
+application.windows32=SimpleOpenNI.jar,SimpleOpenNI32.dll,javacpp.jar,javacv.jar,javacv-windows-x86.jar
+application.windows64=SimpleOpenNI.jar,SimpleOpenNI64.dll,javacpp.jar,javacv.jar,javacv-windows-x86_64.jar
+application.linux32=SimpleOpenNI.jar,libSimpleOpenNI32.so,javacpp.jar,javacv.jar,javacv-linux-x86.jar
+application.linux64=SimpleOpenNI.jar,libSimpleOpenNI64.so,javacpp.jar,javacv.jar,javacv-linux-x86_64.jar

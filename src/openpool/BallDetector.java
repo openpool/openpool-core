@@ -214,7 +214,7 @@ public class BallDetector implements Runnable {
 	 */
 	private void copyImage(IplImage target, PImage source,
 			int x, int y, int width, int height) {
-		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
+		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getNative());
 		cvSetImageROI(target, cvRect(x, y, width, height));
 		cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
 		cvResetImageROI(target);

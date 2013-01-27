@@ -1,13 +1,13 @@
 package openpool.config;
 
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import openpool.BallDetector;
 import openpool.OpenPool;
 import processing.core.PImage;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
 
 public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 	private OpenPool op;
@@ -73,32 +73,32 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 		mouseHovering = e.getX() >= 10 && e.getX() <= op.getWidth() - 10
 				&& e.getY() >= op.getHeight() - 40
 				&& e.getY() <= op.getHeight() - 5;
-		switch (e.getID()) {
-		case MouseEvent.MOUSE_PRESSED:
+		switch (e.getAction()) {
+		case MouseEvent.PRESS:
 			if (!mouseHovering) break;
 			mousePressed = true;
-		case MouseEvent.MOUSE_DRAGGED:
+		case MouseEvent.DRAG:
 			if (mousePressed) {
 				double threshold = 255.0 * (e.getX() - 12) / (op.getWidth() - 24);
 				if (threshold < 0 || threshold > 255) break;
 				ballDetector.setThreshold(threshold);
 			}
 			break;
-		case MouseEvent.MOUSE_RELEASED:
+		case MouseEvent.RELEASE:
 			mousePressed = false;
 		}
 	}
 
 	@Override
 	public void keyEvent(KeyEvent e) {
-		if (e.getID() != KeyEvent.KEY_RELEASED) {
+		if (e.getAction() != KeyEvent.RELEASE) {
 			return;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
 			ballDetector.rememberBackground();
 			op.setMessage("Recorded the base image for background substraction.");
 		}
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE) {
 			rawMode = (rawMode + 1) % 3;
 			switch (rawMode) {
 			case 0:
