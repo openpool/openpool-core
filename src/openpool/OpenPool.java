@@ -17,6 +17,9 @@ import processing.core.*;
 
 public class OpenPool {
 	public PApplet pa;
+	public Ball[] balls;
+	public int nBalls;
+
 	private BallSystem ballSystem;
 
 	private Point[] corners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
@@ -156,8 +159,8 @@ public class OpenPool {
 	}
 	
 	private void initBallDetector() {
-		ballSystem = new BallSystem();
-		ballDetector = new BallDetector(cam1, cam2);
+		ballSystem = new BallSystem(this);
+		ballDetector = new BallDetector(ballSystem, cam1, cam2);
 		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 		future = ses.scheduleAtFixedRate(ballDetector, 33, 33, TimeUnit.MILLISECONDS);
 	}
@@ -180,7 +183,7 @@ public class OpenPool {
 		}
 
 		configHandlers[currentModeIndex].draw();
-
+		
 		pa.fill(255, 100, 100);
 		pa.text(configHandlers[currentModeIndex].getTitle(), 10, 20);
 		pa.text("Press left or right arrow to switch between config modes.", 10, 36);
@@ -234,6 +237,10 @@ public class OpenPool {
 	
 	public Point getBottomRightCorner() { return corners[1]; }
 	
+	public int getFieldWidth() { return corners[1].x - corners[0].x; }
+
+	public int getFieldHeight() { return corners[1].y - corners[0].y; }
+	
 	public boolean isConfigMode() {
 		return isConfigMode;
 	}
@@ -242,8 +249,35 @@ public class OpenPool {
 		this.isConfigMode = isConfigMode;
 	}
 
+	// Main API follow:
+	
+	public void updateBalls() {
+		synchronized (ballDetector) {
+			this.balls = ballSystem.getBalls();
+			this.nBalls = balls.length;
+		}
+	}
+	
+	// Utility methods follow:
+
 	public void setMessage(String message) {
 		this.message = message;
 		messageCounter = 120;
+	}
+
+	public float depthToScreenX(float x) {
+		return getTopLeftCorner().x + getFieldWidth() * x / ballDetector.getDepthWidth();
+	}
+
+	public float depthToScreenY(float y) {
+		return getTopLeftCorner().y + getFieldHeight() * y / ballDetector.getDepthHeight();
+	}
+
+	public float depthToScreenWidth(float width) {
+		return getFieldWidth() * width / ballDetector.getDepthWidth();
+	}
+
+	public float depthToScreenHeight(float height) {
+		return getFieldHeight() * height / ballDetector.getDepthHeight();
 	}
 }

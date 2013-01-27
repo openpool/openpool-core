@@ -18,6 +18,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 import processing.core.PImage;
 
 public class BallDetector implements Runnable {
+	private BallSystem ballSystem;
 	private SimpleOpenNI cam1;
 	private SimpleOpenNI cam2;
 
@@ -70,7 +71,8 @@ public class BallDetector implements Runnable {
 	 */
 	private int x2 = 0, y2 = 0;
 
-	BallDetector(SimpleOpenNI cam1, SimpleOpenNI cam2) {
+	BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2) {
+		this.ballSystem = ballSystem;
 		this.cam1 = cam1;
 		this.cam2 = cam2;
 
@@ -144,10 +146,9 @@ public class BallDetector implements Runnable {
 			Random rand = new Random();
 			for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
 				double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
-				if (area > 9) {
+				if (area > 4) {
 					CvRect rect = cvBoundingRect(ptr, 0);
-		            // TODO Add this to the list of active balls.
-
+					ballSystem.addBall(rect);
 					Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
 					CvScalar color = CV_RGB(randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
 					cvDrawContours(temporaryImage, ptr, color, CV_RGB(0, 0, 0), -1, CV_FILLED, 8, cvPoint(0, 0));
@@ -156,11 +157,20 @@ public class BallDetector implements Runnable {
 			}
 			cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
 		}
+		ballSystem.commit();
 
 		cvClearMemStorage(mem);
 		cvReleaseMemStorage(mem);
 
 		temporaryImage.copyTo(resultImage);
+	}
+
+	public int getDepthWidth() {
+		return depthWidth;
+	}
+	
+	public int getDepthHeight() {
+		return depthHeight;
 	}
 
 	public BufferedImage getDiffImage() {

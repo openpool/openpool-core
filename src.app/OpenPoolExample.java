@@ -1,5 +1,6 @@
 import java.io.File;
 
+import openpool.Ball;
 import openpool.OpenPool;
 import processing.core.PApplet;
 
@@ -24,6 +25,9 @@ public class OpenPoolExample extends PApplet {
 	}
 	
 	public void draw() {
-		
+		op.updateBalls();
+		for (Ball ball : op.balls) {
+			ball.draw(op);
+		}
 	}
 }
