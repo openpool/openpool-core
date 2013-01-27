@@ -12,10 +12,10 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/SimpleOpenNI/library"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/arc/Documents/GitHub/openpool-base-kinect/libs/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="C:/Users/arc/Documents/GitHub/openpool-base-kinect/libs/jogl-all.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="libs/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="libs/jogl-all.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
