@@ -2,14 +2,14 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src.app"/>
-	<classpathentry kind="lib" path="code/core.jar"/>
-	<classpathentry kind="lib" path="libs/javacv/javacpp.jar" sourcepath="libs/javacv/javacpp-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="libs/javacv/javacv-windows-x86_64.jar"/>
-	<classpathentry kind="lib" path="libs/javacv/javacv.jar" sourcepath="libs/javacv/javacv-0.3-java-src.zip"/>
-	<classpathentry kind="lib" path="libs/MSAFluid/library/MSAFluid.jar"/>
-	<classpathentry kind="lib" path="libs/SimpleOpenNI/library/SimpleOpenNI.jar">
+	<classpathentry kind="lib" path="libs/core.jar"/>
+	<classpathentry kind="lib" path="libs/javacpp.jar" sourcepath="libs/javacpp-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/javacv-windows-x86_64.jar"/>
+	<classpathentry kind="lib" path="libs/javacv.jar" sourcepath="libs/javacv-0.3-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/MSAFluid.jar"/>
+	<classpathentry kind="lib" path="libs/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/SimpleOpenNI/library"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/libs/library"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-amd64.jar"/>
