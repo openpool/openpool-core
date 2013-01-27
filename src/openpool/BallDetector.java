@@ -49,10 +49,16 @@ public class BallDetector implements Runnable {
 	 */
 	private BufferedImage resultImage;
 
+	private int blurSize = 2;
+
 	/**
 	 * Threshold for binarization.
 	 */
-	private double threshold = 10;
+	private double binarizationThreshold = 70;
+
+	private int erosionSize = 3;
+
+	private int dilationSize = 2;
 
 	/**
 	 * Offset for the first camera.
@@ -115,33 +121,41 @@ public class BallDetector implements Runnable {
 		cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
 		temporaryImage.copyTo(diffImage);
 
+		// Blur
+		cvSmooth(currentImage, currentImage, CV_BLUR, blurSize);
+
 		// Binarization
 		cvThreshold(currentImage, currentImage, getThreshold(), 255, CV_THRESH_BINARY);
+		// cvAdaptiveThreshold(currentImage, currentImage, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 11, 10);
 
-		// Dilation
-		// cvDilate(currentImage, currentImage, null, 5);
+		// Erosion & dilation
+		cvErode(currentImage, currentImage, null, erosionSize);
+		cvDilate(currentImage, currentImage, null, dilationSize);
 
-        cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
+		cvCvtColor(currentImage, temporaryImage, CV_GRAY2RGBA);
 
-        CvSeq contours = new CvSeq();
-        CvSeq ptr = new CvSeq();
-        CvMemStorage mem = cvCreateMemStorage(0);
-        int count = cvFindContours(currentImage, mem, contours, sizeof(CvContour.class) , CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+		// Contour detection
+		CvSeq contours = new CvSeq();
+		CvSeq ptr = new CvSeq();
+		CvMemStorage mem = cvCreateMemStorage(0);
+		int count = cvFindContours(currentImage, mem, contours, sizeof(CvContour.class), CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
-        if (count > 0) {
-	        Random rand = new Random();
-	        for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
-	        	double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
-	        	if (area > 9) {
-		            Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
-		            CvScalar color = CV_RGB( randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
-		            cvDrawContours(temporaryImage, ptr, color, CV_RGB(0,0,0), -1, CV_FILLED, 8, cvPoint(0,0));
-		            
+		if (count > 0) {
+			Random rand = new Random();
+			for (ptr = contours; ptr != null; ptr = ptr.h_next()) {
+				double area = cvContourArea(ptr, CV_WHOLE_SEQ, 0);
+				if (area > 9) {
+					CvRect rect = cvBoundingRect(ptr, 0);
 		            // TODO Add this to the list of active balls.
-	        	}
-	        }
+
+					Color randomColor = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+					CvScalar color = CV_RGB(randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
+					cvDrawContours(temporaryImage, ptr, color, CV_RGB(0, 0, 0), -1, CV_FILLED, 8, cvPoint(0, 0));
+					cvRectangle(temporaryImage, cvPoint(rect.x(), rect.y()), cvPoint(rect.x() + rect.width(), rect.y() + rect.height()), CV_RGB(230, 230, 255), 1, 8, 0);
+				}
+			}
 			cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
-        }
+		}
 
 		cvClearMemStorage(mem);
 		cvReleaseMemStorage(mem);
@@ -158,11 +172,11 @@ public class BallDetector implements Runnable {
 	}
 
 	public double getThreshold() {
-		return threshold;
+		return binarizationThreshold;
 	}
 
 	public void setThreshold(double threshold) {
-		this.threshold = threshold;
+		this.binarizationThreshold = threshold;
 	}
 
 	public synchronized void rememberBackground() {
@@ -177,10 +191,6 @@ public class BallDetector implements Runnable {
 			copyImage(target, cam2.depthImage(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
 			fillDepthErrorHoles(target, cam2.depthMap(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
 		}
-
-		// Blur
-		// FIXME This code breaks the target image. Need to investigate the correct use of this method.
-		// cvSmooth(target, target, CV_BLUR_NO_SCALE, 3);
 	}
 
 	/**
