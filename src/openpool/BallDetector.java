@@ -90,6 +90,7 @@ public class BallDetector implements Runnable {
 
 		if (cam2 != null) {
 			cam2.update();
+			x2 = depthWidth;
 			depthWidth += cam2.depthWidth();
 		}
 
@@ -258,9 +259,13 @@ public class BallDetector implements Runnable {
 	 */
 	private void fillDepthErrorHoles(IplImage target, int[] depthMap,
 			int x, int y, int width, int height) {
+		x = x < 0 ? 0 : x;
+		y = y < 0 ? 0 : y;
+		width = x + width > target.width() ? target.width() - x : width;
+		height = y + height > target.height() ? target.height() - y : height;
 		CvMat mat = target.asCvMat();
-		for (int targetX = x >= 0 ? x : 0; targetX < target.width(); targetX++) {
-			for (int targetY = y >= 0 ? y : 0; targetY < target.height(); targetY++) {
+		for (int targetX = x; targetX < x + width; targetX++) {
+			for (int targetY = y; targetY < y + height; targetY++) {
 				int depth = depthMap[targetX - x + (targetY - y) * width];
 
 				// Assume depth errors are caused by the black ball

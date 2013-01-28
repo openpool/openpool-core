@@ -12,15 +12,20 @@ public class OpenPoolExample extends PApplet {
 	}
 
 	OpenPool op;
-	
+	boolean real = true;
+
 	public void setup() {
-		String userDir = System.getProperty("user.dir");
-		String binPath = File.separatorChar + "bin";
-		if (userDir.endsWith(binPath)) {
-			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+		if (real) {
+			op = new OpenPool(this);
+		} else {
+			String userDir = System.getProperty("user.dir");
+			String binPath = File.separatorChar + "bin";
+			if (userDir.endsWith(binPath)) {
+				userDir = userDir.substring(0,  userDir.length() - binPath.length());
+			}
+			op = new OpenPool(this,
+					userDir + "\\recordings\\straight1.oni");
 		}
-		op = new OpenPool(this,
-				userDir + "\\recordings\\straight1.oni");
 		op.setConfigMode(true);
 	}
 	

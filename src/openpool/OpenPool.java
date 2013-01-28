@@ -63,7 +63,7 @@ public class OpenPool {
 	 * @param numCamera Number of real cameras (1 or 2)
 	 */
 	public OpenPool(PApplet pa, int numCamera) {
-		this(pa, 2, null, null);
+		this(pa, numCamera, null, null);
 	}
 
 	/**
@@ -232,6 +232,10 @@ public class OpenPool {
 	public void dispose() {
 		future.cancel(true);
 		ballDetector.dispose();
+		cam1.dispose();
+		if (cam2 != null) {
+			cam2.dispose();
+		}
 	}
 
 	// Getters and setters follow:
