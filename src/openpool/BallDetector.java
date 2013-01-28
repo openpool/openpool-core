@@ -3,7 +3,11 @@ package openpool;
 import SimpleOpenNI.*;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.util.Random;
 
 import com.googlecode.javacv.cpp.opencv_core.CvContour;
@@ -44,11 +48,15 @@ public class BallDetector implements Runnable {
 	 * Background-substracted image.
 	 */
 	private BufferedImage diffImage;
+	private PImage diffPImage;
+	private WritableRaster diffWritableRaster;
 
 	/**
 	 * Final result image.
 	 */
 	private BufferedImage resultImage;
+	private PImage resultPImage;
+	private WritableRaster resultWritableRaster;
 
 	private int blurSize = 2;
 
@@ -173,12 +181,30 @@ public class BallDetector implements Runnable {
 		return depthHeight;
 	}
 
-	public BufferedImage getDiffImage() {
-		return diffImage;
+	public PImage getDiffImage() {
+		if (diffPImage == null) {
+			diffPImage = new PImage(resultImage);
+			DataBufferInt dbi = new DataBufferInt(diffPImage.pixels, diffPImage.pixels.length);
+			diffWritableRaster = Raster.createWritableRaster(
+					resultImage.getSampleModel(), dbi, new Point(0, 0));
+		}
+		// diffPImage.loadPixels();
+		diffImage.copyData(diffWritableRaster);
+		diffPImage.updatePixels();
+		return diffPImage;
 	}
 
-	public BufferedImage getImage() {
-		return resultImage;
+	public PImage getImage() {
+		if (resultPImage == null) {
+			resultPImage = new PImage(resultImage);
+			DataBufferInt dbi = new DataBufferInt(resultPImage.pixels, resultPImage.pixels.length);
+			resultWritableRaster = Raster.createWritableRaster(
+					resultImage.getSampleModel(), dbi, new Point(0, 0));
+		}
+		// resultPImage.loadPixels();
+		resultImage.copyData(resultWritableRaster);
+		resultPImage.updatePixels();
+		return resultPImage;
 	}
 
 	public double getThreshold() {

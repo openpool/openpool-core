@@ -186,7 +186,7 @@ public class OpenPool {
 		pa.rect(0, 0, getWidth(), getHeight());
 
 		synchronized (ballDetector) {
-			pa.image(new PImage(ballDetector.getImage()),
+			pa.image(ballDetector.getImage(),
 					corners[0].x, corners[0].y,
 					corners[1].x - corners[0].x, corners[1].y - corners[0].y);
 		}

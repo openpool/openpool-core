@@ -20,7 +20,7 @@ public class OpenPoolExample extends PApplet {
 			userDir = userDir.substring(0,  userDir.length() - binPath.length());
 		}
 		op = new OpenPool(this,
-				userDir + "\\data\\straight1.oni");
+				userDir + "\\recordings\\straight1.oni");
 		op.setConfigMode(true);
 	}
 	

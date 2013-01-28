@@ -1,8 +1,6 @@
 package openpool.config;
 
 import java.awt.Point;
-import java.awt.image.BufferedImage;
-
 import openpool.BallDetector;
 import openpool.OpenPool;
 import processing.core.PImage;
@@ -15,7 +13,21 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 
 	private boolean mousePressed = false;
 	private boolean mouseHovering = false;
+
+	/**
+	 * Visualization mode:
+	 * <dl>
+	 * <dt>0</dt><dd>None</dd>
+	 * <dt>1</dt><dd>Show the entire diff image</dd>
+	 * <dt>2</dt><dd>Show the upper half of the diff image</dd>
+	 * </dl>
+	 */
 	private int rawMode = 0;
+
+	/**
+	 * PImage for masking the lower part of the image.
+	 */
+	private PImage mask;
 
 	public BallDetectorConfigHandler(OpenPool op, BallDetector ballDetector) {
 		this.op = op;
@@ -34,16 +46,23 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 		op.pa.stroke(255, 255, 0);
 		if (rawMode > 0) {
 			synchronized (ballDetector) {
-				BufferedImage diffImage = ballDetector.getDiffImage();
-				int height = br.y - tl.y;
+				PImage diffImage = ballDetector.getDiffImage();
+				
+				// Mask the lower part of the image.
 				if (rawMode == 2) {
-					diffImage = diffImage.getSubimage(0, 0, diffImage.getWidth(), diffImage.getHeight() / 2);
-					height /= 2;
+					if (mask == null) {
+						mask = new PImage(diffImage.width, diffImage.height, PImage.GRAY);
+						// mask.loadPixels();
+						for (int i = 0; i < mask.width * mask.height / 2; i ++) {
+							mask.pixels[i] = 0xff;
+						}
+						mask.updatePixels();
+					}
+					diffImage.mask(mask);
+					int y = (br.y + tl.y) / 2;
+					op.pa.line(tl.x, y, br.x, y);
 				}
-				op.pa.image(new PImage(diffImage), tl.x, tl.y, br.x - tl.x, height);
-				if (rawMode == 2) {
-					op.pa.line(tl.x, tl.y + height, br.x, tl.y + height);
-				}
+				op.pa.image(diffImage, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
 			}
 		}
 
@@ -102,7 +121,7 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 			rawMode = (rawMode + 1) % 3;
 			switch (rawMode) {
 			case 0:
-				op.setMessage("Finished showing raw diff image.");
+				op.setMessage("Stopped showing raw diff image.");
 				break;
 			case 1:
 				op.setMessage("Started to show raw diff image.");
