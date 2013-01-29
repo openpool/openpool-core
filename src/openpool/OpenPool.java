@@ -96,7 +96,7 @@ public class OpenPool {
 		this.pa = pa;
 
 		// Set window size.
-		pa.size(498*2, 282*2);
+		pa.size(498*2, 282*2, PApplet.OPENGL);
 
 		// For Processing 2.0b
 		pa.smooth(4);

@@ -51,7 +51,7 @@ public class OpenPoolExampleWithFluids extends PApplet {
 
 	// Fluid and Particle
 	MSAFluidSolver2D fluidSolver;
-	// ParticleSystem particleSystem;
+	ParticleSystem particleSystem;
 
 	PImage imgFluid;
 	boolean drawFluid = true;
@@ -107,10 +107,9 @@ public class OpenPoolExampleWithFluids extends PApplet {
 		String userDir = System.getProperty("user.dir");
 		String binPath = File.separatorChar + "bin";
 		if (userDir.endsWith(binPath)) {
-			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+			userDir = userDir.substring(0, userDir.length() - binPath.length());
 		}
-		op = new OpenPool(this,
-				userDir + "\\recordings\\straight1.oni");
+		op = new OpenPool(this, userDir + "\\recordings\\straight1.oni");
 		// op = new dummypool();
 
 		invWidth = 1.0f / width;
@@ -142,6 +141,8 @@ public class OpenPoolExampleWithFluids extends PApplet {
 				SPEED);
 		shoalSystem.addShoal(1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
 		shoalSystem.addShoal(1, 1, 1, greenaddx, greenaddy, FISHNUMBER, SPEED);
+		
+		particleSystem = new ParticleSystem(this);
 	}
 
 	public void draw() {
@@ -246,13 +247,13 @@ public class OpenPoolExampleWithFluids extends PApplet {
 	}
 
 	void fadeToColor(GL2 gl, float r, float g, float b, float speed) {
-	    gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-	    gl.glColor4f(r, g, b, speed);
-	    gl.glBegin(GL2.GL_QUADS);
-	    gl.glVertex2f(0, 0);
-	    gl.glVertex2f(width, 0);
-	    gl.glVertex2f(width, height);
-	    gl.glVertex2f(0, height);
-	    gl.glEnd();
+		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		gl.glColor4f(r, g, b, speed);
+		gl.glBegin(GL2.GL_QUADS);
+		gl.glVertex2f(0, 0);
+		gl.glVertex2f(width, 0);
+		gl.glVertex2f(width, height);
+		gl.glVertex2f(0, height);
+		gl.glEnd();
 	}
 }

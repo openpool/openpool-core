@@ -52,7 +52,9 @@ class ParticleSystem {
     Particle[] particles;
 
     ParticleSystem(OpenPoolExampleWithFluids ope) {
-        particles = new Particle[maxParticles];
+    	this.ope = ope;
+
+    	particles = new Particle[maxParticles];
         for(int i=0; i<maxParticles; i++) particles[i] = new Particle(ope);
         curIndex = 0;
 
