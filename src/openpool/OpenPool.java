@@ -254,14 +254,6 @@ public class OpenPool {
 
 	public int getFieldHeight() { return corners[1].y - corners[0].y; }
 	
-	public boolean isConfigMode() {
-		return isConfigMode;
-	}
-
-	public void setConfigMode(boolean isConfigMode) {
-		this.isConfigMode = isConfigMode;
-	}
-
 	// Main API follow:
 	
 	public void updateBalls() {
@@ -269,6 +261,22 @@ public class OpenPool {
 			this.balls = ballSystem.getBalls();
 			this.nBalls = balls.length;
 		}
+	}
+
+	public boolean isConfigMode() {
+		return isConfigMode;
+	}
+
+	public void setConfigMode(boolean isConfigMode) {
+		this.isConfigMode = isConfigMode;
+	}
+	
+	public boolean isDummyMode() {
+		return ballSystem.isDummy();
+	}
+	
+	public void setDummyMode(boolean isDummy) {
+		ballSystem.setDummy(isDummy);
 	}
 	
 	// Utility methods follow:

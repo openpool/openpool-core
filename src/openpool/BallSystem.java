@@ -12,13 +12,14 @@ public class BallSystem {
 	private OpenPool op;
 	private List<Ball> balls;
 	private List<Ball> prevBalls;
+	private List<Ball> dummyBalls;
+	private boolean isDummy;
 
 	BallSystem(OpenPool op) {
 		this.op = op;
 		currentId = 0;
 		balls = new ArrayList<Ball>();
 		prevBalls = new ArrayList<Ball>();
-		return;
 	}
 	
 	void addBall(CvRect rect) {
@@ -64,6 +65,29 @@ public class BallSystem {
 	}
 	
 	public Ball[] getBalls() {
-		return prevBalls.toArray(new Ball[0]);
+		return (isDummy ? dummyBalls : prevBalls).toArray(new Ball[0]);
+	}
+	
+	public void setDummy(boolean isDummy) {
+		this.isDummy = isDummy;
+		if (isDummy && dummyBalls == null) {
+			initDummyBalls();
+		}
+	}
+	
+	public boolean isDummy() {
+		return isDummy;
+	}
+
+	private void initDummyBalls() {
+		dummyBalls = new ArrayList<Ball>();
+	    dummyBalls.add(new Ball(0, 200, 200, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(1, 400, 200, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(2, 600, 200, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(3, 800, 200, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(4, 200, 400, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(5, 400, 400, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(6, 600, 400, 10, 10, ghostLife));
+	    dummyBalls.add(new Ball(7, 800, 400, 10, 10, ghostLife));
 	}
 }
