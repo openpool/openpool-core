@@ -1,3 +1,18 @@
+/**
+ This is an example sketch for OpenPool library.
+ This sketch requires following libraries to run properly.
+
+ <ul>
+  <li>OpenPool: http://www.open-pool.com/.
+  <li>SimpleOpenNI: http://code.google.com/p/simple-openni/wiki/Installation
+ </ul>
+
+ Copyright (c) takashyx 2012-2013 ( <a href="http://takashyx.com">takashyx.com</a> )
+ Copyright (c) arc@dmz 2012-2013 ( <a href="http://junkato.jp">junkato.jp</a> )
+
+ All rights reserved.
+ This work is licensed under GPL v2.
+*/
 import java.io.File;
 
 import openpool.Ball;
@@ -29,6 +44,7 @@ public class OpenPoolExample extends PApplet {
 					userDir + "\\recordings\\straight1.oni");
 		}
 		op.setConfigMode(true);
+		size(840, 440);
 		frameRate(30);
 	}
 	
