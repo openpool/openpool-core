@@ -180,7 +180,7 @@ public class OpenPoolExampleWithFluids extends PApplet {
 		shoalSystem.draw();
 
 		if (!DEBUG) {
-			// particleSystem.updateAndDraw();
+			particleSystem.updateAndDraw();
 		}
 	}
 
@@ -242,14 +242,14 @@ public class OpenPoolExampleWithFluids extends PApplet {
 			fluidSolver.uOld[index] += dx * velocityMult;
 			fluidSolver.vOld[index] += dy * velocityMult;
 
-			// particleSystem.addParticles(x * width, y * height, 10);
+			particleSystem.addParticles(x * width, y * height, 10);
 		}
 	}
 
-	void fadeToColor(GL2 gl, float r, float g, float b, float speed) {
+	void fadeToColor(GL gl, float r, float g, float b, float speed) {
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 		gl.glColor4f(r, g, b, speed);
-		gl.glBegin(GL2.GL_QUADS);
+		gl.glBegin(GL.GL_QUADS);
 		gl.glVertex2f(0, 0);
 		gl.glVertex2f(width, 0);
 		gl.glVertex2f(width, height);

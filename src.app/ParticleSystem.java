@@ -32,13 +32,10 @@
 import java.nio.FloatBuffer;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
 
-import processing.opengl.PGL;
+import com.sun.opengl.util.BufferUtil;
+
 import processing.opengl.PGraphicsOpenGL;
-
-import com.jogamp.common.nio.Buffers;
-//import com.sun.opengl.util.*;
 
 class ParticleSystem {
 	private OpenPoolExampleWithFluids ope;
@@ -58,23 +55,28 @@ class ParticleSystem {
         for(int i=0; i<maxParticles; i++) particles[i] = new Particle(ope);
         curIndex = 0;
 
-        posArray =  Buffers.newDirectFloatBuffer(maxParticles * 2 * 2);// 2 coordinates per point, 2 points per particle (current and previous)
-        colArray =  Buffers.newDirectFloatBuffer(maxParticles * 3 * 2);
-//        posArray =  BufferUtils.newFloatBuffer(maxParticles * 2 * 2);// 2 coordinates per point, 2 points per particle (current and previous)
-//        colArray =  BufferUtils.newFloatBuffer(maxParticles * 3 * 2);
+        // 2 coordinates per point, 2 points per particle (current and previous)
+        posArray =  BufferUtil.newFloatBuffer(maxParticles * 2 * 2);
+        colArray =  BufferUtil.newFloatBuffer(maxParticles * 3 * 2);
     }
 
 
     void updateAndDraw(){
-        PGraphicsOpenGL pgl = (PGraphicsOpenGL) ope.g;         // processings opengl graphics object
-        ((PGraphicsOpenGL)ope.g).beginPGL();
-        GL2 gl = PGL.gl.getGL2();               // JOGL's GL object
+    	// processings opengl graphics object
+        PGraphicsOpenGL pgl = (PGraphicsOpenGL) ope.g;         
 
-        gl.glEnable( GL.GL_BLEND );             // enable blending
+        GL gl = ((PGraphicsOpenGL)ope.g).beginGL();
+
+        // enable blending
+        gl.glEnable( GL.GL_BLEND );
+
         if(!ope.drawFluid) ope.fadeToColor(gl, 0, 0, 0, 0.05f);
 
-        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);  // additive blending (ignore alpha)
-        gl.glEnable(GL.GL_LINE_SMOOTH);        // make points round
+        // additive blending (ignore alpha)
+        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);
+
+        // make points round
+        gl.glEnable(GL.GL_LINE_SMOOTH);
         gl.glLineWidth(1);
 
         if(ope.renderUsingVA) {
@@ -84,27 +86,30 @@ class ParticleSystem {
                     particles[i].updateVertexArrays(i, posArray, colArray);
                 }
             }    
-            gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-            gl.glVertexPointer(2, GL2.GL_FLOAT, 0, posArray);
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glVertexPointer(2, GL.GL_FLOAT, 0, posArray);
 
-            gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
-            gl.glColorPointer(3, GL2.GL_FLOAT, 0, colArray);
+            gl.glEnableClientState(GL.GL_COLOR_ARRAY);
+            gl.glColorPointer(3, GL.GL_FLOAT, 0, colArray);
 
-            gl.glDrawArrays(GL2.GL_LINES, 0, maxParticles * 2);
+            gl.glDrawArrays(GL.GL_LINES, 0, maxParticles * 2);
         } 
         else {
-            gl.glBegin(GL2.GL_LINES);               // start drawing points
+            // start drawing points
+            gl.glBegin(GL.GL_LINES);
             for(int i=0; i<maxParticles; i++) {
                 if(particles[i].alpha > 0) {
                     particles[i].update();
-                    particles[i].drawOldSchool(gl);    // use oldschool renderng
+
+                    // use oldschool renderng
+                    particles[i].drawOldSchool(gl);
                 }
             }
             gl.glEnd();
         }
 
         gl.glDisable(GL.GL_BLEND);
-        pgl.endPGL();
+        pgl.endGL();
     }
 
 
@@ -124,11 +129,3 @@ class ParticleSystem {
     }
 
 }
-
-
-
-
-
-
-
-

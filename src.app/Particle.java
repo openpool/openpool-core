@@ -1,6 +1,6 @@
 import java.nio.FloatBuffer;
 
-import javax.media.opengl.GL2;
+import javax.media.opengl.GL;
 
 /***********************************************************************
  
@@ -121,7 +121,7 @@ class Particle {
     }
 
 
-    void drawOldSchool(GL2 gl) {
+    void drawOldSchool(GL gl) {
         gl.glColor3f(alpha, alpha, alpha);
         gl.glVertex2f(x-vx, y-vy);
         gl.glVertex2f(x, y);

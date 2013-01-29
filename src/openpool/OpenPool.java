@@ -1,8 +1,8 @@
 package openpool;
 
 import java.awt.Point;
-import processing.event.KeyEvent;
-import processing.event.MouseEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -99,11 +99,11 @@ public class OpenPool {
 		pa.size(498*2, 282*2, PApplet.OPENGL);
 
 		// For Processing 2.0b
-		pa.smooth(4);
-		pa.registerMethod("mouseEvent", this);
-		pa.registerMethod("keyEvent", this);
-		pa.registerMethod("dispose", this);
-		pa.registerMethod("pre", this);
+		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH); //smooth(4);
+		pa.registerMouseEvent(this); // pa.registerMethod("mouseEvent", this);
+		pa.registerKeyEvent(this); // pa.registerMethod("keyEvent", this);
+		pa.registerDispose(this); // pa.registerMethod("dispose", this);
+		pa.registerPre(this); // pa.registerMethod("pre", this);
 		
 		// For Processing 1.5.1
 		//	Turn on 4X antialiasing
@@ -214,7 +214,7 @@ public class OpenPool {
 		}
 		
 		// Switch between config modes.
-		if (e.getAction() == KeyEvent.RELEASE) {
+		if (e.getID() == KeyEvent.KEY_RELEASED) {
 			switch(e.getKeyCode()) {
 			case java.awt.event.KeyEvent.VK_RIGHT:
 			case java.awt.event.KeyEvent.VK_NUMPAD6:

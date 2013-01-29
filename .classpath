@@ -11,10 +11,17 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="dependency/core.jar"/>
-	<classpathentry kind="lib" path="dependency/gluegen-rt-natives-windows-amd64.jar"/>
-	<classpathentry kind="lib" path="dependency/jogl-all-natives-windows-amd64.jar"/>
-	<classpathentry kind="lib" path="dependency/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="dependency/jogl-all.jar"/>
+	<classpathentry kind="lib" path="dependency/opengl.jar"/>
+	<classpathentry kind="lib" path="dependency/gluegen-rt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/dependency"/>
+		</attributes>
+  </classpathentry>
+	<classpathentry kind="lib" path="dependency/jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="openpool/dependency"/>
+		</attributes>
+  </classpathentry>
 	<classpathentry kind="lib" path="dependency/MSAFluid.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
