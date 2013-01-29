@@ -5,47 +5,65 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 class ShoalSystem {
+
+	/**
+	 * Distance threshold for collision avoidance.
+	 * (When two shoals come closer than this threshold, force for collision avoidance is applied.)
+	 */
+	static float
+			CA_DISTANCE_THRESHOLD = 100,
+			CA_DISTANCE_THRESHOLD_SQ = PApplet.sq(CA_DISTANCE_THRESHOLD);
+
+	static int CENTER_PULL_FACTOR = 300;
+
+	static int DISTANCE_THRESHOLD = 30;
+
 	private OpenPoolExampleWithFluids ope;
 
 	/**
 	 * Shoal objects.
 	 */
-	ArrayList<Shoal> shoals;
+	private ArrayList<Shoal> shoals;
 
 	/**
 	 * Ellipse objects to be avoided.
 	 */
-	ArrayList<EllipseObject> avoidEllipseObject;
+	private ArrayList<Obstacle> obstacles;
 
 	/**
 	 * Temporary vector for force calculation.
 	 */
-	PVector force = new PVector();
+	private PVector f1 = new PVector(), f2 = new PVector();
 
 	/**
 	 * Default constructor.
 	 */
-	ShoalSystem(OpenPoolExampleWithFluids ope) {
+	public ShoalSystem(OpenPoolExampleWithFluids ope) {
 		this.ope = ope;
 		shoals = new ArrayList<Shoal>();
-		avoidEllipseObject = new ArrayList<EllipseObject>();
+		obstacles = new ArrayList<Obstacle>();
 	}
 
 	/**
 	 * Create a new shoal with the specified parameters.
 	 */
-	Shoal addShoal(float r, float g, float b, int x, int y, int numFishes,
-			float speed) {
+	public Shoal addShoal(float r, float g, float b, int x, int y, int numFishes, float speed) {
 		Shoal shoal = new Shoal(ope);
+
 		float angle = (float) (Math.PI * 2 / numFishes);
 		for (int i = 0; i < numFishes; i++) {
 			float dx = (float) Math.cos(angle * i);
 			float dy = (float) Math.sin(angle * i);
 
-			Fish fish = new Fish(ope, ope.width / 2 + x + dx * 50, ope.height
-					/ 2 + y + dy * 50, (float) (Math.random() - 0.5) * 2
-					* speed * dx, (float) (Math.random() - 0.5) * 2 * speed
-					* dy, i, r, g, b, speed);
+			Fish fish = new Fish(
+					ope,
+					ope.width / 2 + x + dx * 50,
+					ope.height / 2 + y + dy * 50,
+					(float) (Math.random() - 0.5) * 2 * speed * dx,
+					(float) (Math.random() - 0.5) * 2 * speed * dy,
+					i,
+					r, g, b,
+					speed);
 
 			shoal.add(fish);
 		}
@@ -54,77 +72,74 @@ class ShoalSystem {
 		return shoal;
 	}
 
-	void addEllipseObject(float x, float y, int r) {
-		EllipseObject obj = new EllipseObject(ope, x, y, r);
-		avoidEllipseObject.add(obj);
+	public void addObstacle(float x, float y, int r) {
+		Obstacle obj = new Obstacle(ope, x, y, r);
+		obstacles.add(obj);
 	}
 
-	void clearEllipseObjects() {
-		avoidEllipseObject.clear();
+	public void clearEllipseObjects() {
+		obstacles.clear();
 	}
 
-	void update() {
-		Iterator<Shoal> iter_i = shoals.iterator();
-		while (iter_i.hasNext()) {
-			Shoal shoal_i = iter_i.next();
+	public void update() {
+		Iterator<Shoal> itA = shoals.iterator();
+		while (itA.hasNext()) {
+			Shoal shoalA = itA.next();
 
-			shoal_i.clearVector();
+			shoalA.clearVelocityVectors();
 
-			Iterator<Shoal> iter_j = shoals.iterator();
-			while (iter_j.hasNext()) {
-				Shoal shoal_j = iter_j.next();
-
-				if (shoal_i != shoal_j) {
-					avoidEllipse(shoal_i.x, shoal_i.y, shoal_j.x, shoal_j.y,
-							ope.SHOALCOLLISION_SQ, force);
-					shoal_i.addForce(force.x, force.y);
+			f1.x = 0;
+			f1.y = 0;
+			Iterator<Shoal> itB = shoals.iterator();
+			while (itB.hasNext()) {
+				Shoal shoalB = itB.next();
+				if (shoalA != shoalB) {
+					avoidCollision(shoalA.x, shoalA.y, shoalB.x, shoalB.y,
+							CA_DISTANCE_THRESHOLD_SQ, f2);
+					f1.x += f2.x;
+					f1.y += f2.y;
 				}
 			}
+			shoalA.addShoalAvoidanceForce(f1);
 
-			Iterator<Fish> iter_f = shoal_i.fishes.iterator();
-			while (iter_f.hasNext()) {
-				Fish fish = iter_f.next();
+			Iterator<Fish> itFish = shoalA.fishes.iterator();
+			while (itFish.hasNext()) {
+				Fish fish = itFish.next();
 
-				Iterator<EllipseObject> iter_o = avoidEllipseObject.iterator();
-				while (iter_o.hasNext()) {
-					EllipseObject obj = iter_o.next();
-					avoidEllipse(fish.x, fish.y, obj.x, obj.y,
-							PApplet.sq(obj.r), force);
-					fish.v5.x = fish.v5.x + force.x;
-					fish.v5.y = fish.v5.y + force.y;
+				Iterator<Obstacle> itObstacle = obstacles.iterator();
+				while (itObstacle.hasNext()) {
+					Obstacle obstacle = itObstacle.next();
+					avoidCollision(fish.x, fish.y, obstacle.x, obstacle.y,
+							PApplet.sq(obstacle.r), f1);
+					fish.addObstacleAvoidanceForce(f1);
 				}
 			}
-			shoal_i.update();
+			shoalA.update();
 		}
 		return;
 	}
 
-	void avoidEllipse(float _x, float _y, float _xb, float _yb,
+	private void avoidCollision(float x, float y, float x2, float y2,
 			float distanceSq, PVector v) {
 		v.x = 0;
 		v.y = 0;
 
-		if (PApplet.sq(_x - _xb) + PApplet.sq(_y - _yb) < distanceSq) {
-			if ((_x - _xb) != 0) {
-				v.x = (_x - _xb) / PApplet.abs(_x - _xb);
+		if (PApplet.sq(x - x2) + PApplet.sq(y - y2) < distanceSq) {
+			if ((x - x2) != 0) {
+				v.x = (x - x2) / PApplet.abs(x - x2);
 			}
-			if ((_y - _yb) != 0) {
-				v.y = (_y - _yb) / PApplet.abs(_y - _yb);
+			if ((y - y2) != 0) {
+				v.y = (y - y2) / PApplet.abs(y - y2);
 			}
 		}
 	}
 
-	void draw() {
-		Iterator<Shoal> iter_shoal = shoals.iterator();
-		while (iter_shoal.hasNext()) {
-			Shoal shoal = iter_shoal.next();
+	public void draw() {
+		for (Shoal shoal : shoals) {
 			shoal.draw();
 		}
-
-		Iterator<EllipseObject> iter = avoidEllipseObject.iterator();
-		while (iter.hasNext()) {
-			EllipseObject eo = iter.next();
-			eo.draw();
+		for (Obstacle obstacle : obstacles) {
+			obstacle.draw();
 		}
 	}
 }

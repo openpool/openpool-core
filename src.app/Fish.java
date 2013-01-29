@@ -1,11 +1,37 @@
+import java.awt.Point;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
 class Fish {
 	private OpenPoolExampleWithFluids ope;
 
-	float speed;
-	float r, g, b;
+	static float SIZE_FISH = 4;
+
+	/**
+	 * Parameter for shoal gathering.
+	 */
+	static float COEFF_TOWARD_SHOAL_CENTER = 1.0f;
+	
+	/**
+	 * Parameter for collision avoidance with other fishes in the shoal.
+	 */
+	static float COEFF_AVOID_FISHES = 0.1f;
+	
+	/**
+	 * Parameter for going along with other fishes in the shoal.
+	 */
+	static float COEFF_TOWARD_SHOAL_VELOCITY = 0.5f;
+	
+	/**
+	 * Parameter for avoiding other shoals.
+	 */
+	static float COEFF_AVOID_SHOALS = 1;
+
+	/**
+	 * Parameter for avoiding balls.
+	 */
+	static float COEFF_AVOID_BALLS = 100;
 
 	/**
 	 * Location of this fish
@@ -17,10 +43,10 @@ class Fish {
 	 */
 	float vx, vy;
 
-	/**
-	 * For param 1-4 and p
-	 */
 	PVector v1, v2, v3, v4, v5;
+
+	float speed;
+	float r, g, b;
 
 	int id;
 
@@ -48,11 +74,38 @@ class Fish {
 		v5 = new PVector();
 	}
 
-	void move() {
-		vx += ope.r1 * v1.x + ope.r2 * v2.x + ope.r3 * v3.x + ope.r4 * v4.x
-				+ ope.r5 * v5.x;
-		vy += ope.r1 * v1.y + ope.r2 * v2.y + ope.r3 * v3.y + ope.r4 * v4.y
-				+ ope.r5 * v5.y;
+	/**
+	 * Clear vectors
+	 */
+	public void clearVelocityVectors() {
+		v1.x = 0;
+		v1.y = 0;
+		v2.x = 0;
+		v2.y = 0;
+		v3.x = 0;
+		v3.y = 0;
+		v4.x = 0;
+		v4.y = 0;
+		v5.x = 0;
+		v5.y = 0;
+	}
+
+	public void addObstacleAvoidanceForce(PVector v) {
+		v5.x += v.x;
+		v5.y += v.y;
+	}
+
+	public void move() {
+		vx +=	COEFF_TOWARD_SHOAL_CENTER * v1.x +
+				COEFF_AVOID_FISHES * v2.x +
+				COEFF_TOWARD_SHOAL_VELOCITY * v3.x +
+				COEFF_AVOID_SHOALS * v4.x +
+				COEFF_AVOID_BALLS * v5.x;
+		vy +=	COEFF_TOWARD_SHOAL_CENTER * v1.y +
+				COEFF_AVOID_FISHES * v2.y +
+				COEFF_TOWARD_SHOAL_VELOCITY * v3.y +
+				COEFF_AVOID_SHOALS * v4.y +
+				COEFF_AVOID_BALLS * v5.y;
 
 		// Check if the speed is faster than the limit.
 		float vVector = PApplet.sqrt(vx * vx + vy * vy);
@@ -64,27 +117,30 @@ class Fish {
 		x += vx;
 		y += vy;
 
+		Point tl = ope.op.getTopLeftCorner();
+		Point br = ope.op.getBottomRightCorner();
+		
 		// Hit the left edge
-		if (x - ope.R <= 0 + ope.wband) {
-			x = ope.R + ope.wband;
+		if (x - SIZE_FISH <= tl.x) {
+			x = SIZE_FISH + tl.x;
 			vx *= -1;
 		}
 
 		// Hit the right edge
-		if (x + ope.R >= (ope.width - ope.wband)) {
-			x = ope.width - ope.wband - ope.R;
+		if (x + SIZE_FISH >= br.x) {
+			x = br.x - SIZE_FISH;
 			vx *= -1;
 		}
 
 		// Hit the upper edge
-		if (y - ope.R <= 0 + ope.hband) {
-			y = ope.R + ope.hband;
+		if (y - SIZE_FISH <= tl.y) {
+			y = SIZE_FISH + tl.y;
 			vy *= -1;
 		}
 
 		// Hit the bottom edge
-		if (y + ope.R >= ope.height - ope.hband) {
-			y = ope.height - ope.R - ope.hband;
+		if (y + SIZE_FISH >= br.y) {
+			y = br.y - SIZE_FISH;
 			vy *= -1;
 		}
 	}
@@ -100,32 +156,16 @@ class Fish {
 		for (int i = 0; i < 5; i++) {
 			dx = -vx * 5 * i / 10;
 			dy = -vy * 5 * i / 10;
-			rtemp = ope.R * (5 - i) / 10;
+			rtemp = SIZE_FISH * (5 - i) / 10;
 			ope.ellipse(x - dx, y - dy, rtemp * 2, rtemp * 2);
 		}
 		for (int i = 0; i < 10; i++) {
 			ope.noStroke();
-			ope.fill(r, g, b, 100);// 255*((i)/10));
+			ope.fill(r, g, b, 100);
 			dx = -vx * 5 * i / 10;
 			dy = -vy * 5 * i / 10;
-			rtemp = ope.R * (10 - i) / 10;
+			rtemp = SIZE_FISH * (10 - i) / 10;
 			ope.ellipse(x + dx, y + dy, rtemp * 2, rtemp * 2);
 		}
-	}
-
-	/**
-	 * Clear vectors
-	 */
-	void clearVector() {
-		v1.x = 0;
-		v1.y = 0;
-		v2.x = 0;
-		v2.y = 0;
-		v3.x = 0;
-		v3.y = 0;
-		v4.x = 0;
-		v4.y = 0;
-		v5.x = 0;
-		v5.y = 0;
 	}
 }

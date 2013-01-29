@@ -1,5 +1,7 @@
 package openpool;
 
+import processing.core.PApplet;
+
 public class Ball {
 	private final float realr = 5;
 	public int id;
@@ -71,12 +73,12 @@ public class Ball {
 		return Math.sqrt(x * x + y * y);
 	}
 	
-	public void draw(OpenPool op) {
-		op.pa.stroke(255);
-		op.pa.fill(255);
-		op.pa.ellipse(x, y, 2 * realr, 2 * realr);
-		op.pa.line(x, y, x + 12, y - 15);
-		op.pa.text(String.format("id: %d [%.2f, %.2f]", id, x, y), x + 15, y - 15);
+	public void draw(PApplet pa) {
+		pa.stroke(255);
+		pa.fill(255);
+		pa.ellipse(x, y, 2 * realr, 2 * realr);
+		pa.line(x, y, x + 12, y - 15);
+		pa.text(String.format("no.%d [%.2f, %.2f]", id, x, y), x + 15, y - 15);
 	}
 
 	public void setPrev(Ball prev) {
@@ -94,6 +96,10 @@ public class Ball {
 	
 	public boolean hasSuccessor() {
 		return hasSuccessor;
+	}
+	
+	public boolean isNew() {
+		return !hasSuccessor;
 	}
 	
 	public boolean reviveAsGhost() {

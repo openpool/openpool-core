@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 
 import openpool.BallDetector;
 import openpool.OpenPool;
+import processing.core.PGraphicsJava2D;
 import processing.core.PImage;
 
 public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
@@ -36,7 +37,7 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 	}
 	
 	public String getTitle() {
-		return "Set binarization threshold by dragging the slider. / Define background by pressing ENTER key. / Show raw diff image by pressing SPACE key.";
+		return "Set binarization threshold by dragging the slider. / Define background by pressing SPACE key. / Show raw diff image by pressing TAB key.";
 	}
 
 	@Override
@@ -80,7 +81,8 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 		op.pa.rect(10, op.getHeight() - 30, op.getWidth() - 20, 14);
 		op.pa.fill(255);
 		op.pa.noStroke();
-		op.pa.rect(12, op.getHeight() - 28, (float) ballDetector.getThreshold() * (op.getWidth() - 24) / 255, 11);
+		int y = op.pa.g instanceof PGraphicsJava2D ? 28 : 29; // PGraphics bug work around.
+		op.pa.rect(12, op.getHeight() - y, (float) ballDetector.getThreshold() * (op.getWidth() - 24) / 255, 11);
 
 		if (mouseHovering || mousePressed) {
 			op.pa.fill(255, 255, 0);
@@ -114,11 +116,11 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 		if (e.getID() != KeyEvent.KEY_RELEASED) {
 			return;
 		}
-		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE) {
 			ballDetector.rememberBackground();
 			op.setMessage("Recorded the base image for background substraction.");
 		}
-		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE) {
+		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_TAB) {
 			rawMode = (rawMode + 1) % 3;
 			switch (rawMode) {
 			case 0:

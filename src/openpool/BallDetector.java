@@ -84,9 +84,14 @@ public class BallDetector implements Runnable {
 		this.cam1 = cam1;
 		this.cam2 = cam2;
 
-		cam1.update();
-		depthWidth = cam1.depthWidth();
-		depthHeight = cam1.depthHeight();
+		if (cam1 == null) {
+			depthWidth = 640;
+			depthHeight = 480;
+		} else {
+			cam1.update();
+			depthWidth = cam1.depthWidth();
+			depthHeight = cam1.depthHeight();
+		}
 
 		if (cam2 != null) {
 			cam2.update();
@@ -116,7 +121,9 @@ public class BallDetector implements Runnable {
 	}
 
 	public synchronized void run() {
-		cam1.update();
+		if (cam1 != null) {
+			cam1.update();
+		}
 		if (cam2 != null) {
 			cam2.update();
 		}
@@ -221,9 +228,10 @@ public class BallDetector implements Runnable {
 	}
 
 	private void retrieveDepthImage(IplImage target) {
-		copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
-		fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
-
+		if (cam1 != null) {
+			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+		}
 		if (cam2 != null) {
 			copyImage(target, cam2.depthImage(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
 			fillDepthErrorHoles(target, cam2.depthMap(), x2, y2, cam2.depthWidth(), cam2.depthHeight());

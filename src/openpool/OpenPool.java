@@ -38,6 +38,11 @@ public class OpenPool {
 	private boolean isConfigMode;
 
 	/**
+	 * @see #message
+	 */
+	private int messageLife = 15;
+
+	/**
 	 * Counter for showing the message.
 	 * 
 	 * @see #message
@@ -95,10 +100,7 @@ public class OpenPool {
 	public OpenPool(PApplet pa, int numCamera, String cam1FileName, String cam2FileName) {
 		this.pa = pa;
 
-		// Set window size.
-		pa.size(498*2, 282*2, PApplet.OPENGL);
-
-		// For Processing 2.0b
+		// For Processing 1.5.1
 		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH); //smooth(4);
 		pa.registerMouseEvent(this); // pa.registerMethod("mouseEvent", this);
 		pa.registerKeyEvent(this); // pa.registerMethod("keyEvent", this);
@@ -132,22 +134,19 @@ public class OpenPool {
 	}
 
 	private void initOpenNI(int numCamera, String cam1FileName, String cam2FileName) {
-		if (numCamera <= 0) {
-			throw new IllegalStateException(
-					"Use one or two cameras.");
-		} else if (numCamera == 1) {
+		if (numCamera == 1) {
 			cam1 = new SimpleOpenNI(pa);
 			cam2 = null;
 		} else if (numCamera == 2) {
 			cam1 = new SimpleOpenNI(1, pa);
 			cam2 = new SimpleOpenNI(0, pa);
-		} else {
+		} else if (numCamera > 2) {
 			throw new IllegalStateException(
 					"Number of cameras are limited up to two.");
 		}
 
 		// Load recording files if needed.
-		if (cam1FileName != null && !cam1.openFileRecording(cam1FileName)) {
+		if (cam1 != null && cam1FileName != null && !cam1.openFileRecording(cam1FileName)) {
 			throw new IllegalStateException(
 					"Can't open the recording file for the first camera: " + cam1FileName);
 		}
@@ -157,7 +156,7 @@ public class OpenPool {
 		}
 
 		// Check if depth streams are available.
-		if (!cam1.enableDepth()) {
+		if (cam1 != null && !cam1.enableDepth()) {
 			throw new IllegalStateException(
 					"Can't open the depth map of the first camera; check the camera connection.");
 		}
@@ -182,17 +181,17 @@ public class OpenPool {
 			return;
 		}
 
-		pa.fill(0, 0, 0);
-		pa.rect(0, 0, getWidth(), getHeight());
+		pa.colorMode(PApplet.RGB, 255);
+		pa.background(0);
 
 		synchronized (ballDetector) {
 			pa.image(ballDetector.getImage(),
 					corners[0].x, corners[0].y,
 					corners[1].x - corners[0].x, corners[1].y - corners[0].y);
 		}
-
 		configHandlers[currentModeIndex].draw();
-		
+
+		pa.noStroke();
 		pa.fill(255, 100, 100);
 		pa.text(configHandlers[currentModeIndex].getTitle(), 10, 20);
 		pa.text("Press left or right arrow to switch between config modes.", 10, 36);
@@ -232,7 +231,9 @@ public class OpenPool {
 	public void dispose() {
 		future.cancel(true);
 		ballDetector.dispose();
-		cam1.dispose();
+		if (cam1 != null) {
+			cam1.dispose();
+		}
 		if (cam2 != null) {
 			cam2.dispose();
 		}
@@ -240,19 +241,17 @@ public class OpenPool {
 
 	// Getters and setters follow:
 
+	public int getMessageLife() {
+		return messageLife;
+	}
+
+	public void setMessageLife(int messageLife) {
+		this.messageLife = messageLife;
+	}
+
 	public int getWidth() { return pa.getWidth(); }
 	
 	public int getHeight() { return pa.getHeight(); }
-	
-	public Point getCorner(int index) { return corners[index]; }
-	
-	public Point getTopLeftCorner() { return corners[0]; }
-	
-	public Point getBottomRightCorner() { return corners[1]; }
-	
-	public int getFieldWidth() { return corners[1].x - corners[0].x; }
-
-	public int getFieldHeight() { return corners[1].y - corners[0].y; }
 	
 	// Main API follow:
 	
@@ -278,12 +277,22 @@ public class OpenPool {
 	public void setDummyMode(boolean isDummy) {
 		ballSystem.setDummy(isDummy);
 	}
+
+	public Point getCorner(int index) { return corners[index]; }
+	
+	public Point getTopLeftCorner() { return corners[0]; }
+	
+	public Point getBottomRightCorner() { return corners[1]; }
+	
+	public int getFieldWidth() { return corners[1].x - corners[0].x; }
+
+	public int getFieldHeight() { return corners[1].y - corners[0].y; }
 	
 	// Utility methods follow:
 
 	public void setMessage(String message) {
 		this.message = message;
-		messageCounter = 120;
+		messageCounter = messageLife;
 	}
 
 	public float depthToScreenX(float x) {
