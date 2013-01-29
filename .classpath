@@ -15,6 +15,7 @@
 	<classpathentry kind="lib" path="dependency/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="dependency/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="dependency/jogl-all.jar"/>
+	<classpathentry kind="lib" path="dependency/MSAFluid.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
