@@ -14,10 +14,9 @@
  This work is licensed under GPL v2.
 */
 
-import java.io.File;
-
 import msafluid.*;
 import openpool.*;
+import SimpleOpenNI.*;
 
 import processing.opengl.PGraphicsOpenGL;
 
