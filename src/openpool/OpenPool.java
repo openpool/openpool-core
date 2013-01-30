@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import openpool.config.BallDetectorConfigHandler;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
+import openpool.config.CameraPositionHandler;
 
 import SimpleOpenNI.*;
 import processing.core.*;
@@ -129,7 +130,8 @@ public class OpenPool {
 	private void initConfigHandlers() {
 		configHandlers = new ConfigHandler[] {
 				new FieldConfigHandler(this),
-				new BallDetectorConfigHandler(this, ballDetector)
+				new BallDetectorConfigHandler(this, ballDetector),
+				new CameraPositionHandler(this, ballDetector)
 		};
 	}
 

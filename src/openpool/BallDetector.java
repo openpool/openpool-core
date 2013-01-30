@@ -25,9 +25,17 @@ public class BallDetector implements Runnable {
 	private BallSystem ballSystem;
 	private SimpleOpenNI cam1;
 	private SimpleOpenNI cam2;
+	
+	private int camCount = 0;
 
 	private int depthWidth;
 	private int depthHeight;
+	
+	private int cam1DepthWidth;
+	private int cam1DepthHeight;
+	
+	private int cam2DepthWidth;
+	private int cam2DepthHeight;
 
 	/**
 	 * 1 channel grayscale image.
@@ -84,11 +92,16 @@ public class BallDetector implements Runnable {
 		this.cam1 = cam1;
 		this.cam2 = cam2;
 
+
 		if (cam1 == null) {
 			depthWidth = 640;
 			depthHeight = 480;
+			camCount ++;
 		} else {
 			cam1.update();
+			cam1DepthHeight = cam1.depthHeight();
+			cam1DepthWidth = cam1.depthWidth();
+			
 			depthWidth = cam1.depthWidth();
 			depthHeight = cam1.depthHeight();
 		}
@@ -96,7 +109,10 @@ public class BallDetector implements Runnable {
 		if (cam2 != null) {
 			cam2.update();
 			x2 = depthWidth;
-			depthWidth += cam2.depthWidth();
+			cam2DepthHeight = cam2.depthHeight();
+			cam2DepthWidth = cam2.depthWidth();
+			depthWidth += cam2DepthWidth;
+			camcount++;
 		}
 
 		currentImage = cvCreateImage(
@@ -179,6 +195,57 @@ public class BallDetector implements Runnable {
 		cvReleaseMemStorage(mem);
 
 		temporaryImage.copyTo(resultImage);
+	}
+	
+	public int getCamCount(){
+		return camCount;
+	}
+	public void setX1(int x1){
+		this.x1 = x1;
+	}
+
+	public int getX1(){
+		return x1;
+	}
+	
+	public void setX2(int x2){
+		this.x2 = x2;
+	}
+	
+	public int getX2(){
+		return x2;
+	}
+	
+	public void setY1(int y1)	{
+		this.y1 = y1;
+	}
+
+	public int getY1()	{
+		return y1;
+	}
+	
+	public void setY2(int y2)	{
+		this.y2 = y2;
+	}
+	
+	public int getY2()	{
+		return y2;
+	}
+	
+	public int getCam1Width()	{
+		return cam1DepthWidth;
+	}
+	
+	public int getCam1Height(){
+		return cam1DepthHeight;
+	}
+
+	public int getCam2Width()	{
+		return cam2DepthWidth;
+	}
+	
+	public int getCam2Height(){
+		return cam2DepthHeight;
 	}
 
 	public int getDepthWidth() {
