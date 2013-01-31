@@ -29,30 +29,41 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 
 	@Override
 	public void draw() {
-		int depthwidth = ballDetector.getDepthWidth();
-		int depthheight = ballDetector.getDepthHeight();
+		int depthWidth = ballDetector.getDepthWidth();
+		int depthHeight = ballDetector.getDepthHeight();
 		
 		Point tl = op.getTopLeftCorner();
 		Point br = op.getBottomRightCorner();
 
-		Point cam1tl = new Point();
-		Point cam1br = new Point();
-		Point cam2tl = new Point();
-		Point cam2br = new Point();
+		Point cam1tl_imageAxis = new Point();
+		Point cam1br_imageAxis = new Point();
+		Point cam2tl_imageaxis = new Point();
+		Point cam2br_imageaxis = new Point();
+
+		Point cam1tl_ScreenAxis = new Point();
+		Point cam1br_ScreenAxis = new Point();
+		Point cam2tl_ScreenAxis = new Point();
+		Point cam2br_ScreenAxis = new Point();
 		
-		cam1tl.x = tl.x + ballDetector.getX1();
-		cam1tl.y = tl.y + ballDetector.getY1();
+		cam1tl_imageAxis.x = ballDetector.getX1();
+		cam1tl_imageAxis.y = ballDetector.getY1();
 		
-		cam1br.x = cam1tl.x + ballDetector.getCam1Width();
-		cam1br.y = cam1tl.y + ballDetector.getCam1Height();
-		
+		cam1br_imageAxis.x = cam1tl_imageAxis.x + ballDetector.getCam1Width();
+		cam1br_imageAxis.y = cam1tl_imageAxis.y + ballDetector.getCam1Height();
+
+		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+
 		if(camCount >= 2)
 		{
-			cam2tl.x = tl.x + ballDetector.getCam1Width() + ballDetector.getX2();
-			cam2tl.y = tl.y + ballDetector.getY2();
+			cam2tl_imageaxis.x = ballDetector.getCam1Width() + ballDetector.getX2();
+			cam2tl_imageaxis.y = ballDetector.getY2();
 			
-			cam2br.x = cam2tl.x + ballDetector.getCam2Width();
-			cam2br.y = cam2tl.y + ballDetector.getCam2Height();
+			cam2br_imageaxis.x = cam2tl_imageaxis.x + ballDetector.getCam2Width();
+			cam2br_imageaxis.y = cam2tl_imageaxis.y + ballDetector.getCam2Height();
+			
+			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
+			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
 		}
 		
 		int mx = op.pa.mouseX;
@@ -61,7 +72,8 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 		if (op.pa.mousePressed && selected >= 0) {
 			op.getCorner(selected).x = mx;
 			op.getCorner(selected).y = my;
-		} else {
+		}
+		else {
 			selected = -1;
 			int mSq = minimumDistanceSq;
 			for (int i = 0; i < 2; i++) {
@@ -117,24 +129,48 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 		op.pa.text(br.y, br.x - 40, br.y - 10);
 		
 		
-		//draw cam1 bounding
-		op.pa.line(cam1tl.x, cam1tl.y, cam1br.x, cam1tl.y);
-		op.pa.line(cam1br.x, cam1tl.y, cam1br.x, cam1br.y);
-		op.pa.line(cam1br.x, cam1br.y, cam1tl.x, cam1br.y);
-		op.pa.line(cam1tl.x, cam1br.y, cam1tl.x, cam1tl.y);
+		//draw cam1 image bounding
+		op.pa.stroke(255, 0, 0);
+		op.pa.line(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1br_ScreenAxis.x, cam1tl_ScreenAxis.y);
+		op.pa.line(cam1br_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1br_ScreenAxis.x, cam1br_ScreenAxis.y);
+		op.pa.line(cam1br_ScreenAxis.x, cam1br_ScreenAxis.y, cam1tl_ScreenAxis.x, cam1br_ScreenAxis.y);
+		op.pa.line(cam1tl_ScreenAxis.x, cam1br_ScreenAxis.y, cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y);
 		
 		if(camCount >= 2)
 		{
-			//draw cam12bounding
-			op.pa.line(cam2tl.x, cam2tl.y, cam2br.x, cam2tl.y);
-			op.pa.line(cam2br.x, cam2tl.y, cam2br.x, cam2br.y);
-			op.pa.line(cam2br.x, cam2br.y, cam2tl.x, cam2br.y);
-			op.pa.line(cam2tl.x, cam2br.y, cam2tl.x, cam2tl.y);
+			//draw cam2 image bounding
+			op.pa.stroke(0, 255, 0);
+			op.pa.line(cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2br_ScreenAxis.x, cam2tl_ScreenAxis.y);
+			op.pa.line(cam2br_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2br_ScreenAxis.x, cam2br_ScreenAxis.y);
+			op.pa.line(cam2br_ScreenAxis.x, cam2br_ScreenAxis.y, cam2tl_ScreenAxis.x, cam2br_ScreenAxis.y);
+			op.pa.line(cam2tl_ScreenAxis.x, cam2br_ScreenAxis.y, cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y);
 		}
 		op.pa.noStroke();
 	}
 	
 	private int getDistanceSq(int x1, int y1, int x2, int y2) {
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	}
+	
+	private Point ImagetoScreen(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
+		
+		Point retPt = new Point();
+		
+		if(camNumber >= 2){
+			retPt.x += pt.x + cam1Width;
+		}
+		retPt.x = tl.x + pt.x*(br.x-tl.x)/depthWidth;
+		retPt.y = tl.y + pt.y*(br.y-tl.y)/depthHeight;
+		
+		return retPt;
+	}
+	private Point ScreentoImage(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
+		Point retPt = new Point();
+		retPt.x = pt.x*(depthWidth  / (br.x-tl.x)) - tl.x;
+		retPt.y = pt.y*(depthHeight / (br.y-tl.y)) - tl.y;
+		if(camNumber >= 2){
+			retPt.x -= retPt.x - cam1Width;
+		}
+		return retPt;
 	}
 }

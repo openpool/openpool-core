@@ -112,7 +112,7 @@ public class BallDetector implements Runnable {
 			cam2DepthHeight = cam2.depthHeight();
 			cam2DepthWidth = cam2.depthWidth();
 			depthWidth += cam2DepthWidth;
-			camcount++;
+			camCount++;
 		}
 
 		currentImage = cvCreateImage(

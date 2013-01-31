@@ -23,8 +23,9 @@ public class OpenPool {
 
 	private BallSystem ballSystem;
 
-	private Point[] corners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
-	
+	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
+	private Point[] camCorners = {new depthImageCorners}
+			
 	private BallDetector ballDetector;
 	private ScheduledFuture<?> future;
 
@@ -103,6 +104,9 @@ public class OpenPool {
 
 		// For Processing 1.5.1
 		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH); //smooth(4);
+		
+		drawSplashScreen();
+		
 		pa.registerMouseEvent(this); // pa.registerMethod("mouseEvent", this);
 		pa.registerKeyEvent(this); // pa.registerMethod("keyEvent", this);
 		pa.registerDispose(this); // pa.registerMethod("dispose", this);
@@ -188,8 +192,8 @@ public class OpenPool {
 
 		synchronized (ballDetector) {
 			pa.image(ballDetector.getImage(),
-					corners[0].x, corners[0].y,
-					corners[1].x - corners[0].x, corners[1].y - corners[0].y);
+					depthImageCorners[0].x, depthImageCorners[0].y,
+					depthImageCorners[1].x - depthImageCorners[0].x, depthImageCorners[1].y - depthImageCorners[0].y);
 		}
 		configHandlers[currentModeIndex].draw();
 
@@ -280,15 +284,17 @@ public class OpenPool {
 		ballSystem.setDummy(isDummy);
 	}
 
-	public Point getCorner(int index) { return corners[index]; }
+	public Point getDepthImageCorner(int index) { return depthImageCorners[index]; }
 	
-	public Point getTopLeftCorner() { return corners[0]; }
+	public Point getCamImageCorner(int index){ return camCorners[index]; }
 	
-	public Point getBottomRightCorner() { return corners[1]; }
+	public Point getTopLeftCorner() { return depthImageCorners[0]; }
 	
-	public int getFieldWidth() { return corners[1].x - corners[0].x; }
+	public Point getBottomRightCorner() { return depthImageCorners[1]; }
+	
+	public int getFieldWidth() { return depthImageCorners[1].x - depthImageCorners[0].x; }
 
-	public int getFieldHeight() { return corners[1].y - corners[0].y; }
+	public int getFieldHeight() { return depthImageCorners[1].y - depthImageCorners[0].y; }
 	
 	// Utility methods follow:
 
@@ -311,5 +317,11 @@ public class OpenPool {
 
 	public float depthToScreenHeight(float height) {
 		return getFieldHeight() * height / ballDetector.getDepthHeight();
+	}
+	private void drawSplashScreen(){
+		PImage image = new PImage();
+		image = pa.loadImage("openpool.jpg");
+		pa.background(0);
+		pa.image(image, (pa.width - image.width)/2, (pa.height - image.height)/2);
 	}
 }
