@@ -368,9 +368,7 @@ ${line}
               </else>
           </if>
     </target>   
-    
-	
-	
+    	
 	<target name="clean" depends="library.run">
 		<delete dir="${project.bin}"/>
 		<delete dir="${project.tmp}"/>

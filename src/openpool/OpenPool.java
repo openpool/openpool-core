@@ -24,8 +24,6 @@ public class OpenPool {
 	private BallSystem ballSystem;
 
 	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
-	private Point[] camCorners = {new depthImageCorners}
-			
 	private BallDetector ballDetector;
 	private ScheduledFuture<?> future;
 
@@ -285,9 +283,7 @@ public class OpenPool {
 	}
 
 	public Point getDepthImageCorner(int index) { return depthImageCorners[index]; }
-	
-	public Point getCamImageCorner(int index){ return camCorners[index]; }
-	
+		
 	public Point getTopLeftCorner() { return depthImageCorners[0]; }
 	
 	public Point getBottomRightCorner() { return depthImageCorners[1]; }
@@ -321,7 +317,7 @@ public class OpenPool {
 	private void drawSplashScreen(){
 		PImage image = new PImage();
 		image = pa.loadImage("openpool.jpg");
-		pa.background(0);
+		pa.background(1);
 		pa.image(image, (pa.width - image.width)/2, (pa.height - image.height)/2);
 	}
 }

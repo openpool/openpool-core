@@ -96,8 +96,8 @@ public class BallDetector implements Runnable {
 		if (cam1 == null) {
 			depthWidth = 640;
 			depthHeight = 480;
-			camCount ++;
 		} else {
+			camCount ++;
 			cam1.update();
 			cam1DepthHeight = cam1.depthHeight();
 			cam1DepthWidth = cam1.depthWidth();
@@ -358,4 +358,39 @@ public class BallDetector implements Runnable {
 		cvReleaseImage(temporaryImage);
 		*/
 	}
+	public Point getCamImageCorner(int camNumber){
+		
+		Point ret;
+		
+		switch(camNumber)
+		{
+		case 1:
+			ret = new Point(x1,y1);
+			break;
+		case 2:
+			ret = new Point(x2,y2);
+			break;
+		default:
+			ret = new Point(0,0);
+			break;
+		}
+		return ret;
+	}
+	public void setCamImageCorner(int camNumber,Point pt){
+		switch(camNumber)
+		{
+		case 0:
+			this.x1 = pt.x;
+			this.y1 = pt.y;
+			break;
+		case 1:
+			this.x2 = pt.x;
+			this.y2 = pt.y;
+			break;
+		default:
+			break;
+		}
+		return;
+	}
+
 }

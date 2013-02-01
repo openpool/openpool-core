@@ -13,7 +13,7 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 	/**
 	 * True when camera image corner is grabbed with mouse pointer.
 	 */
-	int selected = -1;
+	int selectedCam = -1;
 	int camCount;
 
 	public CameraPositionHandler(OpenPool op,BallDetector ballDetector) {
@@ -65,69 +65,102 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
 			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
 		}
-		
-		int mx = op.pa.mouseX;
-		int my = op.pa.mouseY;
 
-		if (op.pa.mousePressed && selected >= 0) {
-			op.getCorner(selected).x = mx;
-			op.getCorner(selected).y = my;
+		Point mp = new Point();
+		mp.x = op.pa.mouseX;
+		mp.y = op.pa.mouseY;
+		
+		if (op.pa.mousePressed && selectedCam >= 0) {
+			ballDetector.setCamImageCorner(selectedCam,
+					ScreentoImage(mp,tl,br,depthWidth,depthHeight,selectedCam,ballDetector.getCam1Width())
+					);
 		}
 		else {
-			selected = -1;
+			selectedCam = -1;
+
 			int mSq = minimumDistanceSq;
-			for (int i = 0; i < 2; i++) {
-				int distanceSq = getDistanceSq(
-						mx, my, op.getCorner(i).x, op.getCorner(i).y);
-				if (distanceSq < mSq) {
-					mSq = distanceSq;
-					selected = i;
-				}
-			}
-			for (int i = 0; i < 2; i++) {
-				int distanceSq = getDistanceSq(
-						mx, my, op.getCorner(i).x, op.getCorner(i).y);
-				if (distanceSq < mSq) {
-					mSq = distanceSq;
-					selected = i;
+			
+			for (int i = 0; i < camCount; i++){
+					Point screenPt = ImagetoScreen(ballDetector.getCamImageCorner(i),
+							tl,br,depthWidth,depthHeight,i,ballDetector.getCam1Width());
+
+					op.pa.print("i/camcount: ");
+					op.pa.print(i);
+					op.pa.print("/");
+					op.pa.print(camCount);
+					op.pa.print(" ");
+					
+					op.pa.print("screen image x:");
+					op.pa.print(screenPt.x);
+					op.pa.print(" y:");
+					op.pa.print(screenPt.y);
+					op.pa.print(" ballDetector.getCamImageCorner(i) = ");
+					op.pa.print(ballDetector.getCamImageCorner(i).x);
+					op.pa.print(",");
+					op.pa.print(ballDetector.getCamImageCorner(i).y);
+
+					op.pa.print("Image to Screen: ");
+					op.pa.print(screenPt.x);
+					op.pa.print(",");
+					op.pa.print(screenPt.y);
+					op.pa.print(" ");
+					op.pa.print("X1,Y1: ");
+					op.pa.print(ScreentoImage(mp,tl,br,depthWidth,depthHeight,selectedCam,ballDetector.getCam1Width()).x);
+					op.pa.print(",");
+					op.pa.print(ScreentoImage(mp,tl,br,depthWidth,depthHeight,selectedCam,ballDetector.getCam1Width()).y);
+					
+					int distanceSq = getDistanceSq(
+						mp.x, mp.y,
+						screenPt.x,
+						screenPt.y
+						);
+					
+					op.pa.print("distance sq: ");
+					op.pa.println(distanceSq);
+					
+					if (distanceSq < mSq) {
+						mSq = distanceSq;
+						selectedCam = i;
+					;
 				}
 			}
 		}
-
+		
 		op.pa.fill(255, 255, 0);
-		if (selected >= 0) {
+		if (selectedCam >= 0) {
 			op.pa.ellipse(op.pa.mouseX, op.pa.mouseY, 20, 20);
+			op.pa.print("selectedCam:");
+			op.pa.println(selectedCam);
 		}
-
+		
 		// draw the image bounding box
 		op.pa.stroke(255, 255, 0);
 		op.pa.line(tl.x, tl.y, br.x, tl.y);
 		op.pa.line(br.x, tl.y, br.x, br.y);
 		op.pa.line(br.x, br.y, tl.x, br.y);
 		op.pa.line(tl.x, br.y, tl.x, tl.y);
-
+		
 		// draw an arrow
 		op.pa.line(tl.x, tl.y, tl.x + 8, tl.y + 4);
 		op.pa.line(tl.x, tl.y, tl.x + 4, tl.y + 8);
 		op.pa.line(tl.x, tl.y, tl.x + 10, tl.y + 10);
-
+		
 		// draw xy
 		op.pa.text("X:", tl.x + 20, tl.y + 20);
 		op.pa.text(tl.x, tl.x + 30, tl.y + 20);
 		op.pa.text("Y:", tl.x + 20, tl.y + 34);
 		op.pa.text(tl.y, tl.x + 30, tl.y + 34);
-
+		
 		// draw an arrow
 		op.pa.line(br.x, br.y, br.x - 8, br.y - 4);
 		op.pa.line(br.x, br.y, br.x - 4, br.y - 8);
 		op.pa.line(br.x, br.y, br.x - 10, br.y - 10);
-
+		
 		// draw xy
 		op.pa.text("X:", br.x - 50, br.y - 24);
 		op.pa.text(br.x, br.x - 40, br.y - 24);
 		op.pa.text("Y:", br.x - 50, br.y - 10);
 		op.pa.text(br.y, br.x - 40, br.y - 10);
-		
 		
 		//draw cam1 image bounding
 		op.pa.stroke(255, 0, 0);
@@ -156,7 +189,7 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 		
 		Point retPt = new Point();
 		
-		if(camNumber >= 2){
+		if(camNumber >= 1){
 			retPt.x += pt.x + cam1Width;
 		}
 		retPt.x = tl.x + pt.x*(br.x-tl.x)/depthWidth;
@@ -166,9 +199,10 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 	}
 	private Point ScreentoImage(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
 		Point retPt = new Point();
-		retPt.x = pt.x*(depthWidth  / (br.x-tl.x)) - tl.x;
-		retPt.y = pt.y*(depthHeight / (br.y-tl.y)) - tl.y;
-		if(camNumber >= 2){
+		retPt.x = (pt.x- tl.x)*(depthWidth  / (br.x-tl.x)) ;
+		retPt.y = (pt.y - tl.y)*(depthHeight / (br.y-tl.y));
+		
+		if(camNumber >= 1){
 			retPt.x -= retPt.x - cam1Width;
 		}
 		return retPt;
