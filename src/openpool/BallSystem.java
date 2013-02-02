@@ -37,7 +37,7 @@ public class BallSystem {
 		Ball prev = null;
 		double distance = distanceThreshold;
 		for (Ball b : prevBalls) {
-			double d = ball.distance(b);
+			double d = ball.movedLength(b);
 			if (d < distance) {
 				prev = b;
 				distance = d;
