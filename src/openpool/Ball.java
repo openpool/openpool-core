@@ -32,31 +32,39 @@ public class Ball {
 		hasSuccessor = false;
 	}
 	
-	public double distance(Ball b) {
+	public double movedLength(Ball b) {
 		// A (x' - dx, y' - dy) : ball position (2 frames behind)
 		// B (x', y') : ball position (1 frame behind)
 		// C (x, y) : ball position (current)
 		
 		if (b.dx == 0 && b.dy == 0) {
-			return distance(x - b.x, y - b.y);
+			return movedLength(x - b.x, y - b.y);
 		}
 		
 		// if (dot(b-a, c-a) < 0)
 		float cax = x - (b.x - b.dx), cay = y - (b.y -b.dy);
-		if (dot(b.dx, b.dy, cax, cay) < 0) {
+		if (isBoundedMuch(b.dx, b.dy, cax, cay)) {
 			// return abs(c-a)
-			return distance(cax, cay);
+			return movedLength(cax, cay);
 		}
 
 		// if (dot(a-b, c-b) < 0)
 		float cbx = x - b.x, cby = y - b.y;
-		if (dot(-b.dx, -b.dy, cbx, cby) < 0) {
+		if (!isBounded(b.dx, b.dy, cbx, cby)) {
 			// return abs(c-b)
-			return distance(cbx, cby);
+			return movedLength(cbx, cby);
 		}
 		
 		// return abs(cross(b-a, c-a)) / abs(b-a)
-		return crossLength(b.dx, b.dy, cax, cay) / distance(b.dx, b.dy);
+		return crossLength(b.dx, b.dy, cax, cay) / movedLength(b.dx, b.dy);
+	}
+
+	private static boolean isBoundedMuch(float x1, float y1, float x2, float y2) {
+		return isBounded(x1, y1, x2, y2);
+	}
+
+	private static boolean isBounded(float x1, float y1, float x2, float y2) {
+		return dot(x1, y1, x2, y2) < 0;
 	}
 
 	private static double dot(float x1, float y1, float x2, float y2) {
@@ -67,7 +75,7 @@ public class Ball {
 		return Math.abs(x1*y2 - y1*x2);
 	}
 	
-	private static double distance(float x, float y) {
+	private static double movedLength(float x, float y) {
 		return Math.sqrt(x * x + y * y);
 	}
 	
