@@ -45,7 +45,9 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 		Point tl = op.getTopLeftCorner();
 		Point br = op.getBottomRightCorner();
 
+		op.pa.background(0);
 		op.pa.stroke(255, 255, 0);
+		
 		if (rawMode > 0) {
 			synchronized (ballDetector) {
 				PImage diffImage = ballDetector.getDiffImage();

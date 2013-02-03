@@ -4,6 +4,7 @@ import java.awt.Point;
 
 import openpool.BallDetector;
 import openpool.OpenPool;
+import processing.core.PImage;
 
 public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 	private final int minimumDistanceSq = 20 * 20;
@@ -53,6 +54,9 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 
 		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
 		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+		
+		PImage diffImage = ballDetector.getDiffImage();
+		op.pa.image(diffImage, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
 
 		if(camCount >= 2)
 		{
@@ -81,6 +85,7 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 			int mSq = minimumDistanceSq;
 			
 			for (int i = 0; i < camCount; i++){
+				
 					Point screenPt = ImagetoScreen(ballDetector.getCamImageCorner(i),
 							tl,br,depthWidth,depthHeight,i,ballDetector.getCam1Width());
 
@@ -90,7 +95,7 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 					op.pa.print(camCount);
 					op.pa.print(" ");
 					
-					op.pa.print("screen image x:");
+					op.pa.print("screen camimage x:");
 					op.pa.print(screenPt.x);
 					op.pa.print(" y:");
 					op.pa.print(screenPt.y);
@@ -99,12 +104,12 @@ public class CameraPositionHandler extends ConfigHandlerAbstractImpl {
 					op.pa.print(",");
 					op.pa.print(ballDetector.getCamImageCorner(i).y);
 
-					op.pa.print("Image to Screen: ");
+					op.pa.print(" camimage Image to Screen: ");
 					op.pa.print(screenPt.x);
 					op.pa.print(",");
 					op.pa.print(screenPt.y);
 					op.pa.print(" ");
-					op.pa.print("X1,Y1: ");
+					op.pa.print(" mouse pointer X1,Y1: ");
 					op.pa.print(ScreentoImage(mp,tl,br,depthWidth,depthHeight,selectedCam,ballDetector.getCam1Width()).x);
 					op.pa.print(",");
 					op.pa.print(ScreentoImage(mp,tl,br,depthWidth,depthHeight,selectedCam,ballDetector.getCam1Width()).y);

@@ -80,7 +80,7 @@ public class BallDetector implements Runnable {
 	/**
 	 * Offset for the first camera.
 	 */
-	private int x1 = 0, y1 = 0;
+	private int x1 = 100, y1 = 100;
 
 	/**
 	 * Offset for the second camera.
@@ -295,6 +295,9 @@ public class BallDetector implements Runnable {
 	}
 
 	private void retrieveDepthImage(IplImage target) {
+		//fill image area with black
+		cvRectangle(target,cvPoint(0,0),cvPoint(target.width(),target.height()),cvScalar(0,0,0,0),1,8,0);
+
 		if (cam1 != null) {
 			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
 			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
@@ -316,11 +319,19 @@ public class BallDetector implements Runnable {
 	 */
 	private void copyImage(IplImage target, PImage source,
 			int x, int y, int width, int height) {
-		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
-		cvSetImageROI(target, cvRect(x, y, width, height));
-		cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
-		cvResetImageROI(target);
-		// cvReleaseImage(sourceImage);
+		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());	
+		
+		//TODO: add function for x<0 or y<0 
+		if(0 <= x && x < width && 0 <= y && y < height){
+			cvSetImageROI(target, cvRect(x, y, width, height));
+			cvSetImageROI(sourceImage, cvRect(0, 0, width-x, height-y));
+			
+			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+			
+			cvResetImageROI(sourceImage);
+			cvResetImageROI(target);
+			// cvReleaseImage(sourceImage);
+		}
 	}
 
 	/**
@@ -364,10 +375,10 @@ public class BallDetector implements Runnable {
 		
 		switch(camNumber)
 		{
-		case 1:
+		case 0:
 			ret = new Point(x1,y1);
 			break;
-		case 2:
+		case 1:
 			ret = new Point(x2,y2);
 			break;
 		default:
