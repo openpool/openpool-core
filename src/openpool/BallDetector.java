@@ -80,7 +80,7 @@ public class BallDetector implements Runnable {
 	/**
 	 * Offset for the first camera.
 	 */
-	private int x1 = 0, y1 = 0;
+	private int x1 = 100, y1 = 100;
 
 	/**
 	 * Offset for the second camera.
