@@ -296,8 +296,8 @@ public class BallDetector implements Runnable {
 
 	private void retrieveDepthImage(IplImage target) {
 		//fill image area with black
-		cvRectangle(target,cvPoint(0,0),cvPoint(target.width(),target.height()),cvScalar(0,0,0,0),1,8,0);
-
+		cvSetZero(target);
+		
 		if (cam1 != null) {
 			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
 			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());

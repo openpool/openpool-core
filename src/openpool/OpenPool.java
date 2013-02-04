@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import openpool.config.BallDetectorConfigHandler;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
-import openpool.config.CameraPositionHandler;
+import openpool.config.CameraPositionConfigHandler;
 
 import SimpleOpenNI.*;
 import processing.core.*;
@@ -133,7 +133,7 @@ public class OpenPool {
 		configHandlers = new ConfigHandler[] {
 				new FieldConfigHandler(this),
 				new BallDetectorConfigHandler(this, ballDetector),
-				new CameraPositionHandler(this, ballDetector)
+				new CameraPositionConfigHandler(this, ballDetector)
 		};
 	}
 
@@ -317,7 +317,7 @@ public class OpenPool {
 	private void drawSplashScreen(){
 		PImage image = new PImage();
 		image = pa.loadImage("openpool.jpg");
-		pa.background(1);
+		pa.background(255);
 		pa.image(image, (pa.width - image.width)/2, (pa.height - image.height)/2);
 	}
 }
