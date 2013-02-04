@@ -326,7 +326,13 @@ public class BallDetector implements Runnable {
 			cvSetImageROI(target, cvRect(x, y, width, height));
 			cvSetImageROI(sourceImage, cvRect(0, 0, width-x, height-y));
 			
-			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+			//camera connected -> fail
+			if(sourceImage.nChannels() == 1){
+				cvCopy(sourceImage, target);
+			}
+			else if(sourceImage.nChannels() == 4){
+				cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+			}
 			
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
