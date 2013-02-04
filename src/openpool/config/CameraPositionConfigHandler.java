@@ -52,8 +52,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		cam1br_imageAxis.x = cam1tl_imageAxis.x + ballDetector.getCam1Width();
 		cam1br_imageAxis.y = cam1tl_imageAxis.y + ballDetector.getCam1Height();
 
-		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
-		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
+		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
 		
 		ballDetector.rememberBackground();
 		PImage diffImage = ballDetector.getDiffImage();
@@ -67,8 +67,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 			cam2br_imageaxis.x = cam2tl_imageaxis.x + ballDetector.getCam2Width();
 			cam2br_imageaxis.y = cam2tl_imageaxis.y + ballDetector.getCam2Height();
 			
-			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
-			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
+			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
 		}
 
 		Point mp = new Point();
@@ -168,7 +168,7 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		if(camNumber >= 1){
 			retPt.x += pt.x + cam1Width;
 		}
-		retPt.x = tl.x + pt.x*(br.x-tl.x)/depthWidth;
+		retPt.x = tl.x + retPt.x*(br.x-tl.x)/depthWidth;
 		retPt.y = tl.y + pt.y*(br.y-tl.y)/depthHeight;
 		
 		return retPt;
