@@ -25,7 +25,7 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 	
 	@Override
 	public String getTitle() {
-		return "Specify the camera image area by dragging the corners.";
+		return "Specify the camera image area by dragging the top-left corners.";
 	}
 
 	@Override
@@ -160,7 +160,17 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 	private int getDistanceSq(int x1, int y1, int x2, int y2) {
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
-	
+
+	/**
+	 * Convert image xy to screen xy.
+	 * @param pt Screen xy point to convert
+	 * @param tl depthImage top-left corner xy in screen xy
+	 * @param br depthImage bottom-right corner xy in screen xy
+	 * @param depthWidth depthimage width in image xy
+	 * @param depthHeight depthImage height in image xy
+	 * @param camNumber id number of camera starts with 0
+	 * @param cam1Width width of cam1 in image xy
+	 */
 	private Point ImagetoScreen(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
 		
 		Point retPt = new Point();
@@ -173,6 +183,17 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		
 		return retPt;
 	}
+	
+	/**
+	 * Convert screen xy to image xy.
+	 * @param pt Screen xy point to convert
+	 * @param tl depthImage top-left corner xy in screen xy
+	 * @param br depthImage bottom-right corner xy in screen xy
+	 * @param depthWidth depthimage width in image xy
+	 * @param depthHeight depthImage height in image xy
+	 * @param camNumber id number of camera starts with 0
+	 * @param cam1Width width of cam1 in image xy
+	 */
 	private Point ScreentoImage(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
 		Point retPt = new Point();
 		retPt.x = (pt.x- tl.x)*(depthWidth  / (br.x-tl.x)) ;
