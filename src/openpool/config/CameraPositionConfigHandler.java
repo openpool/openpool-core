@@ -52,8 +52,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		cam1br_imageAxis.x = cam1tl_imageAxis.x + ballDetector.getCam1Width();
 		cam1br_imageAxis.y = cam1tl_imageAxis.y + ballDetector.getCam1Height();
 
-		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
-		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
+		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
 		
 		ballDetector.rememberBackground();
 		PImage diffImage = ballDetector.getDiffImage();
@@ -67,8 +67,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 			cam2br_imageaxis.x = cam2tl_imageaxis.x + ballDetector.getCam2Width();
 			cam2br_imageaxis.y = cam2tl_imageaxis.y + ballDetector.getCam2Height();
 			
-			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
-			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,2,ballDetector.getCam1Width());
+			cam2tl_ScreenAxis = ImagetoScreen(cam2tl_imageaxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
+			cam2br_ScreenAxis = ImagetoScreen(cam2br_imageaxis,tl,br,depthWidth,depthHeight,1,ballDetector.getCam1Width());
 		}
 
 		Point mp = new Point();
@@ -171,36 +171,48 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 	 * @param camNumber id number of camera starts with 0
 	 * @param cam1Width width of cam1 in image xy
 	 */
-	private Point ImagetoScreen(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
-		
+	private Point ImagetoScreen(Point pt, Point tl, Point br, int depthWidth,
+			int depthHeight, int camNumber, int cam1Width) {
+
 		Point retPt = new Point();
-		
-		if(camNumber >= 1){
-			retPt.x += pt.x + cam1Width;
+		if (camNumber == 0) {
+			retPt.x = tl.x + pt.x * (br.x - tl.x) / depthWidth;
+			retPt.y = tl.y + pt.y * (br.y - tl.y) / depthHeight;
+		} else {
+			retPt.x = tl.x + (pt.x + cam1Width) * (br.x - tl.x) / depthWidth;
+			retPt.y = tl.y + pt.y * (br.y - tl.y) / depthHeight;
 		}
-		retPt.x = tl.x + pt.x*(br.x-tl.x)/depthWidth;
-		retPt.y = tl.y + pt.y*(br.y-tl.y)/depthHeight;
-		
+
 		return retPt;
 	}
-	
+
 	/**
 	 * Convert screen xy to image xy.
-	 * @param pt Screen xy point to convert
-	 * @param tl depthImage top-left corner xy in screen xy
-	 * @param br depthImage bottom-right corner xy in screen xy
-	 * @param depthWidth depthimage width in image xy
-	 * @param depthHeight depthImage height in image xy
-	 * @param camNumber id number of camera starts with 0
-	 * @param cam1Width width of cam1 in image xy
+	 * 
+	 * @param pt
+	 *            Screen xy point to convert
+	 * @param tl
+	 *            depthImage top-left corner xy in screen xy
+	 * @param br
+	 *            depthImage bottom-right corner xy in screen xy
+	 * @param depthWidth
+	 *            depthimage width in image xy
+	 * @param depthHeight
+	 *            depthImage height in image xy
+	 * @param camNumber
+	 *            id number of camera starts with 0
+	 * @param cam1Width
+	 *            width of cam1 in image xy
 	 */
-	private Point ScreentoImage(Point pt,Point tl,Point br,int depthWidth, int depthHeight,int camNumber,int cam1Width){
+	private Point ScreentoImage(Point pt, Point tl, Point br, int depthWidth,
+			int depthHeight, int camNumber, int cam1Width) {
 		Point retPt = new Point();
-		retPt.x = (pt.x- tl.x)*(depthWidth  / (br.x-tl.x)) ;
-		retPt.y = (pt.y - tl.y)*(depthHeight / (br.y-tl.y));
-		
-		if(camNumber >= 1){
-			retPt.x -= retPt.x - cam1Width;
+		if (camNumber == 0) {
+			retPt.x = (pt.x - tl.x) * (depthWidth / (br.x - tl.x));
+			retPt.y = (pt.y - tl.y) * (depthHeight / (br.y - tl.y));
+		} else {
+			retPt.x = (pt.x - tl.x) * (depthWidth / (br.x - tl.x)) - cam1Width;
+			retPt.y = (pt.y - tl.y) * (depthHeight / (br.y - tl.y));
 		}
 		return retPt;
 	}
