@@ -61,7 +61,7 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 
 		if(camCount >= 2)
 		{
-			cam2tl_imageaxis.x = ballDetector.getCam1Width() + ballDetector.getX2();
+			cam2tl_imageaxis.x = ballDetector.getX2();
 			cam2tl_imageaxis.y = ballDetector.getY2();
 			
 			cam2br_imageaxis.x = cam2tl_imageaxis.x + ballDetector.getCam2Width();

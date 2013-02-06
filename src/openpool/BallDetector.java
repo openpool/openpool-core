@@ -80,7 +80,7 @@ public class BallDetector implements Runnable {
 	/**
 	 * Offset for the first camera.
 	 */
-	private int x1 = 100, y1 = 100;
+	private int x1 = 0, y1 = 0;
 
 	/**
 	 * Offset for the second camera.
@@ -108,7 +108,6 @@ public class BallDetector implements Runnable {
 
 		if (cam2 != null) {
 			cam2.update();
-			x2 = depthWidth;
 			cam2DepthHeight = cam2.depthHeight();
 			cam2DepthWidth = cam2.depthWidth();
 			depthWidth += cam2DepthWidth;
@@ -319,12 +318,95 @@ public class BallDetector implements Runnable {
 	 */
 	private void copyImage(IplImage target, PImage source,
 			int x, int y, int width, int height) {
-		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());	
+		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 		
+		Point CopyArea_tl = new Point(0,0);
+		Point CopyArea_br = new Point(0,0);
+		
+		Boolean copyFlag = false;
+		
+		if(x < 0){
+			if(x + source.width < 0){
+				;//no copy.
+				copyFlag = false;
+			}
+			else if(x+source.width <= target.width()){
+				CopyArea_tl.x=0;
+				CopyArea_br.x=source.width;
+				copyFlag = true;
+			}
+			else
+			{
+				CopyArea_tl.x=0;
+				CopyArea_br.x=target.width();
+				copyFlag = true;
+			}
+		}
+		else if(x <target.width()){
+			if(x + source.width < 0){
+				;//no copy.
+				copyFlag = false;
+			}
+			else if(x+source.width <= target.width()){
+				CopyArea_tl.x=x;
+				CopyArea_br.x=source.width;
+				copyFlag = true;
+			}
+			else
+			{
+				CopyArea_tl.x=x;
+				CopyArea_br.x=target.width();
+				copyFlag = true;
+			}
+		}
+		else{
+			;//no copy
+			copyFlag = false;
+		}
+		
+		if(y < 0 && copyFlag == true){
+			if(y + source.height < 0){
+				;//no copy.
+				copyFlag = false;
+			}
+			else if(y + source.height <= target.height()){
+				CopyArea_tl.y=0;
+				CopyArea_br.y=source.height;
+				copyFlag = true;
+			}
+			else
+			{
+				CopyArea_tl.y=0;
+				CopyArea_br.y=target.height();
+				copyFlag = true;
+			}
+		}
+		else if(y <target.height()){
+			if(y + source.height < 0){
+				;//no copy.
+				copyFlag = false;
+		}
+			else if(y+source.height <= target.height()){
+				CopyArea_tl.y=y;
+				CopyArea_br.y=source.height;
+				copyFlag = true;
+			}
+			else
+			{
+				CopyArea_tl.y=y;
+				CopyArea_br.y=target.height();
+				copyFlag = true;
+			}
+		}
+		else{
+			;//no copy
+			copyFlag = false;
+		}
+			
 		//TODO: add function for x<0 or y<0 
-		if(0 <= x && x < width && 0 <= y && y < height){
-			cvSetImageROI(target, cvRect(x, y, width, height));
-			cvSetImageROI(sourceImage, cvRect(0, 0, width-x, height-y));
+		if(copyFlag){
+			cvSetImageROI(target, cvRect(CopyArea_tl.x, CopyArea_tl.y, CopyArea_br.x-CopyArea_tl.x, CopyArea_br.y-CopyArea_tl.y));
+			cvSetImageROI(sourceImage, cvRect(CopyArea_tl.x-x, CopyArea_tl.y-y, CopyArea_br.x-CopyArea_tl.x-x, CopyArea_br.y-CopyArea_tl.y-y));
 			
 			//camera connected -> fail
 			if(sourceImage.nChannels() == 1){
