@@ -19,12 +19,14 @@ import static com.googlecode.javacpp.Loader.sizeof;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
+import processing.core.PApplet;
 import processing.core.PImage;
 
 public class BallDetector implements Runnable {
 	private BallSystem ballSystem;
 	private SimpleOpenNI cam1;
 	private SimpleOpenNI cam2;
+	private PApplet pa;
 	
 	private int camCount = 0;
 
@@ -87,7 +89,8 @@ public class BallDetector implements Runnable {
 	 */
 	private int x2 = 0, y2 = 0;
 
-	BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2) {
+	BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2, PApplet pa) {
+		this.pa = pa;
 		this.ballSystem = ballSystem;
 		this.cam1 = cam1;
 		this.cam2 = cam2;
@@ -302,8 +305,8 @@ public class BallDetector implements Runnable {
 			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
 		}
 		if (cam2 != null) {
-			copyImage(target, cam2.depthImage(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
-			fillDepthErrorHoles(target, cam2.depthMap(), x2, y2, cam2.depthWidth(), cam2.depthHeight());
+			copyImage(target, cam2.depthImage(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
+			fillDepthErrorHoles(target, cam2.depthMap(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
 		}
 	}
 
@@ -332,7 +335,7 @@ public class BallDetector implements Runnable {
 			}
 			else if(x+source.width <= target.width()){
 				CopyArea_tl.x=0;
-				CopyArea_br.x=source.width;
+				CopyArea_br.x=x+source.width;
 				copyFlag = true;
 			}
 			else
@@ -342,14 +345,10 @@ public class BallDetector implements Runnable {
 				copyFlag = true;
 			}
 		}
-		else if(x <target.width()){
-			if(x + source.width < 0){
-				;//no copy.
-				copyFlag = false;
-			}
-			else if(x+source.width <= target.width()){
+		else if(x <= target.width()){
+			if(x+source.width <= target.width()){
 				CopyArea_tl.x=x;
-				CopyArea_br.x=source.width;
+				CopyArea_br.x=x+source.width;
 				copyFlag = true;
 			}
 			else
@@ -363,15 +362,15 @@ public class BallDetector implements Runnable {
 			;//no copy
 			copyFlag = false;
 		}
-		
-		if(y < 0 && copyFlag == true){
+				
+		if(y < 0 ){
 			if(y + source.height < 0){
 				;//no copy.
 				copyFlag = false;
 			}
 			else if(y + source.height <= target.height()){
 				CopyArea_tl.y=0;
-				CopyArea_br.y=source.height;
+				CopyArea_br.y=y+source.height;
 				copyFlag = true;
 			}
 			else
@@ -388,7 +387,7 @@ public class BallDetector implements Runnable {
 		}
 			else if(y+source.height <= target.height()){
 				CopyArea_tl.y=y;
-				CopyArea_br.y=source.height;
+				CopyArea_br.y=y+source.height;
 				copyFlag = true;
 			}
 			else
@@ -413,7 +412,40 @@ public class BallDetector implements Runnable {
 				cvCopy(sourceImage, target);
 			}
 			else if(sourceImage.nChannels() == 4){
-				cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+				
+				IplImage targetTemp = new IplImage(target);
+				
+				pa.print("cvCvt soure : ");
+				pa.print(sourceImage.width());
+				pa.print(" x ");
+				pa.print(sourceImage.height());
+				
+				pa.print(" ROI area : ");
+				pa.print(CopyArea_tl.x-x);
+				pa.print(",");
+				pa.print(CopyArea_tl.y-y);
+				pa.print(" --- ");
+				pa.print(CopyArea_br.x-CopyArea_tl.x);
+				pa.print(",");
+				pa.println(CopyArea_br.y-CopyArea_tl.y);	
+								
+				pa.print("cvCvt target: ");
+				pa.print(target.width());
+				pa.print(" x ");
+				pa.print(target.height());				
+				
+				pa.print(" ROI area : ");
+				pa.print(CopyArea_tl.x);
+				pa.print(",");
+				pa.print(CopyArea_tl.y);
+				pa.print(" --- ");
+				pa.print(CopyArea_br.x);
+				pa.print(",");
+				pa.println(CopyArea_br.y);
+				
+				cvCvtColor(sourceImage, targetTemp, CV_RGBA2GRAY);
+				cvCopy(targetTemp,target);
+				pa.println("cvCvt DONE!!!");
 			}
 			
 			cvResetImageROI(sourceImage);

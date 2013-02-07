@@ -172,7 +172,7 @@ public class OpenPool {
 	
 	private void initBallDetector() {
 		ballSystem = new BallSystem(this);
-		ballDetector = new BallDetector(ballSystem, cam1, cam2);
+		ballDetector = new BallDetector(ballSystem, cam1, cam2, pa);
 		ScheduledExecutorService ses = Executors.newSingleThreadScheduledExecutor();
 		future = ses.scheduleAtFixedRate(ballDetector, 33, 33, TimeUnit.MILLISECONDS);
 	}
