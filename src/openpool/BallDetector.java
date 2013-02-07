@@ -323,131 +323,70 @@ public class BallDetector implements Runnable {
 			int x, int y, int width, int height) {
 		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 		
-		Point CopyArea_tl = new Point(0,0);
-		Point CopyArea_br = new Point(0,0);
+		Point sourceCopyArea = new Point(0,0);
+		Point targetCopyArea = new Point(0,0);
 		
-		Boolean copyFlag = false;
+		int CopyAreaWidth = 0;
+		int CopyAreaHeight = 0;
 		
-		if(x < 0){
-			if(x + source.width < 0){
-				;//no copy.
-				copyFlag = false;
-			}
-			else if(x+source.width <= target.width()){
-				CopyArea_tl.x=0;
-				CopyArea_br.x=x+source.width;
-				copyFlag = true;
-			}
-			else
-			{
-				CopyArea_tl.x=0;
-				CopyArea_br.x=target.width();
-				copyFlag = true;
-			}
-		}
-		else if(x <= target.width()){
-			if(x+source.width <= target.width()){
-				CopyArea_tl.x=x;
-				CopyArea_br.x=x+source.width;
-				copyFlag = true;
-			}
-			else
-			{
-				CopyArea_tl.x=x;
-				CopyArea_br.x=target.width();
-				copyFlag = true;
-			}
-		}
-		else{
-			;//no copy
-			copyFlag = false;
-		}
-				
-		if(y < 0 ){
-			if(y + source.height < 0){
-				;//no copy.
-				copyFlag = false;
-			}
-			else if(y + source.height <= target.height()){
-				CopyArea_tl.y=0;
-				CopyArea_br.y=y+source.height;
-				copyFlag = true;
-			}
-			else
-			{
-				CopyArea_tl.y=0;
-				CopyArea_br.y=target.height();
-				copyFlag = true;
-			}
-		}
-		else if(y <target.height()){
-			if(y + source.height < 0){
-				;//no copy.
-				copyFlag = false;
-		}
-			else if(y+source.height <= target.height()){
-				CopyArea_tl.y=y;
-				CopyArea_br.y=y+source.height;
-				copyFlag = true;
-			}
-			else
-			{
-				CopyArea_tl.y=y;
-				CopyArea_br.y=target.height();
-				copyFlag = true;
-			}
-		}
-		else{
-			;//no copy
-			copyFlag = false;
-		}
-			
+		sourceCopyArea.x = Math.max(1,1-x);
+		sourceCopyArea.y = Math.max(1,1-y);
+		
+		targetCopyArea.x = Math.max(1,1+x);
+		targetCopyArea.y = Math.max(1,1+y);
+		
+		CopyAreaWidth = Math.max(0,
+				source.width + target.width() - (Math.max(x+source.width,target.width()) - Math.min(0,x))
+				);
+		CopyAreaHeight = Math.max(0,
+				source.height + target.height() - (Math.max(y+source.height,target.height()) - Math.min(0,y))
+				);
+		
 		//TODO: add function for x<0 or y<0 
-		if(copyFlag){
-			cvSetImageROI(target, cvRect(CopyArea_tl.x, CopyArea_tl.y, CopyArea_br.x-CopyArea_tl.x, CopyArea_br.y-CopyArea_tl.y));
-			cvSetImageROI(sourceImage, cvRect(CopyArea_tl.x-x, CopyArea_tl.y-y, CopyArea_br.x-CopyArea_tl.x-x, CopyArea_br.y-CopyArea_tl.y-y));
-			
-			//camera connected -> fail
-			if(sourceImage.nChannels() == 1){
-				cvCopy(sourceImage, target);
-			}
-			else if(sourceImage.nChannels() == 4){
-				
-				IplImage targetTemp = new IplImage(target);
-				
-				pa.print("cvCvt soure : ");
-				pa.print(sourceImage.width());
-				pa.print(" x ");
-				pa.print(sourceImage.height());
-				
-				pa.print(" ROI area : ");
-				pa.print(CopyArea_tl.x-x);
-				pa.print(",");
-				pa.print(CopyArea_tl.y-y);
-				pa.print(" --- ");
-				pa.print(CopyArea_br.x-CopyArea_tl.x);
-				pa.print(",");
-				pa.println(CopyArea_br.y-CopyArea_tl.y);	
-								
-				pa.print("cvCvt target: ");
-				pa.print(target.width());
-				pa.print(" x ");
-				pa.print(target.height());				
-				
-				pa.print(" ROI area : ");
-				pa.print(CopyArea_tl.x);
-				pa.print(",");
-				pa.print(CopyArea_tl.y);
-				pa.print(" --- ");
-				pa.print(CopyArea_br.x);
-				pa.print(",");
-				pa.println(CopyArea_br.y);
-				
-				cvCvtColor(sourceImage, targetTemp, CV_RGBA2GRAY);
-				cvCopy(targetTemp,target);
-				pa.println("cvCvt DONE!!!");
-			}
-			
+		if(CopyAreaWidth * CopyAreaHeight != 0){
+
+			// camera connected -> fail
+
+			pa.print("cvCvt soure : ");
+			pa.print(sourceImage.width());
+			pa.print(" x ");
+			pa.print(sourceImage.height());
+
+			pa.print(" ROI area POINT: ");
+			pa.print(sourceCopyArea.x);
+			pa.print(",");
+			pa.print(sourceCopyArea.y);
+			pa.print(" --- width x height:  ");
+			pa.print(CopyAreaWidth);
+			pa.print(" x ");
+			pa.println(CopyAreaHeight);
+
+			pa.print("cvCvt target: ");
+			pa.print(target.width());
+			pa.print(" x ");
+			pa.print(target.height());
+
+			pa.print(" ROI area POINT: ");
+			pa.print(targetCopyArea.x);
+			pa.print(",");
+			pa.print(targetCopyArea.y);
+			pa.print(" --- width x height: ");
+			pa.print(CopyAreaWidth);
+			pa.print(" x ");
+			pa.println(CopyAreaHeight);
+
+			cvSetImageROI(
+					sourceImage,
+					cvRect(sourceCopyArea.x, sourceCopyArea.y, CopyAreaWidth,
+							CopyAreaHeight));
+			cvSetImageROI(
+					target,
+					cvRect(targetCopyArea.x, targetCopyArea.y, CopyAreaWidth,
+							CopyAreaHeight));
+
+			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+			pa.println("cvCvt DONE!!!");
+
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
 			// cvReleaseImage(sourceImage);
