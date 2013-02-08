@@ -336,45 +336,18 @@ public class BallDetector implements Runnable {
 		targetCopyArea.y = Math.max(1,1+y);
 		
 		CopyAreaWidth = Math.max(0,
-				source.width + target.width() - (Math.max(x+source.width,target.width()) - Math.min(0,x))
+				sourceImage.width() + target.width()  
+				- ( Math.max(x+sourceImage.width(),target.width()) - Math.min(0,x))
 				);
 		CopyAreaHeight = Math.max(0,
-				source.height + target.height() - (Math.max(y+source.height,target.height()) - Math.min(0,y))
+				sourceImage.height() + target.height() 
+				- (Math.max(y+sourceImage.height(),target.height()) - Math.min(0,y))
 				);
 		
 		//TODO: add function for x<0 or y<0 
 		if(CopyAreaWidth * CopyAreaHeight != 0){
-
+		
 			// camera connected -> fail
-
-			pa.print("cvCvt soure : ");
-			pa.print(sourceImage.width());
-			pa.print(" x ");
-			pa.print(sourceImage.height());
-
-			pa.print(" ROI area POINT: ");
-			pa.print(sourceCopyArea.x);
-			pa.print(",");
-			pa.print(sourceCopyArea.y);
-			pa.print(" --- width x height:  ");
-			pa.print(CopyAreaWidth);
-			pa.print(" x ");
-			pa.println(CopyAreaHeight);
-
-			pa.print("cvCvt target: ");
-			pa.print(target.width());
-			pa.print(" x ");
-			pa.print(target.height());
-
-			pa.print(" ROI area POINT: ");
-			pa.print(targetCopyArea.x);
-			pa.print(",");
-			pa.print(targetCopyArea.y);
-			pa.print(" --- width x height: ");
-			pa.print(CopyAreaWidth);
-			pa.print(" x ");
-			pa.println(CopyAreaHeight);
-
 			cvSetImageROI(
 					sourceImage,
 					cvRect(sourceCopyArea.x, sourceCopyArea.y, CopyAreaWidth,
@@ -384,9 +357,51 @@ public class BallDetector implements Runnable {
 					cvRect(targetCopyArea.x, targetCopyArea.y, CopyAreaWidth,
 							CopyAreaHeight));
 
-			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
-			pa.println("cvCvt DONE!!!");
-
+			pa.print("cvCvt soure : ");
+			pa.print(sourceImage.width());
+			pa.print(" x ");
+			pa.print(sourceImage.height());
+			
+			pa.print(" ROI area POINT: ");
+			pa.print(sourceCopyArea.x);
+			pa.print(",");
+			pa.print(sourceCopyArea.y);
+			pa.print(" --- width x height:  ");
+			pa.print(CopyAreaWidth);
+			pa.print(" x ");
+			pa.println(CopyAreaHeight);
+			
+			pa.print(" Depth: ");
+			pa.print(sourceImage.depth());
+			pa.print(" nChannels: ");
+			pa.println(sourceImage.nChannels());
+			
+			pa.print("cvCvt target: ");
+			pa.print(target.width());
+			pa.print(" x ");
+			pa.print(target.height());
+			
+			pa.print(" ROI area POINT: ");
+			pa.print(targetCopyArea.x);
+			pa.print(",");
+			pa.print(targetCopyArea.y);
+			pa.print(" --- width x height: ");
+			pa.print(CopyAreaWidth);
+			pa.print(" x ");
+			pa.println(CopyAreaHeight);
+			
+			pa.print(" Depth: ");
+			pa.print(target.depth());
+			pa.print(" nChannels: ");
+			pa.println(target.nChannels());
+			
+			if(sourceImage.nChannels() ==4){
+				cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+				pa.println("cvCvt DONE!!!");
+			}
+			else{
+				pa.println("cvCvt FAIL!!! nChannels not valid!!!");
+			}
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
 			// cvReleaseImage(sourceImage);
