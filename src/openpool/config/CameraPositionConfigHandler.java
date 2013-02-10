@@ -56,8 +56,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
 		
 		ballDetector.rememberBackground();
-		PImage diffImage = ballDetector.getDiffImage();
-		op.pa.image(diffImage, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+		PImage combinedImage = ballDetector.getImage();
+		op.pa.image(combinedImage, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
 
 		if(camCount >= 2)
 		{

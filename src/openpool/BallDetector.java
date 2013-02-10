@@ -350,13 +350,14 @@ public class BallDetector implements Runnable {
 			// camera connected -> fail
 			cvSetImageROI(
 					sourceImage,
-					cvRect(sourceCopyArea.x, sourceCopyArea.y, CopyAreaWidth,
-							CopyAreaHeight));
+					cvRect(sourceCopyArea.x, sourceCopyArea.y, CopyAreaWidth-1,
+							CopyAreaHeight-1));
 			cvSetImageROI(
 					target,
-					cvRect(targetCopyArea.x, targetCopyArea.y, CopyAreaWidth,
-							CopyAreaHeight));
+					cvRect(targetCopyArea.x, targetCopyArea.y, CopyAreaWidth-1,
+							CopyAreaHeight-1));
 
+			/*
 			pa.print("cvCvt soure : ");
 			pa.print(sourceImage.width());
 			pa.print(" x ");
@@ -394,14 +395,11 @@ public class BallDetector implements Runnable {
 			pa.print(target.depth());
 			pa.print(" nChannels: ");
 			pa.println(target.nChannels());
-			
-			if(sourceImage.nChannels() ==4){
-				cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
-				pa.println("cvCvt DONE!!!");
-			}
-			else{
-				pa.println("cvCvt FAIL!!! nChannels not valid!!!");
-			}
+			 */
+			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
+
+			//pa.println("cvCvt DONE!!!");
+				
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
 			// cvReleaseImage(sourceImage);
