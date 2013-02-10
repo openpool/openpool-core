@@ -142,6 +142,13 @@ public class OpenPool {
 	}
 
 	private void initOpenNI(int numCamera, String cam1FileName, String cam2FileName) {
+		SimpleOpenNI.start(); 
+		// print all the cams 
+		StrVector strList = new StrVector();
+		SimpleOpenNI.deviceNames(strList);
+		for(int i=0;i<strList.size();i++)
+			pa.println(i + ":" + strList.get(i));
+
 		if (numCamera == 1) {
 			cam1 = new SimpleOpenNI(pa);
 			cam2 = null;

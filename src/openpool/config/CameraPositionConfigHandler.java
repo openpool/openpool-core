@@ -1,6 +1,7 @@
 package openpool.config;
 
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 
 import openpool.BallDetector;
 import openpool.OpenPool;
@@ -25,7 +26,7 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 	
 	@Override
 	public String getTitle() {
-		return "Specify the camera image area by dragging the top-left corners.";
+		return "Specify the camera image area by dragging the top-left corners. / background is automatically defined when dragged. You can define it manually by pressing SPACE key.";
 	}
 
 	@Override
@@ -54,10 +55,6 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 
 		cam1tl_ScreenAxis = ImagetoScreen(cam1tl_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
 		cam1br_ScreenAxis = ImagetoScreen(cam1br_imageAxis,tl,br,depthWidth,depthHeight,0,ballDetector.getCam1Width());
-		
-		ballDetector.rememberBackground();
-		PImage combinedImage = ballDetector.getImage();
-		op.pa.image(combinedImage, tl.x, tl.y, br.x - tl.x, br.y - tl.y);
 
 		if(camCount >= 2)
 		{
@@ -104,9 +101,9 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 			}
 		}
 		
-		op.pa.fill(255, 255, 0);
 		if (selectedCam >= 0) {
 			op.pa.ellipse(op.pa.mouseX, op.pa.mouseY, 20, 20);
+			ballDetector.rememberBackground();
 		}
 		
 		// draw the image bounding box
@@ -215,5 +212,16 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 			retPt.y = (pt.y - tl.y) * (depthHeight / (br.y - tl.y));
 		}
 		return retPt;
+	}
+	
+	@Override
+	public void keyEvent(KeyEvent e) {
+		if (e.getID() != KeyEvent.KEY_RELEASED) {
+			return;
+		}
+		if (e.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE) {
+			ballDetector.rememberBackground();
+			op.setMessage("Recorded the base image for background substraction.");
+		}		
 	}
 }
