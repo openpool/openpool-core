@@ -3,10 +3,15 @@ package openpool;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
 
 import openpool.config.BallDetectorConfigHandler;
 import openpool.config.ConfigHandler;
@@ -100,24 +105,23 @@ public class OpenPool {
 	public OpenPool(PApplet pa, int numCamera, String cam1FileName, String cam2FileName) {
 		this.pa = pa;
 
-		// For Processing 1.5.1
-		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH); //smooth(4);
+		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
 		
 		drawSplashScreen();
 		
-		pa.registerMouseEvent(this); // pa.registerMethod("mouseEvent", this);
-		pa.registerKeyEvent(this); // pa.registerMethod("keyEvent", this);
-		pa.registerDispose(this); // pa.registerMethod("dispose", this);
-		pa.registerPre(this); // pa.registerMethod("pre", this);
+		pa.registerMouseEvent(this);
+		pa.registerKeyEvent(this);
+		pa.registerDispose(this);
+		pa.registerPre(this);
 		
-		// For Processing 1.5.1
+		// For Processing 2.0b
 		//	Turn on 4X antialiasing
-		//pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
+		//smooth(4);
 		//	Register event handlers.
-		//pa.registerMouseEvent(this);
-		//pa.registerKeyEvent(this);
-		//pa.registerDispose(this);
-		//pa.registerPre(this);
+		//pa.registerMethod("mouseEvent", this);
+		//pa.registerMethod("keyEvent", this);
+		//pa.registerMethod("dispose", this);
+		//pa.registerMethod("pre", this);
 
 		// Initialize OpenNI drivers.
 		initOpenNI(numCamera, cam1FileName, cam2FileName);
@@ -314,9 +318,34 @@ public class OpenPool {
 	public float depthToScreenHeight(float height) {
 		return getFieldHeight() * height / ballDetector.getDepthHeight();
 	}
+
 	private void drawSplashScreen(){
-		PImage image = new PImage();
-		image = pa.loadImage("openpool.jpg");
+		
+		// First, look for the logo file.
+		BufferedImage logo = null;
+		try {
+			logo = ImageIO.read(new File(pa.dataPath("openpool.jpg")));
+		} catch (IOException e1) {
+			String userDir = System.getProperty("user.dir");
+			String binPath = File.separatorChar + "bin";
+			if (userDir.endsWith(binPath)) {
+				userDir = userDir.substring(0, userDir.length() - binPath.length());
+			}
+			try {
+				logo = ImageIO.read(new File(
+						userDir + File.separatorChar + "data" + File.separatorChar + "openpool.jpg"));
+			} catch (IOException e2) {
+				// Do nothing, just give up and return.
+				return;
+			}
+		}
+
+		// Next, import the image into the Proccessing world.
+		BufferedImage logoArgb = new BufferedImage(logo.getWidth(), logo.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		logoArgb.getGraphics().drawImage(logo, 0, 0, null);
+		PImage image = new PImage(logoArgb);
+		
+		// Finally, show it.
 		pa.background(255);
 		pa.image(image, (pa.width - image.width)/2, (pa.height - image.height)/2);
 	}
