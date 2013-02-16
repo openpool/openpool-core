@@ -29,8 +29,17 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 		int my = op.pa.mouseY;
 
 		if (op.pa.mousePressed && selected >= 0) {
-			op.getDepthImageCorner(selected).x = mx;
-			op.getDepthImageCorner(selected).y = my;
+			if(selected == 0){
+				op.getDepthImageCorner(1).x += (mx - op.getDepthImageCorner(0).x);
+				op.getDepthImageCorner(1).y += (my - op.getDepthImageCorner(0).y);
+				op.getDepthImageCorner(0).x = mx;
+				op.getDepthImageCorner(0).y = my;
+
+			}
+			else{
+				op.getDepthImageCorner(selected).x = mx;
+				op.getDepthImageCorner(selected).y = my;
+			}
 		} else {
 			selected = -1;
 			int mSq = minimumDistanceSq;
