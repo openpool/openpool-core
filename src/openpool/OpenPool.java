@@ -17,6 +17,7 @@ import openpool.config.BallDetectorConfigHandler;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
 import openpool.config.CameraPositionConfigHandler;
+import openpool.config.PoolAreaConfigHandler;
 
 import SimpleOpenNI.*;
 import processing.core.*;
@@ -25,6 +26,7 @@ public class OpenPool {
 	public PApplet pa;
 	public Ball[] balls;
 	public int nBalls;
+	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
 
 	private BallSystem ballSystem;
 
@@ -137,7 +139,8 @@ public class OpenPool {
 		configHandlers = new ConfigHandler[] {
 				new FieldConfigHandler(this),
 				new BallDetectorConfigHandler(this, ballDetector),
-				new CameraPositionConfigHandler(this, ballDetector)
+				new CameraPositionConfigHandler(this, ballDetector),
+				new PoolAreaConfigHandler(this)
 		};
 	}
 
