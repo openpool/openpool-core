@@ -172,7 +172,7 @@ public class BallDetector implements Runnable {
 
 		// Contour detection
 		CvSeq contours = new CvSeq();
-		CvSeq ptr = new CvSeq();
+		CvSeq ptr;
 		CvMemStorage mem = cvCreateMemStorage(0);
 		int count = cvFindContours(currentImage, mem, contours, sizeof(CvContour.class), CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
