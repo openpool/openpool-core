@@ -11,6 +11,9 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 	 * True when camera image corner is grabbed with mouse pointer.
 	 */
 	int selected = -1;
+	boolean onArea = false;
+	boolean previousTimeMousePressed = false;
+	Point dragStart = new Point(0,0);
 
 	public FieldConfigHandler(OpenPool op) {
 		this.op = op;
@@ -27,21 +30,35 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 		Point br = op.getBottomRightCorner();
 		int mx = op.pa.mouseX;
 		int my = op.pa.mouseY;
+		if(onArea == true) {
+			op.pa.text("you can drag Image Area!!!",mx+20,my+20);
+		}
 
-		if (op.pa.mousePressed && selected >= 0) {
-			if(selected == 0){
-				op.getDepthImageCorner(1).x += (mx - op.getDepthImageCorner(0).x);
-				op.getDepthImageCorner(1).y += (my - op.getDepthImageCorner(0).y);
-				op.getDepthImageCorner(0).x = mx;
-				op.getDepthImageCorner(0).y = my;
-
+		if (op.pa.mousePressed) {
+			if(selected >= 0) {
+			op.getDepthImageCorner(selected).x = mx;
+			op.getDepthImageCorner(selected).y = my;
 			}
-			else{
-				op.getDepthImageCorner(selected).x = mx;
-				op.getDepthImageCorner(selected).y = my;
+			else if(onArea == true) {
+				if(! previousTimeMousePressed){
+					dragStart.x=mx;
+					dragStart.y=my;
+				}
+				op.getDepthImageCorner(0).x += mx-dragStart.x;
+				op.getDepthImageCorner(0).y += my-dragStart.y;
+				op.getDepthImageCorner(1).x += mx-dragStart.x;
+				op.getDepthImageCorner(1).y += my-dragStart.y;
+				
+				dragStart.x=mx;
+				dragStart.y=my;
 			}
-		} else {
+			
+		previousTimeMousePressed = true;
+		}
+		else {
 			selected = -1;
+			onArea = false;
+			
 			int mSq = minimumDistanceSq;
 			for (int i = 0; i < 2; i++) {
 				int distanceSq = getDistanceSq(
@@ -51,6 +68,11 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 					selected = i;
 				}
 			}
+			
+			onArea = isInArea( mx, my,
+					op.getDepthImageCorner(0).x, op.getDepthImageCorner(0).y,
+					op.getDepthImageCorner(1).x, op.getDepthImageCorner(1).y);
+			previousTimeMousePressed = false;
 		}
 
 		op.pa.fill(255, 255, 0);		
@@ -92,5 +114,17 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 	
 	private int getDistanceSq(int x1, int y1, int x2, int y2) {
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	}
+	private boolean isInArea(
+			int x, int y,
+			int Area_top_left_x, int Area_top_left_y,
+			int Area_bottom_right_x, int Area_bottom_right_y) {
+		if(Area_top_left_x < x && x < Area_bottom_right_x &&
+				Area_top_left_y < y && y < Area_bottom_right_y) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
