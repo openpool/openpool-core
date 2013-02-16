@@ -307,6 +307,10 @@ public class OpenPool {
 	public int getFieldHeight() { return depthImageCorners[1].y - depthImageCorners[0].y; }
 	
 	// Utility methods follow:
+	
+	public void rememberBackground() {
+		ballDetector.rememberBackground();
+	}
 
 	public void setMessage(String message) {
 		this.message = message;

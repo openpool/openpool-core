@@ -43,7 +43,7 @@ public class PoolAreaConfigHandler extends ConfigHandlerAbstractImpl {
 			}
 		}
 
-		op.pa.fill(255, 255, 0);		
+		op.pa.fill(255, 0, 255);		
 		if (selected >= 0) {
 			op.pa.ellipse(op.pa.mouseX, op.pa.mouseY, 20, 20);
 		}
