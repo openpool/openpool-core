@@ -322,91 +322,85 @@ public class BallDetector implements Runnable {
 	 * @param width Target width
 	 * @param height Target height
 	 */
-	private void copyImage(IplImage target, PImage source,
-			int x, int y, int width, int height) {
-		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
+	private void copyImage(IplImage target, PImage source, int x, int y,
+			int width, int height) {
+
+		IplImage sourceImage = new IplImage();
 		
-		Point sourceCopyArea = new Point(0,0);
-		Point targetCopyArea = new Point(0,0);
-		
+		sourceImage = IplImage.createFrom((BufferedImage) source
+				.getImage());
+
+		Point sourceCopyArea = new Point(0, 0);
+		Point targetCopyArea = new Point(0, 0);
+
 		int CopyAreaWidth = 0;
 		int CopyAreaHeight = 0;
-		
-		sourceCopyArea.x = Math.max(1,1-x);
-		sourceCopyArea.y = Math.max(1,1-y);
-		
-		targetCopyArea.x = Math.max(1,1+x);
-		targetCopyArea.y = Math.max(1,1+y);
-		
-		CopyAreaWidth = Math.max(0,
-				sourceImage.width() + target.width()  
-				- ( Math.max(x+sourceImage.width(),target.width()) - Math.min(0,x))
-				);
-		CopyAreaHeight = Math.max(0,
-				sourceImage.height() + target.height() 
-				- (Math.max(y+sourceImage.height(),target.height()) - Math.min(0,y))
-				);
-		
-		//TODO: add function for x<0 or y<0 
-		if(CopyAreaWidth * CopyAreaHeight != 0){
-		
+
+		sourceCopyArea.x = Math.max(1, 1 - x);
+		sourceCopyArea.y = Math.max(1, 1 - y);
+
+		targetCopyArea.x = Math.max(1, 1 + x);
+		targetCopyArea.y = Math.max(1, 1 + y);
+
+		CopyAreaWidth = Math
+				.max(0,
+						sourceImage.width()
+								+ target.width()
+								- (Math.max(x + sourceImage.width(),
+										target.width()) - Math.min(0, x)));
+		CopyAreaHeight = Math
+				.max(0,
+						sourceImage.height()
+								+ target.height()
+								- (Math.max(y + sourceImage.height(),
+										target.height()) - Math.min(0, y)));
+
+		// TODO: add function for x<0 or y<0
+		if (CopyAreaWidth * CopyAreaHeight != 0) {
+
 			// camera connected -> fail
 			cvSetImageROI(
 					sourceImage,
-					cvRect(sourceCopyArea.x, sourceCopyArea.y, CopyAreaWidth-1,
-							CopyAreaHeight-1));
+					cvRect(sourceCopyArea.x, sourceCopyArea.y,
+							CopyAreaWidth - 1, CopyAreaHeight - 1));
 			cvSetImageROI(
 					target,
-					cvRect(targetCopyArea.x, targetCopyArea.y, CopyAreaWidth-1,
-							CopyAreaHeight-1));
+					cvRect(targetCopyArea.x, targetCopyArea.y,
+							CopyAreaWidth - 1, CopyAreaHeight - 1));
 
 			/*
-			pa.print("cvCvt soure : ");
-			pa.print(sourceImage.width());
-			pa.print(" x ");
-			pa.print(sourceImage.height());
-			
-			pa.print(" ROI area POINT: ");
-			pa.print(sourceCopyArea.x);
-			pa.print(",");
-			pa.print(sourceCopyArea.y);
-			pa.print(" --- width x height:  ");
-			pa.print(CopyAreaWidth);
-			pa.print(" x ");
-			pa.println(CopyAreaHeight);
-			
-			pa.print(" Depth: ");
-			pa.print(sourceImage.depth());
-			pa.print(" nChannels: ");
-			pa.println(sourceImage.nChannels());
-			
-			pa.print("cvCvt target: ");
-			pa.print(target.width());
-			pa.print(" x ");
-			pa.print(target.height());
-			
-			pa.print(" ROI area POINT: ");
-			pa.print(targetCopyArea.x);
-			pa.print(",");
-			pa.print(targetCopyArea.y);
-			pa.print(" --- width x height: ");
-			pa.print(CopyAreaWidth);
-			pa.print(" x ");
-			pa.println(CopyAreaHeight);
-			
-			pa.print(" Depth: ");
-			pa.print(target.depth());
-			pa.print(" nChannels: ");
-			pa.println(target.nChannels());
+			 * pa.print("cvCvt soure : "); pa.print(sourceImage.width());
+			 * pa.print(" x "); pa.print(sourceImage.height());
+			 * 
+			 * pa.print(" ROI area POINT: "); pa.print(sourceCopyArea.x);
+			 * pa.print(","); pa.print(sourceCopyArea.y);
+			 * pa.print(" --- width x height:  "); pa.print(CopyAreaWidth);
+			 * pa.print(" x "); pa.println(CopyAreaHeight);
+			 * 
+			 * pa.print(" Depth: "); pa.print(sourceImage.depth());
+			 * pa.print(" nChannels: "); pa.println(sourceImage.nChannels());
+			 * 
+			 * pa.print("cvCvt target: "); pa.print(target.width());
+			 * pa.print(" x "); pa.print(target.height());
+			 * 
+			 * pa.print(" ROI area POINT: "); pa.print(targetCopyArea.x);
+			 * pa.print(","); pa.print(targetCopyArea.y);
+			 * pa.print(" --- width x height: "); pa.print(CopyAreaWidth);
+			 * pa.print(" x "); pa.println(CopyAreaHeight);
+			 * 
+			 * pa.print(" Depth: "); pa.print(target.depth());
+			 * pa.print(" nChannels: "); pa.println(target.nChannels());
 			 */
 			cvCvtColor(sourceImage, target, CV_RGBA2GRAY);
 
-			//pa.println("cvCvt DONE!!!");
-				
+			// pa.println("cvCvt DONE!!!");
+
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
-			// cvReleaseImage(sourceImage);
 		}
+		//HACK:don't use cvReleaseImage!!! it will hang 
+		//cvReleaseImage(sourceImage);
+		sourceImage.release();
 	}
 
 	/**
