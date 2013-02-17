@@ -26,8 +26,6 @@ public class BallDetector implements Runnable {
 	private BallSystem ballSystem;
 	private SimpleOpenNI cam1;
 	private SimpleOpenNI cam2;
-	private PApplet pa;
-	
 	private int camCount = 0;
 
 	private int depthWidth;
@@ -90,7 +88,6 @@ public class BallDetector implements Runnable {
 	private int x2 = 0, y2 = 0;
 
 	BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2, PApplet pa) {
-		this.pa = pa;
 		this.ballSystem = ballSystem;
 		this.cam1 = cam1;
 		this.cam2 = cam2;
@@ -117,11 +114,11 @@ public class BallDetector implements Runnable {
 			camCount++;
 		}
 
-		currentImage = cvCreateImage(
+		currentImage = IplImage.create(
 				cvSize(depthWidth, depthHeight),
 				IPL_DEPTH_8U, 1);
 
-		temporaryImage = cvCreateImage(
+		temporaryImage = IplImage.create(
 				cvSize(depthWidth, depthHeight),
 				IPL_DEPTH_8U, 4);
 
@@ -133,7 +130,7 @@ public class BallDetector implements Runnable {
 				currentImage.width(), currentImage.height(),
 				BufferedImage.TYPE_INT_ARGB);
 		
-		backgroundImage = cvCloneImage(currentImage);
+		backgroundImage = IplImage.createCompatible(currentImage);
 
 		rememberBackground();
 	}
@@ -298,11 +295,11 @@ public class BallDetector implements Runnable {
 	}
 
 	private void retrieveDepthImage(IplImage target) {
-		//fill image area with black
-		cvSetZero(target);
-		
 
-		//WORKSROUND!!! cam2 first
+		// Fill image area with black
+		cvSetZero(target);
+
+		// FIXME: WORKAROUND!!! cam2 first
 		if (cam2 != null) {
 			copyImage(target, cam2.depthImage(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
 			fillDepthErrorHoles(target, cam2.depthMap(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
@@ -324,17 +321,14 @@ public class BallDetector implements Runnable {
 	 */
 	private void copyImage(IplImage target, PImage source, int x, int y,
 			int width, int height) {
-
-		IplImage sourceImage = new IplImage();
-		
-		sourceImage = IplImage.createFrom((BufferedImage) source
-				.getImage());
+		IplImage sourceImage = new IplImage();		
+		sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 
 		Point sourceCopyArea = new Point(0, 0);
 		Point targetCopyArea = new Point(0, 0);
 
-		int CopyAreaWidth = 0;
-		int CopyAreaHeight = 0;
+		int copyAreaWidth = 0;
+		int copyAreaHeight = 0;
 
 		sourceCopyArea.x = Math.max(1, 1 - x);
 		sourceCopyArea.y = Math.max(1, 1 - y);
@@ -342,13 +336,13 @@ public class BallDetector implements Runnable {
 		targetCopyArea.x = Math.max(1, 1 + x);
 		targetCopyArea.y = Math.max(1, 1 + y);
 
-		CopyAreaWidth = Math
+		copyAreaWidth = Math
 				.max(0,
 						sourceImage.width()
 								+ target.width()
 								- (Math.max(x + sourceImage.width(),
 										target.width()) - Math.min(0, x)));
-		CopyAreaHeight = Math
+		copyAreaHeight = Math
 				.max(0,
 						sourceImage.height()
 								+ target.height()
@@ -356,17 +350,17 @@ public class BallDetector implements Runnable {
 										target.height()) - Math.min(0, y)));
 
 		// TODO: add function for x<0 or y<0
-		if (CopyAreaWidth * CopyAreaHeight != 0) {
+		if (copyAreaWidth * copyAreaHeight != 0) {
 
 			// camera connected -> fail
 			cvSetImageROI(
 					sourceImage,
 					cvRect(sourceCopyArea.x, sourceCopyArea.y,
-							CopyAreaWidth - 1, CopyAreaHeight - 1));
+							copyAreaWidth - 1, copyAreaHeight - 1));
 			cvSetImageROI(
 					target,
 					cvRect(targetCopyArea.x, targetCopyArea.y,
-							CopyAreaWidth - 1, CopyAreaHeight - 1));
+							copyAreaWidth - 1, copyAreaHeight - 1));
 
 			/*
 			 * pa.print("cvCvt soure : "); pa.print(sourceImage.width());
@@ -398,8 +392,9 @@ public class BallDetector implements Runnable {
 			cvResetImageROI(sourceImage);
 			cvResetImageROI(target);
 		}
-		//HACK:don't use cvReleaseImage!!! it will hang 
-		//cvReleaseImage(sourceImage);
+
+		// We shouldn't use cvReleaseImage but IplImage.release() to avoid hang.
+		// http://code.google.com/p/javacv/issues/detail?id=152
 		sourceImage.release();
 	}
 
@@ -414,8 +409,8 @@ public class BallDetector implements Runnable {
 	 */
 	private void fillDepthErrorHoles(IplImage target, int[] depthMap,
 			int x, int y, int width, int height) {
-		x = x < 0 ? 0 : x;
-		y = y < 0 ? 0 : y;
+		x = Math.max(0, x);
+		y = Math.max(0, y);
 		width = x + width > target.width() ? target.width() - x : width;
 		height = y + height > target.height() ? target.height() - y : height;
 		CvMat mat = target.asCvMat();
@@ -432,11 +427,9 @@ public class BallDetector implements Runnable {
 	}
 	
 	public void dispose() {
-		/*
-		cvReleaseImage(currentImage);
-		cvReleaseImage(backgroundImage);
-		cvReleaseImage(temporaryImage);
-		*/
+		currentImage.release();
+		backgroundImage.release();
+		temporaryImage.release();
 	}
 	public Point getCamImageCorner(int camNumber){
 		
@@ -456,6 +449,7 @@ public class BallDetector implements Runnable {
 		}
 		return ret;
 	}
+
 	public void setCamImageCorner(int camNumber,Point pt){
 		switch(camNumber)
 		{
@@ -472,5 +466,4 @@ public class BallDetector implements Runnable {
 		}
 		return;
 	}
-
 }

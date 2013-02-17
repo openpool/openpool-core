@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 
 import openpool.BallDetector;
 import openpool.OpenPool;
-import processing.core.PImage;
 
 public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 	private final int minimumDistanceSq = 20 * 20;
