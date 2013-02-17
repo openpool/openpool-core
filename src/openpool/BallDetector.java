@@ -301,13 +301,15 @@ public class BallDetector implements Runnable {
 		//fill image area with black
 		cvSetZero(target);
 		
-		if (cam1 != null) {
-			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
-			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
-		}
+
+		//WORKSROUND!!! cam2 first
 		if (cam2 != null) {
 			copyImage(target, cam2.depthImage(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
 			fillDepthErrorHoles(target, cam2.depthMap(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
+		}
+		if (cam1 != null) {
+			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
 		}
 	}
 
