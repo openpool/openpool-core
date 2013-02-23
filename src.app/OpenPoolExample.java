@@ -39,10 +39,10 @@ public class OpenPoolExample extends PApplet {
 			if (userDir.endsWith(binPath)) {
 				userDir = userDir.substring(0,  userDir.length() - binPath.length());
 			}
-			op = new DummyPool(this);
-			op = new OpenPool(this,
-					userDir + "\\recordings\\straight1.oni");
+			// op = new DummyPool(this);
+			op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
 		}
+		op.loadConfig("config.txt");
 		op.setConfigMode(true);
 		size(840, 440);
 		frameRate(30);

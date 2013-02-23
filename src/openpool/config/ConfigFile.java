@@ -29,6 +29,7 @@ public class ConfigFile {
 		} catch (FileNotFoundException e) {
 			System.err.print("Config file not found: ");
 			System.err.println(filePath);
+			return;
 		}
 		String line;
 		try {
@@ -44,23 +45,18 @@ public class ConfigFile {
 		}
 	}
 	private void deserialize(String key, String value) {
-		switch (key) {
-		
-			// BallDetector.threshold
-			case "detector.threshold":
+
+		// BallDetector.threshold
+		if ("detector.threshold".equals(key)) {
 				try {
 					Double threshold = Double.parseDouble(value);
 					ballDetector.setThreshold(threshold);
 				} catch (NumberFormatException nfe) {
 					// Do nothing.
 				}
-				break;
-
-			// TODO Read other settings.
-
-			default:
-				break;
 		}
+
+		// TODO Read other settings.
 	}
 	
 	public void save() {

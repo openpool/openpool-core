@@ -201,8 +201,8 @@ public class OpenPool {
 		String binPath = File.separatorChar + "bin";
 		String filePath;
 		if (userDir.endsWith(binPath)) {
-			userDir = userDir.substring(0,  userDir.length() - binPath.length() - 1);
-			filePath = userDir + "data" + File.separator + fileName;
+			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+			filePath = userDir + File.separator + "data" + File.separator + fileName;
 		} else {
 			filePath = pa.dataPath(fileName);
 		}
@@ -312,6 +312,9 @@ public class OpenPool {
 
 	public void setConfigMode(boolean isConfigMode) {
 		this.isConfigMode = isConfigMode;
+		if (!isConfigMode && configFile != null) {
+			configFile.save();
+		}
 	}
 	
 	public boolean isDummyMode() {

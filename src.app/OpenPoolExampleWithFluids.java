@@ -114,15 +114,18 @@ public class OpenPoolExampleWithFluids extends PApplet {
 	private float aspectRatio;
 
 	public void setup() {
-		String userDir = System.getProperty("user.dir");
-		String binPath = File.separatorChar + "bin";
-		if (userDir.endsWith(binPath)) {
-			userDir = userDir.substring(0, userDir.length() - binPath.length());
-		}
-		op = new OpenPool(this, userDir + "\\recordings\\straight1.oni");
 
 		size(840, 440, OPENGL);
 		frameRate(15);
+
+		String userDir = System.getProperty("user.dir");
+		String binPath = File.separatorChar + "bin";
+		if (userDir.endsWith(binPath)) {
+			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+		}
+		// op = new DummyPool(this);
+		op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
+		op.loadConfig("config.txt");
 
 		invWidth = 1.0f / width;
 		invHeight = 1.0f / height;

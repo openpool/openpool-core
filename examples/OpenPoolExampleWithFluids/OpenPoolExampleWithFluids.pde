@@ -109,6 +109,7 @@ private float aspectRatio;
 public void setup() {
 	//op = new OpenPool(this, "straight1.oni");
 	op = new DummyPool(this);
+        op.loadConfig("config.txt");
 
 	size(840, 440, OPENGL);
 	frameRate(15);
