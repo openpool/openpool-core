@@ -34,6 +34,7 @@ public class BallSystem {
 				op.depthToScreenWidth(width),
 				op.depthToScreenHeight(height),
 				ghostLife);
+
 		Ball prev = null;
 		double distance = distanceThreshold;
 		for (Ball b : prevBalls) {
@@ -43,7 +44,8 @@ public class BallSystem {
 				distance = d;
 			}
 		}
-		//ball.setPrev(prev);
+		ball.setPrev(prev);
+
 		balls.add(ball);
 		currentId = (int)((long)(currentId + 1) % Integer.MAX_VALUE);
 	}
