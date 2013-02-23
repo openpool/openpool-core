@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 
 import openpool.config.BallDetectorConfigHandler;
+import openpool.config.ConfigFile;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
 import openpool.config.CameraPositionConfigHandler;
@@ -26,18 +27,20 @@ public class OpenPool {
 	public PApplet pa;
 	public Ball[] balls;
 	public int nBalls;
-	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
 
 	private BallSystem ballSystem;
 
-	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
 	private BallDetector ballDetector;
 	private ScheduledFuture<?> future;
 
 	private SimpleOpenNI cam1, cam2;
 
+	private ConfigFile configFile;
 	private ConfigHandler[] configHandlers;
 	private int currentModeIndex = 0;
+
+	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
+	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
 
 	/**
 	 * True if it's in debug mode.
@@ -193,6 +196,20 @@ public class OpenPool {
 		future = ses.scheduleAtFixedRate(ballDetector, 33, 33, TimeUnit.MILLISECONDS);
 	}
 
+	public void loadConfig(String fileName) {
+		String userDir = System.getProperty("user.dir");
+		String binPath = File.separatorChar + "bin";
+		String filePath;
+		if (userDir.endsWith(binPath)) {
+			userDir = userDir.substring(0,  userDir.length() - binPath.length() - 1);
+			filePath = userDir + "data" + File.separator + fileName;
+		} else {
+			filePath = pa.dataPath(fileName);
+		}
+		configFile = new ConfigFile(this, ballDetector, filePath);
+		configFile.load();
+	}
+	
 	/**
 	 * This method is called BEFORE draw() of the processing sketch.
 	 */
@@ -256,6 +273,13 @@ public class OpenPool {
 		}
 		if (cam2 != null) {
 			cam2.dispose();
+		}
+		pa.unregisterMouseEvent(this);
+		pa.unregisterKeyEvent(this);
+		pa.unregisterDispose(this);
+		pa.unregisterPre(this);
+		if (configFile != null) {
+			configFile.save();
 		}
 	}
 
