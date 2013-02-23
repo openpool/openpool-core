@@ -99,6 +99,7 @@ public class Ball {
 			this.dx = x - prev.x;
 			this.dy = y - prev.y;
 			prev.hasSuccessor = true;
+			prev.prev = null; // to avoid infinite reference that causes ouf-of-memory.
 		}
 	}
 	
