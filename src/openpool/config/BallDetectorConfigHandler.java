@@ -42,8 +42,8 @@ public class BallDetectorConfigHandler extends ConfigHandlerAbstractImpl {
 
 	@Override
 	public void draw() {
-		Point tl = op.getTopLeftCorner();
-		Point br = op.getBottomRightCorner();
+		Point tl = op.getTableTopLeft();
+		Point br = op.getTableBottomRight();
 
 		op.pa.background(0);
 		op.pa.stroke(255, 255, 0);

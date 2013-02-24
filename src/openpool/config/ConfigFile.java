@@ -1,5 +1,6 @@
 package openpool.config;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -48,12 +49,51 @@ public class ConfigFile {
 
 		// BallDetector.threshold
 		if ("detector.threshold".equals(key)) {
-				try {
-					Double threshold = Double.parseDouble(value);
-					ballDetector.setThreshold(threshold);
-				} catch (NumberFormatException nfe) {
-					// Do nothing.
+			try {
+				Double threshold = Double.parseDouble(value);
+				ballDetector.setThreshold(threshold);
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
+
+		// OpenPool.tableCorners
+		if ("table.corners".equals(key)) {
+			String[] coordinates = value.split(",");
+			if (coordinates.length != 4) {
+				return;
+			}
+			try {
+				for (int i = 0; i < 2; i ++) {
+					Point p = op.getTableCorner(i);
+					int x = Integer.parseInt(coordinates[i * 2 + 0].trim());
+					int y = Integer.parseInt(coordinates[i * 2 + 1].trim());
+					p.setLocation(x, y);
 				}
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
+
+		// OpenPool.poolCorners
+		if ("pool.corners".equals(key)) {
+			String[] coordinates = value.split(",");
+			if (coordinates.length != 4) {
+				return;
+			}
+			try {
+				for (int i = 0; i < 2; i ++) {
+					Point p = op.getPoolCorner(i);
+					int x = Integer.parseInt(coordinates[i * 2 + 0].trim());
+					int y = Integer.parseInt(coordinates[i * 2 + 1].trim());
+					p.setLocation(x, y);
+				}
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
 		}
 
 		// TODO Read other settings.
@@ -76,6 +116,28 @@ public class ConfigFile {
 		// BallDetector.threshold
 		bw.write("detector.threshold = ");
 		bw.write(String.valueOf(ballDetector.getThreshold()));
+		bw.newLine();
+
+		// OpenPool.tableCorners
+		bw.write("table.corners = ");
+		bw.write(String.valueOf(op.getTableTopLeft().x));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getTableTopLeft().y));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getTableBottomRight().x));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getTableBottomRight().y));
+		bw.newLine();
+
+		// OpenPool.poolCorners
+		bw.write("pool.corners = ");
+		bw.write(String.valueOf(op.getPoolTopLeft().x));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getPoolTopLeft().y));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getPoolBottomRight().x));
+		bw.write(", ");
+		bw.write(String.valueOf(op.getPoolBottomRight().y));
 		bw.newLine();
 
 		// TODO Output other settings.

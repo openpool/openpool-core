@@ -22,20 +22,18 @@ public class PoolAreaConfigHandler extends ConfigHandlerAbstractImpl {
 	}
 	@Override
 	public void draw() {
-		Point tl = op.getTopLeftCorner();
-		Point br = op.getBottomRightCorner();
 		int mx = op.pa.mouseX;
 		int my = op.pa.mouseY;
 
 		if (op.pa.mousePressed && selected >= 0) {
-			op.PoolArea[selected].x = mx;
-			op.PoolArea[selected].y = my;
+			op.getPoolCorner(selected).x = mx;
+			op.getPoolCorner(selected).y = my;
 		} else {
 			selected = -1;
 			int mSq = minimumDistanceSq;
 			for (int i = 0; i < 2; i++) {
 				int distanceSq = getDistanceSq(
-						mx, my, op.PoolArea[i].x, op.PoolArea[i].y);
+						mx, my, op.getPoolCorner(i).x, op.getPoolCorner(i).y);
 				if (distanceSq < mSq) {
 					mSq = distanceSq;
 					selected = i;
@@ -47,9 +45,22 @@ public class PoolAreaConfigHandler extends ConfigHandlerAbstractImpl {
 		if (selected >= 0) {
 			op.pa.ellipse(op.pa.mouseX, op.pa.mouseY, 20, 20);
 		}
+		op.pa.noFill();
 
 		// draw the image bounding box
 		op.pa.stroke(255, 255, 0);
+		drawRectangle(op.getTableTopLeft(), op.getTableBottomRight());
+
+		//draw the pool area
+		op.pa.stroke(255, 0, 255);
+		drawRectangle(op.getPoolTopLeft(), op.getPoolBottomRight());
+
+		op.pa.noStroke();
+	}
+	
+	private void drawRectangle(Point tl, Point br) {
+
+		// draw the rectangle
 		op.pa.line(tl.x, tl.y, br.x, tl.y);
 		op.pa.line(br.x, tl.y, br.x, br.y);
 		op.pa.line(br.x, br.y, tl.x, br.y);
@@ -76,36 +87,6 @@ public class PoolAreaConfigHandler extends ConfigHandlerAbstractImpl {
 		op.pa.text(br.x, br.x - 40, br.y - 24);
 		op.pa.text("Y:", br.x - 50, br.y - 10);
 		op.pa.text(br.y, br.x - 40, br.y - 10);
-		
-		//draw poolarea
-		op.pa.stroke(255, 0, 255);
-		op.pa.line(op.PoolArea[0].x, op.PoolArea[0].y, op.PoolArea[1].x, op.PoolArea[0].y);
-		op.pa.line(op.PoolArea[1].x, op.PoolArea[0].y, op.PoolArea[1].x, op.PoolArea[1].y);
-		op.pa.line(op.PoolArea[1].x, op.PoolArea[1].y, op.PoolArea[0].x, op.PoolArea[1].y);
-		op.pa.line(op.PoolArea[0].x, op.PoolArea[1].y, op.PoolArea[0].x, op.PoolArea[0].y);
-		// draw an arrow
-		op.pa.line(op.PoolArea[0].x, op.PoolArea[0].y, op.PoolArea[0].x + 8, op.PoolArea[0].y + 4);
-		op.pa.line(op.PoolArea[0].x, op.PoolArea[0].y, op.PoolArea[0].x + 4, op.PoolArea[0].y + 8);
-		op.pa.line(op.PoolArea[0].x, op.PoolArea[0].y, op.PoolArea[0].x + 10, op.PoolArea[0].y + 10);
-
-		// draw xy
-		op.pa.text("X:", op.PoolArea[0].x + 20, op.PoolArea[0].y + 20);
-		op.pa.text(op.PoolArea[0].x, op.PoolArea[0].x + 30, op.PoolArea[0].y + 20);
-		op.pa.text("Y:", op.PoolArea[0].x + 20, op.PoolArea[0].y + 34);
-		op.pa.text(op.PoolArea[0].y, op.PoolArea[0].x + 30, op.PoolArea[0].y + 34);
-
-		// draw an arrow
-		op.pa.line(op.PoolArea[1].x, op.PoolArea[1].y, op.PoolArea[1].x - 8, op.PoolArea[1].y - 4);
-		op.pa.line(op.PoolArea[1].x, op.PoolArea[1].y, op.PoolArea[1].x - 4, op.PoolArea[1].y - 8);
-		op.pa.line(op.PoolArea[1].x, op.PoolArea[1].y, op.PoolArea[1].x - 10, op.PoolArea[1].y - 10);
-
-		// draw xy
-		op.pa.text("X:", op.PoolArea[1].x - 50, op.PoolArea[1].y - 24);
-		op.pa.text(op.PoolArea[1].x, op.PoolArea[1].x - 40, op.PoolArea[1].y - 24);
-		op.pa.text("Y:", op.PoolArea[1].x - 50, op.PoolArea[1].y - 10);
-		op.pa.text(op.PoolArea[1].y, op.PoolArea[1].x - 40, op.PoolArea[1].y - 10);
-			
-		op.pa.noStroke();
 	}
 	
 	private int getDistanceSq(int x1, int y1, int x2, int y2) {

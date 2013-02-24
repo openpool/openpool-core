@@ -39,8 +39,8 @@ public class OpenPool {
 	private ConfigHandler[] configHandlers;
 	private int currentModeIndex = 0;
 
-	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
-	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
+	private Point[] poolCorners;
+	private Point[] tableCorners;
 
 	/**
 	 * True if it's in debug mode.
@@ -113,6 +113,13 @@ public class OpenPool {
 		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
 		
 		drawSplashScreen();
+		
+		this.poolCorners = new Point[]{
+				new Point(120, 120),
+				new Point(pa.width - 120, pa.height - 120)};
+		this.tableCorners = new Point[]{
+				new Point(100, 100),
+				new Point(pa.width - 100, pa.height - 100)};
 		
 		pa.registerMouseEvent(this);
 		pa.registerKeyEvent(this);
@@ -223,8 +230,8 @@ public class OpenPool {
 
 		synchronized (ballDetector) {
 			pa.image(ballDetector.getImage(),
-					depthImageCorners[0].x, depthImageCorners[0].y,
-					depthImageCorners[1].x - depthImageCorners[0].x, depthImageCorners[1].y - depthImageCorners[0].y);
+					tableCorners[0].x, tableCorners[0].y,
+					tableCorners[1].x - tableCorners[0].x, tableCorners[1].y - tableCorners[0].y);
 		}
 		configHandlers[currentModeIndex].draw();
 
@@ -325,16 +332,22 @@ public class OpenPool {
 		ballSystem.setDummy(isDummy);
 	}
 
-	public Point getDepthImageCorner(int index) { return depthImageCorners[index]; }
-		
-	public Point getTopLeftCorner() { return depthImageCorners[0]; }
-	
-	public Point getBottomRightCorner() { return depthImageCorners[1]; }
-	
-	public int getFieldWidth() { return depthImageCorners[1].x - depthImageCorners[0].x; }
+	public Point getTableCorner(int index) { return tableCorners[index]; }
 
-	public int getFieldHeight() { return depthImageCorners[1].y - depthImageCorners[0].y; }
-	
+	public Point getTableTopLeft() { return tableCorners[0]; }
+
+	public Point getTableBottomRight() { return tableCorners[1]; }
+
+	public int getTableWidth() { return tableCorners[1].x - tableCorners[0].x; }
+
+	public int getTableHeight() { return tableCorners[1].y - tableCorners[0].y; }
+
+	public Point getPoolCorner(int index) { return poolCorners[index]; }
+
+	public Point getPoolTopLeft() { return poolCorners[0]; }
+
+	public Point getPoolBottomRight() { return poolCorners[1]; }
+
 	// Utility methods follow:
 	
 	public void rememberBackground() {
@@ -346,20 +359,20 @@ public class OpenPool {
 		messageCounter = messageLife;
 	}
 
-	public float depthToScreenX(float x) {
-		return getTopLeftCorner().x + getFieldWidth() * x / ballDetector.getDepthWidth();
+	public float tableToScreenX(float x) {
+		return getTableTopLeft().x + getTableWidth() * x / ballDetector.getDepthWidth();
 	}
 
-	public float depthToScreenY(float y) {
-		return getTopLeftCorner().y + getFieldHeight() * y / ballDetector.getDepthHeight();
+	public float tableToScreenY(float y) {
+		return getTableTopLeft().y + getTableHeight() * y / ballDetector.getDepthHeight();
 	}
 
-	public float depthToScreenWidth(float width) {
-		return getFieldWidth() * width / ballDetector.getDepthWidth();
+	public float tableToScreenWidth(float width) {
+		return getTableWidth() * width / ballDetector.getDepthWidth();
 	}
 
-	public float depthToScreenHeight(float height) {
-		return getFieldHeight() * height / ballDetector.getDepthHeight();
+	public float tableToScreenHeight(float height) {
+		return getTableHeight() * height / ballDetector.getDepthHeight();
 	}
 
 	private void drawSplashScreen(){

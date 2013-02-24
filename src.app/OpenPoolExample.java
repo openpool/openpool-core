@@ -31,6 +31,10 @@ public class OpenPoolExample extends PApplet {
 	boolean real = false;
 
 	public void setup() {
+
+		size(840, 440);
+		frameRate(30);
+
 		if (real) {
 			op = new OpenPool(this);
 		} else {
@@ -42,10 +46,9 @@ public class OpenPoolExample extends PApplet {
 			// op = new DummyPool(this);
 			op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
 		}
+
 		op.loadConfig("config.txt");
 		op.setConfigMode(true);
-		size(840, 440);
-		frameRate(30);
 	}
 	
 	public void draw() {

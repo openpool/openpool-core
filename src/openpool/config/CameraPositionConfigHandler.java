@@ -33,8 +33,8 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		int depthWidth = ballDetector.getDepthWidth();
 		int depthHeight = ballDetector.getDepthHeight();
 		
-		Point tl = op.getTopLeftCorner();
-		Point br = op.getBottomRightCorner();
+		Point tl = op.getTableTopLeft();
+		Point br = op.getTableBottomRight();
 
 		Point cam1tl_imageAxis = new Point();
 		Point cam1br_imageAxis = new Point();

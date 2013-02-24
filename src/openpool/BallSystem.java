@@ -29,10 +29,10 @@ public class BallSystem {
 		float y = rect.y() + height / 2;
 		Ball ball = new Ball(
 				currentId,
-				op.depthToScreenX(x),
-				op.depthToScreenY(y),
-				op.depthToScreenWidth(width),
-				op.depthToScreenHeight(height),
+				op.tableToScreenX(x),
+				op.tableToScreenY(y),
+				op.tableToScreenWidth(width),
+				op.tableToScreenHeight(height),
 				ghostLife);
 
 		Ball prev = null;

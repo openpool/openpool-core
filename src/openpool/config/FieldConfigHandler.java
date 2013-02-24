@@ -26,8 +26,8 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 
 	@Override
 	public void draw() {
-		Point tl = op.getTopLeftCorner();
-		Point br = op.getBottomRightCorner();
+		Point tl = op.getTableTopLeft();
+		Point br = op.getTableBottomRight();
 		int mx = op.pa.mouseX;
 		int my = op.pa.mouseY;
 		if(onArea == true) {
@@ -36,18 +36,18 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 
 		if (op.pa.mousePressed) {
 			if(selected >= 0) {
-			op.getDepthImageCorner(selected).x = mx;
-			op.getDepthImageCorner(selected).y = my;
+			op.getTableCorner(selected).x = mx;
+			op.getTableCorner(selected).y = my;
 			}
 			else if(onArea == true) {
 				if(! previousTimeMousePressed){
 					dragStart.x=mx;
 					dragStart.y=my;
 				}
-				op.getDepthImageCorner(0).x += mx-dragStart.x;
-				op.getDepthImageCorner(0).y += my-dragStart.y;
-				op.getDepthImageCorner(1).x += mx-dragStart.x;
-				op.getDepthImageCorner(1).y += my-dragStart.y;
+				op.getTableCorner(0).x += mx-dragStart.x;
+				op.getTableCorner(0).y += my-dragStart.y;
+				op.getTableCorner(1).x += mx-dragStart.x;
+				op.getTableCorner(1).y += my-dragStart.y;
 				
 				dragStart.x=mx;
 				dragStart.y=my;
@@ -62,7 +62,7 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 			int mSq = minimumDistanceSq;
 			for (int i = 0; i < 2; i++) {
 				int distanceSq = getDistanceSq(
-						mx, my, op.getDepthImageCorner(i).x, op.getDepthImageCorner(i).y);
+						mx, my, op.getTableCorner(i).x, op.getTableCorner(i).y);
 				if (distanceSq < mSq) {
 					mSq = distanceSq;
 					selected = i;
@@ -70,8 +70,8 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 			}
 			
 			onArea = isInArea( mx, my,
-					op.getDepthImageCorner(0).x, op.getDepthImageCorner(0).y,
-					op.getDepthImageCorner(1).x, op.getDepthImageCorner(1).y);
+					op.getTableCorner(0).x, op.getTableCorner(0).y,
+					op.getTableCorner(1).x, op.getTableCorner(1).y);
 			previousTimeMousePressed = false;
 		}
 
