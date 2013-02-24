@@ -38,10 +38,12 @@ public class BallSystem {
 		Ball prev = null;
 		double distance = distanceThreshold;
 		for (Ball b : prevBalls) {
-			double d = ball.movedLength(b);
-			if (d < distance) {
-				prev = b;
-				distance = d;
+			if (!b.hasSuccessor()) {
+				double d = ball.distance(b);
+				if (d < distance) {
+					prev = b;
+					distance = d;
+				}
 			}
 		}
 		ball.setPrev(prev);

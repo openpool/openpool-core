@@ -107,12 +107,12 @@ float invWidth, invHeight;
 private float aspectRatio;
 
 public void setup() {
+	size(840, 440, OPENGL);
+	frameRate(15);
+
 	//op = new OpenPool(this, "straight1.oni");
 	op = new DummyPool(this);
         op.loadConfig("config.txt");
-
-	size(840, 440, OPENGL);
-	frameRate(15);
 
 	invWidth = 1.0f / width;
 	invHeight = 1.0f / height;

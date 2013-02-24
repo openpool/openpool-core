@@ -31,7 +31,6 @@ public class OpenPoolExample extends PApplet {
 	boolean real = false;
 
 	public void setup() {
-
 		size(840, 440);
 		frameRate(30);
 
@@ -55,6 +54,10 @@ public class OpenPoolExample extends PApplet {
 		op.updateBalls();
 		for (Ball ball : op.balls) {
 			ball.draw(this);
+			if (ball.prev != null) {
+				stroke(255);
+				line(ball.x, ball.y, ball.prev.x, ball.prev.y);
+			}
 		}
 	}
 }

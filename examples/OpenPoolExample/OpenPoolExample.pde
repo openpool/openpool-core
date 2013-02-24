@@ -18,16 +18,19 @@ import SimpleOpenNI.*;
 OpenPool op;
 
 void setup() {
+  size(840, 440);
   //op = new OpenPool(this, "straight1.oni");
   op = new DummyPool(this);
   op.loadConfig("config.txt");
   op.setConfigMode(true);
-  size(840, 440);
 }
 
 void draw() {
   op.updateBalls();
   for (Ball ball : op.balls) {
     ball.draw(this);
+    if (ball.prev != null) {
+      line(ball.x, ball.y, ball.prev.x, ball.prev.y);
+    }
   }
 }
