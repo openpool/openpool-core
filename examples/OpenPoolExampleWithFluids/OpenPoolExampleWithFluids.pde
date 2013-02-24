@@ -77,7 +77,6 @@ private ShoalSystem shoalSystem;
 /**
  * PImage for billiard pool background.
  */
-private PImage backgroundImage;
 
 /**
  * PImage for fluid image processing.
@@ -107,11 +106,13 @@ float invWidth, invHeight;
 private float aspectRatio;
 
 public void setup() {
-	size(840, 440, OPENGL);
-	frameRate(15);
+	size(1280, 800, OPENGL);
 
-	//op = new OpenPool(this, "straight1.oni");
-	op = new DummyPool(this);
+    // Turn on 4X antialiasing
+	hint( ENABLE_OPENGL_4X_SMOOTH );
+	
+	op = new OpenPool(this, "straight1.oni");
+	//op = new DummyPool(this);
         op.loadConfig("config.txt");
 
 	invWidth = 1.0f / width;
@@ -127,9 +128,6 @@ public void setup() {
 
 	// Create PImage to hold fluid picture.
 	fluidImage = createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), RGB);
-
-	backgroundImage = loadImage("billiards.jpg");
-	// tint(255, 127);
 
 	shoalSystem = new ShoalSystem(this);
 	shoalSystem.addShoal(1, 0.75f, 0.75f, RX, RY, NUM_FISHES, FISH_SPEED);
@@ -157,9 +155,6 @@ public void draw() {
 
 	// Draw background.
 	background(0);
-	if (isDebugMode) {
-		image(backgroundImage, 0, 0, 498 * 2, 282 * 2);
-	}
 
 	// Draw fluids.
 	if (drawFluid) {
@@ -171,10 +166,6 @@ public void draw() {
 		image(fluidImage, 0, 0, width, height);
 	}
 
-	// Draw balls.
-	for (Ball ball : op.balls) {
-		ellipse(ball.x, ball.y, 50, 50);
-	}
 
 	// Draw shoals.
 	shoalSystem.draw();
@@ -236,6 +227,10 @@ public void keyPressed() {
 /**
  * Add force and dye to fluid, and create particles.
  */
+void addForceToFluid(double x, double y,double dx,double dy){
+    addForceToFluid((float)x,(float)y,(float)dx,(float)dy);
+    } 
+ 
 void addForceToFluid(float x, float y, float dx, float dy) {
 
 	// Balance the x and y components of speed with the screen aspect ratio.
