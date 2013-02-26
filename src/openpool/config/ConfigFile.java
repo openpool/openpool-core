@@ -57,7 +57,46 @@ public class ConfigFile {
 			}
 			return;
 		}
-
+		//cam1_xoffset
+		if("detector.cam1_xoffset".equals(key)) {
+			try {
+				int cam1_xoffset = Integer.parseInt(value);
+				ballDetector.getCamImageCorner(0).x = cam1_xoffset;
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
+		//cam1_yoffset
+		if("detector.cam1_yoffset".equals(key)) {
+			try {
+				int cam1_yoffset = Integer.parseInt(value);
+				ballDetector.getCamImageCorner(0).y = cam1_yoffset;
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
+		//cam2_xoffset
+		if("detector.cam2_xoffset".equals(key)) {
+			try {
+				int cam2_xoffset = Integer.parseInt(value);
+				ballDetector.getCamImageCorner(1).x = cam2_xoffset;
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
+		//cam2_yoffset
+		if("detector.cam2_yoffset".equals(key)) {
+			try {
+				int cam2_yoffset = Integer.parseInt(value);
+				ballDetector.getCamImageCorner(1).y = cam2_yoffset;
+			} catch (NumberFormatException nfe) {
+				// Do nothing.
+			}
+			return;
+		}
 		// OpenPool.tableCorners
 		if ("table.corners".equals(key)) {
 			String[] coordinates = value.split(",");
@@ -117,7 +156,27 @@ public class ConfigFile {
 		bw.write("detector.threshold = ");
 		bw.write(String.valueOf(ballDetector.getThreshold()));
 		bw.newLine();
-
+		
+		//cam1_xoffset
+		bw.write("cam1_xoffset = ");
+		bw.write(String.valueOf(ballDetector.getCamImageCorner(0).x));
+		bw.newLine();
+		
+		//cam1_yoffset
+		bw.write("cam1_yoffset = ");
+		bw.write(String.valueOf(ballDetector.getCamImageCorner(0).y));
+		bw.newLine();
+		
+		//cam2_xoffset
+		bw.write("cam2_xoffset = ");
+		bw.write(String.valueOf(ballDetector.getCamImageCorner(1).x));
+		bw.newLine();
+		
+		//cam2_yoffset
+		bw.write("cam2_yoffset = ");
+		bw.write(String.valueOf(ballDetector.getCamImageCorner(1).y));
+		bw.newLine();
+		
 		// OpenPool.tableCorners
 		bw.write("table.corners = ");
 		bw.write(String.valueOf(op.getTableTopLeft().x));
