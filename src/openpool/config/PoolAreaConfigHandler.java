@@ -49,7 +49,7 @@ public class PoolAreaConfigHandler extends ConfigHandlerAbstractImpl {
 
 		// draw the image bounding box
 		op.pa.stroke(255, 255, 0);
-		drawRectangle(op.getTableTopLeft(), op.getTableBottomRight());
+		drawRectangle(op.getCombinedImageTopLeft(), op.getCombinedImageBottomRight());
 
 		//draw the pool area
 		op.pa.stroke(255, 0, 255);

@@ -26,8 +26,8 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 
 	@Override
 	public void draw() {
-		Point tl = op.getTableTopLeft();
-		Point br = op.getTableBottomRight();
+		Point tl = op.getCombinedImageTopLeft();
+		Point br = op.getCombinedImageBottomRight();
 		int mx = op.pa.mouseX;
 		int my = op.pa.mouseY;
 		if(onArea == true) {
@@ -36,18 +36,18 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 
 		if (op.pa.mousePressed) {
 			if(selected >= 0) {
-			op.getTableCorner(selected).x = mx;
-			op.getTableCorner(selected).y = my;
+			op.getCombinedImageCorner(selected).x = mx;
+			op.getCombinedImageCorner(selected).y = my;
 			}
 			else if(onArea == true) {
 				if(! previousTimeMousePressed){
 					dragStart.x=mx;
 					dragStart.y=my;
 				}
-				op.getTableCorner(0).x += mx-dragStart.x;
-				op.getTableCorner(0).y += my-dragStart.y;
-				op.getTableCorner(1).x += mx-dragStart.x;
-				op.getTableCorner(1).y += my-dragStart.y;
+				op.getCombinedImageCorner(0).x += mx-dragStart.x;
+				op.getCombinedImageCorner(0).y += my-dragStart.y;
+				op.getCombinedImageCorner(1).x += mx-dragStart.x;
+				op.getCombinedImageCorner(1).y += my-dragStart.y;
 				
 				dragStart.x=mx;
 				dragStart.y=my;
@@ -62,7 +62,7 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 			int mSq = minimumDistanceSq;
 			for (int i = 0; i < 2; i++) {
 				int distanceSq = getDistanceSq(
-						mx, my, op.getTableCorner(i).x, op.getTableCorner(i).y);
+						mx, my, op.getCombinedImageCorner(i).x, op.getCombinedImageCorner(i).y);
 				if (distanceSq < mSq) {
 					mSq = distanceSq;
 					selected = i;
@@ -70,8 +70,8 @@ public class FieldConfigHandler extends ConfigHandlerAbstractImpl {
 			}
 			
 			onArea = isInArea( mx, my,
-					op.getTableCorner(0).x, op.getTableCorner(0).y,
-					op.getTableCorner(1).x, op.getTableCorner(1).y);
+					op.getCombinedImageCorner(0).x, op.getCombinedImageCorner(0).y,
+					op.getCombinedImageCorner(1).x, op.getCombinedImageCorner(1).y);
 			previousTimeMousePressed = false;
 		}
 

@@ -40,7 +40,7 @@ public class OpenPool {
 	private int currentModeIndex = 0;
 
 	private Point[] poolCorners;
-	private Point[] tableCorners;
+	private Point[] combinedImageCorners;
 
 	/**
 	 * True if it's in debug mode.
@@ -117,7 +117,7 @@ public class OpenPool {
 		this.poolCorners = new Point[]{
 				new Point(120, 120),
 				new Point(pa.width - 120, pa.height - 120)};
-		this.tableCorners = new Point[]{
+		this.combinedImageCorners = new Point[]{
 				new Point(100, 100),
 				new Point(pa.width - 100, pa.height - 100)};
 		
@@ -230,8 +230,8 @@ public class OpenPool {
 
 		synchronized (ballDetector) {
 			pa.image(ballDetector.getImage(),
-					tableCorners[0].x, tableCorners[0].y,
-					tableCorners[1].x - tableCorners[0].x, tableCorners[1].y - tableCorners[0].y);
+					combinedImageCorners[0].x, combinedImageCorners[0].y,
+					combinedImageCorners[1].x - combinedImageCorners[0].x, combinedImageCorners[1].y - combinedImageCorners[0].y);
 		}
 		configHandlers[currentModeIndex].draw();
 
@@ -332,15 +332,15 @@ public class OpenPool {
 		ballSystem.setDummy(isDummy);
 	}
 
-	public Point getTableCorner(int index) { return tableCorners[index]; }
+	public Point getCombinedImageCorner(int index) { return combinedImageCorners[index]; }
 
-	public Point getTableTopLeft() { return tableCorners[0]; }
+	public Point getCombinedImageTopLeft() { return combinedImageCorners[0]; }
 
-	public Point getTableBottomRight() { return tableCorners[1]; }
+	public Point getCombinedImageBottomRight() { return combinedImageCorners[1]; }
 
-	public int getTableWidth() { return tableCorners[1].x - tableCorners[0].x; }
+	public int getCombinedImageWidth() { return combinedImageCorners[1].x - combinedImageCorners[0].x; }
 
-	public int getTableHeight() { return tableCorners[1].y - tableCorners[0].y; }
+	public int getCombinedImageHeight() { return combinedImageCorners[1].y - combinedImageCorners[0].y; }
 
 	public Point getPoolCorner(int index) { return poolCorners[index]; }
 
@@ -360,19 +360,19 @@ public class OpenPool {
 	}
 
 	public float tableToScreenX(float x) {
-		return getTableTopLeft().x + getTableWidth() * x / ballDetector.getDepthWidth();
+		return getCombinedImageTopLeft().x + getCombinedImageWidth() * x / ballDetector.getDepthWidth();
 	}
 
 	public float tableToScreenY(float y) {
-		return getTableTopLeft().y + getTableHeight() * y / ballDetector.getDepthHeight();
+		return getCombinedImageTopLeft().y + getCombinedImageHeight() * y / ballDetector.getDepthHeight();
 	}
 
 	public float tableToScreenWidth(float width) {
-		return getTableWidth() * width / ballDetector.getDepthWidth();
+		return getCombinedImageWidth() * width / ballDetector.getDepthWidth();
 	}
 
 	public float tableToScreenHeight(float height) {
-		return getTableHeight() * height / ballDetector.getDepthHeight();
+		return getCombinedImageHeight() * height / ballDetector.getDepthHeight();
 	}
 
 	private void drawSplashScreen(){

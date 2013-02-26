@@ -98,14 +98,14 @@ public class ConfigFile {
 			return;
 		}
 		// OpenPool.tableCorners
-		if ("table.corners".equals(key)) {
+		if ("combinedImage.corners".equals(key)) {
 			String[] coordinates = value.split(",");
 			if (coordinates.length != 4) {
 				return;
 			}
 			try {
 				for (int i = 0; i < 2; i ++) {
-					Point p = op.getTableCorner(i);
+					Point p = op.getCombinedImageCorner(i);
 					int x = Integer.parseInt(coordinates[i * 2 + 0].trim());
 					int y = Integer.parseInt(coordinates[i * 2 + 1].trim());
 					p.setLocation(x, y);
@@ -177,15 +177,15 @@ public class ConfigFile {
 		bw.write(String.valueOf(ballDetector.getCamImageCorner(1).y));
 		bw.newLine();
 		
-		// OpenPool.tableCorners
-		bw.write("table.corners = ");
-		bw.write(String.valueOf(op.getTableTopLeft().x));
+		// OpenPool.combinedImageCorners
+		bw.write("combinedImage.corners = ");
+		bw.write(String.valueOf(op.getCombinedImageTopLeft().x));
 		bw.write(", ");
-		bw.write(String.valueOf(op.getTableTopLeft().y));
+		bw.write(String.valueOf(op.getCombinedImageTopLeft().y));
 		bw.write(", ");
-		bw.write(String.valueOf(op.getTableBottomRight().x));
+		bw.write(String.valueOf(op.getCombinedImageBottomRight().x));
 		bw.write(", ");
-		bw.write(String.valueOf(op.getTableBottomRight().y));
+		bw.write(String.valueOf(op.getCombinedImageBottomRight().y));
 		bw.newLine();
 
 		// OpenPool.poolCorners
