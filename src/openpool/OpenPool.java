@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 
 import openpool.config.BallDetectorConfigHandler;
+import openpool.config.ConfigFile;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
 import openpool.config.CameraPositionConfigHandler;
@@ -26,18 +27,20 @@ public class OpenPool {
 	public PApplet pa;
 	public Ball[] balls;
 	public int nBalls;
-	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
 
 	private BallSystem ballSystem;
 
-	private Point[] depthImageCorners = { new Point(100, 100), new Point(100 + 640, 100 + 240) };
 	private BallDetector ballDetector;
 	private ScheduledFuture<?> future;
 
 	private SimpleOpenNI cam1, cam2;
 
+	private ConfigFile configFile;
 	private ConfigHandler[] configHandlers;
 	private int currentModeIndex = 0;
+
+	private Point[] poolCorners;
+	private Point[] combinedImageCorners;
 
 	/**
 	 * True if it's in debug mode.
@@ -110,6 +113,13 @@ public class OpenPool {
 		pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
 		
 		drawSplashScreen();
+		
+		this.poolCorners = new Point[]{
+				new Point(120, 120),
+				new Point(pa.width - 120, pa.height - 120)};
+		this.combinedImageCorners = new Point[]{
+				new Point(100, 100),
+				new Point(pa.width - 100, pa.height - 100)};
 		
 		pa.registerMouseEvent(this);
 		pa.registerKeyEvent(this);
@@ -193,6 +203,20 @@ public class OpenPool {
 		future = ses.scheduleAtFixedRate(ballDetector, 33, 33, TimeUnit.MILLISECONDS);
 	}
 
+	public void loadConfig(String fileName) {
+		String userDir = System.getProperty("user.dir");
+		String binPath = File.separatorChar + "bin";
+		String filePath;
+		if (userDir.endsWith(binPath)) {
+			userDir = userDir.substring(0,  userDir.length() - binPath.length());
+			filePath = userDir + File.separator + "data" + File.separator + fileName;
+		} else {
+			filePath = pa.dataPath(fileName);
+		}
+		configFile = new ConfigFile(this, ballDetector, filePath);
+		configFile.load();
+	}
+	
 	/**
 	 * This method is called BEFORE draw() of the processing sketch.
 	 */
@@ -206,8 +230,8 @@ public class OpenPool {
 
 		synchronized (ballDetector) {
 			pa.image(ballDetector.getImage(),
-					depthImageCorners[0].x, depthImageCorners[0].y,
-					depthImageCorners[1].x - depthImageCorners[0].x, depthImageCorners[1].y - depthImageCorners[0].y);
+					combinedImageCorners[0].x, combinedImageCorners[0].y,
+					combinedImageCorners[1].x - combinedImageCorners[0].x, combinedImageCorners[1].y - combinedImageCorners[0].y);
 		}
 		configHandlers[currentModeIndex].draw();
 
@@ -257,6 +281,13 @@ public class OpenPool {
 		if (cam2 != null) {
 			cam2.dispose();
 		}
+		pa.unregisterMouseEvent(this);
+		pa.unregisterKeyEvent(this);
+		pa.unregisterDispose(this);
+		pa.unregisterPre(this);
+		if (configFile != null) {
+			configFile.save();
+		}
 	}
 
 	// Getters and setters follow:
@@ -288,6 +319,9 @@ public class OpenPool {
 
 	public void setConfigMode(boolean isConfigMode) {
 		this.isConfigMode = isConfigMode;
+		if (!isConfigMode && configFile != null) {
+			configFile.save();
+		}
 	}
 	
 	public boolean isDummyMode() {
@@ -298,16 +332,22 @@ public class OpenPool {
 		ballSystem.setDummy(isDummy);
 	}
 
-	public Point getDepthImageCorner(int index) { return depthImageCorners[index]; }
-		
-	public Point getTopLeftCorner() { return depthImageCorners[0]; }
-	
-	public Point getBottomRightCorner() { return depthImageCorners[1]; }
-	
-	public int getFieldWidth() { return depthImageCorners[1].x - depthImageCorners[0].x; }
+	public Point getCombinedImageCorner(int index) { return combinedImageCorners[index]; }
 
-	public int getFieldHeight() { return depthImageCorners[1].y - depthImageCorners[0].y; }
-	
+	public Point getCombinedImageTopLeft() { return combinedImageCorners[0]; }
+
+	public Point getCombinedImageBottomRight() { return combinedImageCorners[1]; }
+
+	public int getCombinedImageWidth() { return combinedImageCorners[1].x - combinedImageCorners[0].x; }
+
+	public int getCombinedImageHeight() { return combinedImageCorners[1].y - combinedImageCorners[0].y; }
+
+	public Point getPoolCorner(int index) { return poolCorners[index]; }
+
+	public Point getPoolTopLeft() { return poolCorners[0]; }
+
+	public Point getPoolBottomRight() { return poolCorners[1]; }
+
 	// Utility methods follow:
 	
 	public void rememberBackground() {
@@ -319,20 +359,20 @@ public class OpenPool {
 		messageCounter = messageLife;
 	}
 
-	public float depthToScreenX(float x) {
-		return getTopLeftCorner().x + getFieldWidth() * x / ballDetector.getDepthWidth();
+	public float tableToScreenX(float x) {
+		return getCombinedImageTopLeft().x + getCombinedImageWidth() * x / ballDetector.getDepthWidth();
 	}
 
-	public float depthToScreenY(float y) {
-		return getTopLeftCorner().y + getFieldHeight() * y / ballDetector.getDepthHeight();
+	public float tableToScreenY(float y) {
+		return getCombinedImageTopLeft().y + getCombinedImageHeight() * y / ballDetector.getDepthHeight();
 	}
 
-	public float depthToScreenWidth(float width) {
-		return getFieldWidth() * width / ballDetector.getDepthWidth();
+	public float tableToScreenWidth(float width) {
+		return getCombinedImageWidth() * width / ballDetector.getDepthWidth();
 	}
 
-	public float depthToScreenHeight(float height) {
-		return getFieldHeight() * height / ballDetector.getDepthHeight();
+	public float tableToScreenHeight(float height) {
+		return getCombinedImageHeight() * height / ballDetector.getDepthHeight();
 	}
 
 	private void drawSplashScreen(){

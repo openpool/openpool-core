@@ -31,6 +31,9 @@ public class OpenPoolExample extends PApplet {
 	boolean real = false;
 
 	public void setup() {
+		size(840, 440);
+		frameRate(30);
+
 		if (real) {
 			op = new OpenPool(this);
 		} else {
@@ -39,19 +42,22 @@ public class OpenPoolExample extends PApplet {
 			if (userDir.endsWith(binPath)) {
 				userDir = userDir.substring(0,  userDir.length() - binPath.length());
 			}
-			op = new DummyPool(this);
-			op = new OpenPool(this,
-					userDir + "\\recordings\\straight1.oni");
+			// op = new DummyPool(this);
+			op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
 		}
+
+		op.loadConfig("config.txt");
 		op.setConfigMode(true);
-		size(840, 440);
-		frameRate(30);
 	}
 	
 	public void draw() {
 		op.updateBalls();
 		for (Ball ball : op.balls) {
 			ball.draw(this);
+			if (ball.prev != null) {
+				stroke(255);
+				line(ball.x, ball.y, ball.prev.x, ball.prev.y);
+			}
 		}
 	}
 }

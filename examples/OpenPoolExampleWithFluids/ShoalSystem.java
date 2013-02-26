@@ -140,6 +140,17 @@ class ShoalSystem {
 		}
 		for (Obstacle obstacle : obstacles) {
 			obstacle.draw();
+			int MAXLOOP = 32;
+			for (int i = 0; i < MAXLOOP; i++) {
+				ope.addForceToFluid((obstacle.x + 30 * Math.cos(i * 2 * Math.PI / MAXLOOP)) * ope.invWidth,
+						(obstacle.y + 30 * Math.sin(i * 2 * Math.PI / MAXLOOP)) * ope.invHeight,
+						0.001 * Math.cos(i * 2* Math.PI / MAXLOOP),
+						0.001 * Math.sin(i * 2 * Math.PI / MAXLOOP));
+				ope.addForceToFluid((obstacle.x + 15 * Math.cos(i * 2 * Math.PI / MAXLOOP)) * ope.invWidth,
+						(obstacle.y + 15 * Math.sin(i * 2 * Math.PI / MAXLOOP)) * ope.invHeight,
+						0.002 * Math.cos(i * 2 * Math.PI / MAXLOOP),
+						0.002 * Math.sin(i * 2 * Math.PI / MAXLOOP));
+			}
 		}
 	}
 }

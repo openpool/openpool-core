@@ -15,7 +15,7 @@ class Obstacle {
 	void draw() {
 		if (ope.isDebugMode) {
 			ope.ellipse(x, y, r * 2, r * 2);
-			ope.text("object", x, y);
+			ope.text("obstacle", x, y);
 			ope.text("x:", x, y + 15);
 			ope.text(x, x + 30, y + 15);
 			ope.text("y:", x, y + 30);

@@ -80,12 +80,12 @@ public class BallDetector implements Runnable {
 	/**
 	 * Offset for the first camera.
 	 */
-	private int x1 = 0, y1 = 0;
+	private int cam1_xoffset = 0, cam1_yoffset = 0;
 
 	/**
 	 * Offset for the second camera.
 	 */
-	private int x2 = 0, y2 = 0;
+	private int cam2_xoffset = 0, cam2_yoffset = 0;
 
 	BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2, PApplet pa) {
 		this.ballSystem = ballSystem;
@@ -203,35 +203,35 @@ public class BallDetector implements Runnable {
 		return camCount;
 	}
 	public void setX1(int x1){
-		this.x1 = x1;
+		this.cam1_xoffset = x1;
 	}
 
 	public int getX1(){
-		return x1;
+		return cam1_xoffset;
 	}
 	
 	public void setX2(int x2){
-		this.x2 = x2;
+		this.cam2_xoffset = x2;
 	}
 	
 	public int getX2(){
-		return x2;
+		return cam2_xoffset;
 	}
 	
 	public void setY1(int y1)	{
-		this.y1 = y1;
+		this.cam1_yoffset = y1;
 	}
 
 	public int getY1()	{
-		return y1;
+		return cam1_yoffset;
 	}
 	
 	public void setY2(int y2)	{
-		this.y2 = y2;
+		this.cam2_yoffset = y2;
 	}
 	
 	public int getY2()	{
-		return y2;
+		return cam2_yoffset;
 	}
 	
 	public int getCam1Width()	{
@@ -303,12 +303,12 @@ public class BallDetector implements Runnable {
 
 		// FIXME: WORKAROUND!!! cam2 first
 		if (cam2 != null) {
-			copyImage(target, cam2.depthImage(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
-			fillDepthErrorHoles(target, cam2.depthMap(), x2+cam1.depthWidth(), y2, cam2.depthWidth(), cam2.depthHeight());
+			copyImage(target, cam2.depthImage(), cam2_xoffset+cam1.depthWidth(), cam2_yoffset, cam2.depthWidth(), cam2.depthHeight());
+			fillDepthErrorHoles(target, cam2.depthMap(), cam2_xoffset+cam1.depthWidth(), cam2_yoffset, cam2.depthWidth(), cam2.depthHeight());
 		}
 		if (cam1 != null) {
-			copyImage(target, cam1.depthImage(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
-			fillDepthErrorHoles(target, cam1.depthMap(), x1, y1, cam1.depthWidth(), cam1.depthHeight());
+			copyImage(target, cam1.depthImage(), cam1_xoffset, cam1_yoffset, cam1.depthWidth(), cam1.depthHeight());
+			fillDepthErrorHoles(target, cam1.depthMap(), cam1_xoffset, cam1_yoffset, cam1.depthWidth(), cam1.depthHeight());
 		}
 	}
 
@@ -440,10 +440,10 @@ public class BallDetector implements Runnable {
 		switch(camNumber)
 		{
 		case 0:
-			ret = new Point(x1,y1);
+			ret = new Point(cam1_xoffset,cam1_yoffset);
 			break;
 		case 1:
-			ret = new Point(x2,y2);
+			ret = new Point(cam2_xoffset,cam2_yoffset);
 			break;
 		default:
 			ret = new Point(0,0);
@@ -456,12 +456,12 @@ public class BallDetector implements Runnable {
 		switch(camNumber)
 		{
 		case 0:
-			this.x1 = pt.x;
-			this.y1 = pt.y;
+			this.cam1_xoffset = pt.x;
+			this.cam1_yoffset = pt.y;
 			break;
 		case 1:
-			this.x2 = pt.x;
-			this.y2 = pt.y;
+			this.cam2_xoffset = pt.x;
+			this.cam2_yoffset = pt.y;
 			break;
 		default:
 			break;

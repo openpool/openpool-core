@@ -29,21 +29,25 @@ public class BallSystem {
 		float y = rect.y() + height / 2;
 		Ball ball = new Ball(
 				currentId,
-				op.depthToScreenX(x),
-				op.depthToScreenY(y),
-				op.depthToScreenWidth(width),
-				op.depthToScreenHeight(height),
+				op.tableToScreenX(x),
+				op.tableToScreenY(y),
+				op.tableToScreenWidth(width),
+				op.tableToScreenHeight(height),
 				ghostLife);
+
 		Ball prev = null;
 		double distance = distanceThreshold;
 		for (Ball b : prevBalls) {
-			double d = ball.movedLength(b);
-			if (d < distance) {
-				prev = b;
-				distance = d;
+			if (!b.hasSuccessor()) {
+				double d = ball.distance(b);
+				if (d < distance) {
+					prev = b;
+					distance = d;
+				}
 			}
 		}
 		ball.setPrev(prev);
+
 		balls.add(ball);
 		currentId = (int)((long)(currentId + 1) % Integer.MAX_VALUE);
 	}

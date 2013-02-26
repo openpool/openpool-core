@@ -34,39 +34,35 @@ public class Ball {
 		hasSuccessor = false;
 	}
 	
-	public double movedLength(Ball b) {
-		// A (x' - dx, y' - dy) : ball position (2 frames behind)
-		// B (x', y') : ball position (1 frame behind)
-		// C (x, y) : ball position (current)
-		
-		if (b.dx == 0 && b.dy == 0) {
-			return movedLength(x - b.x, y - b.y);
-		}
-		
-		// if (dot(b-a, c-a) < 0)
-		float cax = x - (b.x - b.dx), cay = y - (b.y -b.dy);
-		if (isBoundedMuch(b.dx, b.dy, cax, cay)) {
-			// return abs(c-a)
-			return movedLength(cax, cay);
-		}
+	public double distance(Ball b) {
+		// A (x' - dx, y' - dy)
+		//        ball position (2 frames behind)
+		// B (x', y')
+		//        ball position (1 frame behind)
+		// C (x, y)
+		//        current ball position
+		// D (x' + dx, y' + dy)
+		//        predicted ball position
 
-		// if (dot(a-b, c-b) < 0)
+		// If (can't get A, thus can't calculate D
+		//		|| or dot(d-b, c-b) < 0 i.e. dot(b-a, c-b) < 0),
 		float cbx = x - b.x, cby = y - b.y;
-		if (!isBounded(b.dx, b.dy, cbx, cby)) {
-			// return abs(c-b)
-			return movedLength(cbx, cby);
+		if (b.dx == 0 && b.dy == 0
+				|| dot(b.dx, b.dy, cbx, cby) < 0) {
+			// Return the distance between B and C
+			return vectorLength(cbx, cby);
 		}
 		
-		// return abs(cross(b-a, c-a)) / abs(b-a)
-		return crossLength(b.dx, b.dy, cax, cay) / movedLength(b.dx, b.dy);
-	}
-
-	private static boolean isBoundedMuch(float x1, float y1, float x2, float y2) {
-		return isBounded(x1, y1, x2, y2);
-	}
-
-	private static boolean isBounded(float x1, float y1, float x2, float y2) {
-		return dot(x1, y1, x2, y2) < 0;
+		// If (dot(c-d, d-b) > 0 i.e. dot(c-d, b-a) > 0)
+		float cdx = x - (b.x + b.dx), cdy = y - (b.y + b.dy);
+		if (dot(cdx, cdy, b.dx, b.dy) > 0) {
+			// Return the distance between C and D
+			return vectorLength(cdx, cdy);
+		}
+		
+		// Return the distance between C and BD
+		// i.e. abs(cross(b-d, c-d)) / abs(b-d)
+		return crossLength(b.dx, b.dy, cdx, cdy) / vectorLength(b.dx, b.dy);
 	}
 
 	private static double dot(float x1, float y1, float x2, float y2) {
@@ -77,7 +73,7 @@ public class Ball {
 		return Math.abs(x1*y2 - y1*x2);
 	}
 	
-	private static double movedLength(float x, float y) {
+	private static double vectorLength(float x, float y) {
 		return Math.sqrt(x * x + y * y);
 	}
 	
@@ -99,6 +95,7 @@ public class Ball {
 			this.dx = x - prev.x;
 			this.dy = y - prev.y;
 			prev.hasSuccessor = true;
+			prev.prev = null; // to avoid infinite reference that causes ouf-of-memory.
 		}
 	}
 	

@@ -117,8 +117,8 @@ class Fish {
 		x += vx;
 		y += vy;
 
-		Point tl = ope.op.getTopLeftCorner();
-		Point br = ope.op.getBottomRightCorner();
+		Point tl = ope.op.getPoolTopLeft();
+		Point br = ope.op.getPoolBottomRight();
 		
 		// Hit the left edge
 		if (x - SIZE_FISH <= tl.x) {

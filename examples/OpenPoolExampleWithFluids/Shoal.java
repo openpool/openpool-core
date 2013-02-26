@@ -70,10 +70,6 @@ class Shoal {
 
 			vx = vx + fish.vx;
 			vy = vy + fish.vy;
-
-			ope.addForceToFluid(
-					fish.x / ope.width, fish.y / ope.height,
-					-fish.vx / FISH_COEFF_FORCE, -fish.vy / FISH_COEFF_FORCE);
 		}
 
 		x = x / fishes.size();
