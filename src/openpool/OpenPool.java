@@ -17,6 +17,7 @@ import openpool.config.BallDetectorConfigHandler;
 import openpool.config.ConfigHandler;
 import openpool.config.FieldConfigHandler;
 import openpool.config.CameraPositionConfigHandler;
+import openpool.config.PoolAreaConfigHandler;
 
 import SimpleOpenNI.*;
 import processing.core.*;
@@ -25,6 +26,7 @@ public class OpenPool {
 	public PApplet pa;
 	public Ball[] balls;
 	public int nBalls;
+	public Point[] PoolArea = {new Point(100,100),new Point (100+540,100+220)};
 
 	private BallSystem ballSystem;
 
@@ -137,17 +139,20 @@ public class OpenPool {
 		configHandlers = new ConfigHandler[] {
 				new FieldConfigHandler(this),
 				new BallDetectorConfigHandler(this, ballDetector),
-				new CameraPositionConfigHandler(this, ballDetector)
+				new CameraPositionConfigHandler(this, ballDetector),
+				new PoolAreaConfigHandler(this)
 		};
 	}
 
 	private void initOpenNI(int numCamera, String cam1FileName, String cam2FileName) {
 		SimpleOpenNI.start(); 
-		// print all the cams 
+
+		// Print all available cameras.
 		StrVector strList = new StrVector();
 		SimpleOpenNI.deviceNames(strList);
-		for(int i=0;i<strList.size();i++)
-			pa.println(i + ":" + strList.get(i));
+		for (int i = 0; i < strList.size(); i++) {
+			PApplet.println(String.format("%d: %s", i, strList.get(i)));
+		}
 
 		if (numCamera == 1) {
 			cam1 = new SimpleOpenNI(pa);
@@ -304,6 +309,10 @@ public class OpenPool {
 	public int getFieldHeight() { return depthImageCorners[1].y - depthImageCorners[0].y; }
 	
 	// Utility methods follow:
+	
+	public void rememberBackground() {
+		ballDetector.rememberBackground();
+	}
 
 	public void setMessage(String message) {
 		this.message = message;
