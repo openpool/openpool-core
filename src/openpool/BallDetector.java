@@ -184,13 +184,15 @@ public class BallDetector implements Runnable {
 					CvScalar color = CV_RGB(randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
 					cvDrawContours(temporaryImage, ptr, color, CV_RGB(0, 0, 0), -1, CV_FILLED, 8, cvPoint(0, 0));
 					cvRectangle(temporaryImage, cvPoint(rect.x(), rect.y()), cvPoint(rect.x() + rect.width(), rect.y() + rect.height()), CV_RGB(230, 230, 255), 1, 8, 0);
+
 				}
 				cvClearSeq(ptr);
 			}
 			cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
 		}
 		ballSystem.commit();
-
+		cvClearSeq(ptr);
+		cvClearSeq(contours);
 		cvClearMemStorage(mem);
 		cvReleaseMemStorage(mem);
 
