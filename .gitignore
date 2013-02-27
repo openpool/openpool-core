@@ -1,4 +1,5 @@
 bin/
 tmp/
 distribution/**/*
-!distribution/*.zip
+distribution/*.zip
+**/*.oni
