@@ -62,9 +62,7 @@ public class ConfigFile {
 			try {
 				Point pt = new Point(0,0);
 				int cam1_xoffset = Integer.parseInt(value);
-				pt = ballDetector.getCamImageCorner(0);
-				pt.x = cam1_xoffset;
-				ballDetector.setCamImageCorner(0,pt);
+				ballDetector.setX1(cam1_xoffset);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -75,9 +73,7 @@ public class ConfigFile {
 			try {
 				Point pt = new Point(0,0);
 				int cam1_yoffset = Integer.parseInt(value);
-				pt = ballDetector.getCamImageCorner(0);
-				pt.y = cam1_yoffset;
-				ballDetector.setCamImageCorner(0,pt);
+				ballDetector.setY1(cam1_yoffset);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -88,9 +84,7 @@ public class ConfigFile {
 			try {
 				Point pt = new Point(0,0);
 				int cam2_xoffset = Integer.parseInt(value);
-				pt = ballDetector.getCamImageCorner(1);
-				pt.x = cam2_xoffset;
-				ballDetector.setCamImageCorner(1,pt);
+				ballDetector.setX2(cam2_xoffset);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -101,9 +95,7 @@ public class ConfigFile {
 			try {
 				Point pt = new Point(0,0);
 				int cam2_yoffset = Integer.parseInt(value);
-				pt = ballDetector.getCamImageCorner(1);
-				pt.y = cam2_yoffset;
-				ballDetector.setCamImageCorner(1,pt);
+				ballDetector.setY2(cam2_yoffset);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -171,22 +163,22 @@ public class ConfigFile {
 		
 		//cam1_xoffset
 		bw.write("cam1_xoffset = ");
-		bw.write(String.valueOf(ballDetector.getCamImageCorner(0).x));
+		bw.write(String.valueOf(ballDetector.getX1()));
 		bw.newLine();
 		
 		//cam1_yoffset
 		bw.write("cam1_yoffset = ");
-		bw.write(String.valueOf(ballDetector.getCamImageCorner(0).y));
+		bw.write(String.valueOf(ballDetector.getY1()));
 		bw.newLine();
 		
 		//cam2_xoffset
 		bw.write("cam2_xoffset = ");
-		bw.write(String.valueOf(ballDetector.getCamImageCorner(1).x));
+		bw.write(String.valueOf(ballDetector.getX2()));
 		bw.newLine();
 		
 		//cam2_yoffset
 		bw.write("cam2_yoffset = ");
-		bw.write(String.valueOf(ballDetector.getCamImageCorner(1).y));
+		bw.write(String.valueOf(ballDetector.getY2()));
 		bw.newLine();
 		
 		// OpenPool.combinedImageCorners
