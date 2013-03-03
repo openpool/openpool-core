@@ -60,8 +60,11 @@ public class ConfigFile {
 		//cam1_xoffset
 		if("detector.cam1_xoffset".equals(key)) {
 			try {
+				Point pt = new Point(0,0);
 				int cam1_xoffset = Integer.parseInt(value);
-				ballDetector.getCamImageCorner(0).x = cam1_xoffset;
+				pt = ballDetector.getCamImageCorner(0);
+				pt.x = cam1_xoffset;
+				ballDetector.setCamImageCorner(0,pt);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -70,8 +73,11 @@ public class ConfigFile {
 		//cam1_yoffset
 		if("detector.cam1_yoffset".equals(key)) {
 			try {
+				Point pt = new Point(0,0);
 				int cam1_yoffset = Integer.parseInt(value);
-				ballDetector.getCamImageCorner(0).y = cam1_yoffset;
+				pt = ballDetector.getCamImageCorner(0);
+				pt.y = cam1_yoffset;
+				ballDetector.setCamImageCorner(0,pt);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -80,8 +86,11 @@ public class ConfigFile {
 		//cam2_xoffset
 		if("detector.cam2_xoffset".equals(key)) {
 			try {
+				Point pt = new Point(0,0);
 				int cam2_xoffset = Integer.parseInt(value);
-				ballDetector.getCamImageCorner(1).x = cam2_xoffset;
+				pt = ballDetector.getCamImageCorner(1);
+				pt.x = cam2_xoffset;
+				ballDetector.setCamImageCorner(1,pt);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
@@ -90,8 +99,11 @@ public class ConfigFile {
 		//cam2_yoffset
 		if("detector.cam2_yoffset".equals(key)) {
 			try {
+				Point pt = new Point(0,0);
 				int cam2_yoffset = Integer.parseInt(value);
-				ballDetector.getCamImageCorner(1).y = cam2_yoffset;
+				pt = ballDetector.getCamImageCorner(1);
+				pt.y = cam2_yoffset;
+				ballDetector.setCamImageCorner(1,pt);
 			} catch (NumberFormatException nfe) {
 				// Do nothing.
 			}
