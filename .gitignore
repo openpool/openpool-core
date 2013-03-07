@@ -3,3 +3,4 @@ tmp/
 distribution/**/*
 distribution/*.zip
 **/*.oni
+.DS_STORE
