@@ -199,7 +199,7 @@ public class BallDetector implements Runnable {
 		temporaryImage.copyTo(resultImage);
 		
 		contours = null;
-		System.gc();
+		//System.gc();
 	}
 	
 	public int getCamCount(){
