@@ -1,7 +1,0 @@
-detector.threshold = 70.0
-cam1_xoffset = 0
-cam1_yoffset = 0
-cam2_xoffset = 0
-cam2_yoffset = 0
-combinedImage.corners = 100, 100, 1180, 700
-pool.corners = 120, 120, 1160, 680
