@@ -184,10 +184,12 @@ public class BallDetector implements Runnable {
 					CvScalar color = CV_RGB(randomColor.getRed(), randomColor.getGreen(), randomColor.getBlue());
 					cvDrawContours(temporaryImage, ptr, color, CV_RGB(0, 0, 0), -1, CV_FILLED, 8, cvPoint(0, 0));
 					cvRectangle(temporaryImage, cvPoint(rect.x(), rect.y()), cvPoint(rect.x() + rect.width(), rect.y() + rect.height()), CV_RGB(230, 230, 255), 1, 8, 0);
+					randomColor = null;
 				}
 				cvClearSeq(ptr);
 			}
 			cvAddS(temporaryImage, cvScalar(0, 0, 0, 255), temporaryImage, null);
+			rand = null;
 		}
 		ballSystem.commit();
 
@@ -195,6 +197,9 @@ public class BallDetector implements Runnable {
 		cvReleaseMemStorage(mem);
 
 		temporaryImage.copyTo(resultImage);
+		
+		contours = null;
+		//System.gc();
 	}
 	
 	public int getCamCount(){
@@ -321,8 +326,7 @@ public class BallDetector implements Runnable {
 	 */
 	private void copyImage(IplImage target, PImage source, int x, int y,
 			int width, int height) {
-		IplImage sourceImage = new IplImage();		
-		sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
+		IplImage sourceImage = IplImage.createFrom((BufferedImage) source.getImage());
 
 		Point sourceCopyArea = new Point(0, 0);
 		Point targetCopyArea = new Point(0, 0);
@@ -396,6 +400,9 @@ public class BallDetector implements Runnable {
 		// We shouldn't use cvReleaseImage but IplImage.release() to avoid hang.
 		// http://code.google.com/p/javacv/issues/detail?id=152
 		sourceImage.release();
+		
+		sourceCopyArea = null;
+		targetCopyArea = null;
 	}
 
 	/**

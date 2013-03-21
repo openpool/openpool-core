@@ -1,4 +1,6 @@
 bin/
 tmp/
 distribution/**/*
-!distribution/*.zip
+distribution/*.zip
+**/*.oni
+.DS_STORE

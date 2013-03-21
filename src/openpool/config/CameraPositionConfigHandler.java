@@ -112,34 +112,23 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 		op.pa.line(br.x, br.y, tl.x, br.y);
 		op.pa.line(tl.x, br.y, tl.x, tl.y);
 		
-		// draw an arrow
-		op.pa.line(tl.x, tl.y, tl.x + 8, tl.y + 4);
-		op.pa.line(tl.x, tl.y, tl.x + 4, tl.y + 8);
-		op.pa.line(tl.x, tl.y, tl.x + 10, tl.y + 10);
-		
-		// draw xy
-		op.pa.text("X:", tl.x + 20, tl.y + 20);
-		op.pa.text(tl.x, tl.x + 30, tl.y + 20);
-		op.pa.text("Y:", tl.x + 20, tl.y + 34);
-		op.pa.text(tl.y, tl.x + 30, tl.y + 34);
-		
-		// draw an arrow
-		op.pa.line(br.x, br.y, br.x - 8, br.y - 4);
-		op.pa.line(br.x, br.y, br.x - 4, br.y - 8);
-		op.pa.line(br.x, br.y, br.x - 10, br.y - 10);
-		
-		// draw xy
-		op.pa.text("X:", br.x - 50, br.y - 24);
-		op.pa.text(br.x, br.x - 40, br.y - 24);
-		op.pa.text("Y:", br.x - 50, br.y - 10);
-		op.pa.text(br.y, br.x - 40, br.y - 10);
-		
 		//draw cam1 image bounding
 		op.pa.stroke(255, 0, 0);
 		op.pa.line(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1br_ScreenAxis.x, cam1tl_ScreenAxis.y);
 		op.pa.line(cam1br_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1br_ScreenAxis.x, cam1br_ScreenAxis.y);
 		op.pa.line(cam1br_ScreenAxis.x, cam1br_ScreenAxis.y, cam1tl_ScreenAxis.x, cam1br_ScreenAxis.y);
 		op.pa.line(cam1tl_ScreenAxis.x, cam1br_ScreenAxis.y, cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y);
+		
+		// draw an arrow
+		op.pa.line(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1tl_ScreenAxis.x + 8, cam1tl_ScreenAxis.y + 4);
+		op.pa.line(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1tl_ScreenAxis.x + 4, cam1tl_ScreenAxis.y + 8);
+		op.pa.line(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.y, cam1tl_ScreenAxis.x + 10, cam1tl_ScreenAxis.y + 10);
+		
+		// draw xy
+		op.pa.text("X:", cam1tl_ScreenAxis.x + 20, cam1tl_ScreenAxis.y + 20);
+		op.pa.text(cam1tl_ScreenAxis.x, cam1tl_ScreenAxis.x + 30, cam1tl_ScreenAxis.y + 20);
+		op.pa.text("Y:", cam1tl_ScreenAxis.x + 20, cam1tl_ScreenAxis.y + 34);
+		op.pa.text(cam1tl_ScreenAxis.y, cam1tl_ScreenAxis.x + 30, cam1tl_ScreenAxis.y + 34);
 		
 		if(camCount >= 2)
 		{
@@ -149,6 +138,17 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 			op.pa.line(cam2br_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2br_ScreenAxis.x, cam2br_ScreenAxis.y);
 			op.pa.line(cam2br_ScreenAxis.x, cam2br_ScreenAxis.y, cam2tl_ScreenAxis.x, cam2br_ScreenAxis.y);
 			op.pa.line(cam2tl_ScreenAxis.x, cam2br_ScreenAxis.y, cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y);
+			
+			// draw an arrow
+			op.pa.line(cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2tl_ScreenAxis.x + 8, cam2tl_ScreenAxis.y + 4);
+			op.pa.line(cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2tl_ScreenAxis.x + 4, cam2tl_ScreenAxis.y + 8);
+			op.pa.line(cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.y, cam2tl_ScreenAxis.x + 10, cam2tl_ScreenAxis.y + 10);
+			
+			// draw xy
+			op.pa.text("X:", cam2tl_ScreenAxis.x + 20, cam2tl_ScreenAxis.y + 20);
+			op.pa.text(cam2tl_ScreenAxis.x, cam2tl_ScreenAxis.x + 30, cam2tl_ScreenAxis.y + 20);
+			op.pa.text("Y:", cam2tl_ScreenAxis.x + 20, cam2tl_ScreenAxis.y + 34);
+			op.pa.text(cam2tl_ScreenAxis.y, cam2tl_ScreenAxis.x + 30, cam2tl_ScreenAxis.y + 34);
 		}
 		op.pa.noStroke();
 	}
@@ -159,56 +159,55 @@ public class CameraPositionConfigHandler extends ConfigHandlerAbstractImpl {
 
 	/**
 	 * Convert image xy to screen xy.
-	 * @param pt Screen xy point to convert
-	 * @param tl depthImage top-left corner xy in screen xy
-	 * @param br depthImage bottom-right corner xy in screen xy
-	 * @param depthWidth depthimage width in image xy
-	 * @param depthHeight depthImage height in image xy
-	 * @param camNumber id number of camera starts with 0
+	 * @param imagePt Screen xy point to convert
+	 * @param screen_tl depthImage top-left corner xy in screen xy
+	 * @param screen_br depthImage bottom-right corner xy in screen xy
+	 * @param combinedDepthImageWidth depthimage width in image xy
+	 * @param combinedDepthImageHeight depthImage height in image xy
+	 * @param camId id number of camera starts with 0
 	 * @param cam1Width width of cam1 in image xy
 	 */
-	private Point ImagetoScreen(Point pt, Point tl, Point br, int depthWidth,
-			int depthHeight, int camNumber, int cam1Width) {
+	private Point ImagetoScreen(Point imagePt, Point screen_tl, Point screen_br, int combinedDepthImageWidth,
+			int combinedDepthImageHeight, int camId, int cam1Width) {
 
 		Point retPt = new Point();
-		if (camNumber == 0) {
-			retPt.x = tl.x + pt.x * (br.x - tl.x) / depthWidth;
-			retPt.y = tl.y + pt.y * (br.y - tl.y) / depthHeight;
+		if (camId == 0) {
+			retPt.x = (int)(screen_tl.x + imagePt.x * (double)(screen_br.x - screen_tl.x) / (double)combinedDepthImageWidth);
+			retPt.y = (int)(screen_tl.y + imagePt.y * (double)(screen_br.y - screen_tl.y) / (double)combinedDepthImageHeight);
 		} else {
-			retPt.x = tl.x + (pt.x + cam1Width) * (br.x - tl.x) / depthWidth;
-			retPt.y = tl.y + pt.y * (br.y - tl.y) / depthHeight;
+			retPt.x = (int)(screen_tl.x + (imagePt.x + cam1Width) * (double)(screen_br.x - screen_tl.x) / (double)combinedDepthImageWidth);
+			retPt.y = (int)(screen_tl.y + imagePt.y * (double)(screen_br.y - screen_tl.y) / (double)combinedDepthImageHeight);
 		}
-
-		return retPt;
+ 		return retPt;
 	}
 
 	/**
 	 * Convert screen xy to image xy.
 	 * 
-	 * @param pt
+	 * @param screenPt
 	 *            Screen xy point to convert
-	 * @param tl
+	 * @param screen_tl
 	 *            depthImage top-left corner xy in screen xy
-	 * @param br
+	 * @param screen_br
 	 *            depthImage bottom-right corner xy in screen xy
-	 * @param depthWidth
+	 * @param combinedDepthImageWidth
 	 *            depthimage width in image xy
-	 * @param depthHeight
+	 * @param combinedDepthImageHeight
 	 *            depthImage height in image xy
-	 * @param camNumber
+	 * @param camId
 	 *            id number of camera starts with 0
 	 * @param cam1Width
 	 *            width of cam1 in image xy
 	 */
-	private Point ScreentoImage(Point pt, Point tl, Point br, int depthWidth,
-			int depthHeight, int camNumber, int cam1Width) {
+	private Point ScreentoImage(Point screenPt, Point screen_tl, Point screen_br, int combinedDepthImageWidth,
+			int combinedDepthImageHeight, int camId, int cam1Width) {
 		Point retPt = new Point();
-		if (camNumber == 0) {
-			retPt.x = (pt.x - tl.x) * (depthWidth / (br.x - tl.x));
-			retPt.y = (pt.y - tl.y) * (depthHeight / (br.y - tl.y));
+		if (camId == 0) {
+			retPt.x = (int)((screenPt.x - screen_tl.x) * ((double)combinedDepthImageWidth / (double)(screen_br.x - screen_tl.x)));
+			retPt.y = (int)((screenPt.y - screen_tl.y) * ((double)combinedDepthImageHeight /(double) (screen_br.y - screen_tl.y)));
 		} else {
-			retPt.x = (pt.x - tl.x) * (depthWidth / (br.x - tl.x)) - cam1Width;
-			retPt.y = (pt.y - tl.y) * (depthHeight / (br.y - tl.y));
+			retPt.x = (int)((screenPt.x - screen_tl.x) * ((double)combinedDepthImageWidth / (double)(screen_br.x - screen_tl.x))) - cam1Width;
+			retPt.y = (int)((screenPt.y - screen_tl.y) * ((double)combinedDepthImageHeight /(double)(screen_br.y - screen_tl.y)));
 		}
 		return retPt;
 	}
