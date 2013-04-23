@@ -39,7 +39,9 @@ $ git rebase devel develSpike
 
 At least, run ant before you push project codes. Confirm all builds run correctly.
 ```
+$ cd resources
 $ ant resources/build.xml
+$ cd ../
 ```
 
 Please, do not submit patches that fail check.
