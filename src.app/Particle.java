@@ -36,117 +36,118 @@ import java.nio.FloatBuffer;
 import javax.media.opengl.GL;
 
 class Particle {
-	private final static float MOMENTUM = 0.5f;
-	private final static float FLUID_FORCE = 0.6f;
+    private final static float MOMENTUM = 0.5f;
+    private final static float FLUID_FORCE = 0.6f;
 
-	private OpenPoolExampleWithFluids ope;
+    private OpenPoolExampleWithFluids ope;
 
-	/**
-	 * Position of this particle.
-	 */
-	private float x, y;
-	
-	/**
-	 * Velocity of this particle.
-	 */
-	private float vx, vy;
+    /**
+     * Position of this particle.
+     */
+    private float x, y;
 
-	/**
-	 * Alpha blending value. Initial value is set randomly. [0.3-1.0]
-	 */
-	private float alpha;
+    /**
+     * Velocity of this particle.
+     */
+    private float vx, vy;
 
-	/**
-	 * Mass. Initial value is set randomly. [0.1-1.0]
-	 */
-	private float mass;
+    /**
+     * Alpha blending value. Initial value is set randomly. [0.3-1.0]
+     */
+    private float alpha;
 
-	public Particle(OpenPoolExampleWithFluids ope) {
-		this.ope = ope;
-	}
+    /**
+     * Mass. Initial value is set randomly. [0.1-1.0]
+     */
+    private float mass;
 
-	public void initialize(float x, float y) {
-		this.x = x;
-		this.y = y;
-		vx = 0;
-		vy = 0;
-		alpha = (float) (Math.random() * 0.7 + 0.3); // [0.3-1.0]
-		mass = (float) (Math.random() * 0.9 + 0.1); // [0.1-1.0]
-	}
+    public Particle(OpenPoolExampleWithFluids ope) {
+        this.ope = ope;
+    }
 
-	public void update() {
+    public void initialize(float x, float y) {
+        this.x = x;
+        this.y = y;
+        vx = 0;
+        vy = 0;
+        alpha = (float) (Math.random() * 0.7 + 0.3); // [0.3-1.0]
+        mass = (float) (Math.random() * 0.9 + 0.1); // [0.1-1.0]
+    }
 
-		// Only update if particle is visible.
-		if (alpha == 0) {
-			return;
-		}
+    public void update() {
 
-		// Read fluid info and add to velocity.
-		int fluidIndex = ope.fluidSolver.getIndexForNormalizedPosition(
-				x * ope.invWidth, y * ope.invHeight);
-		vx = ope.fluidSolver.u[fluidIndex] * ope.width * mass * FLUID_FORCE
-				+ vx * MOMENTUM;
-		vy = ope.fluidSolver.v[fluidIndex] * ope.height * mass * FLUID_FORCE
-				+ vy * MOMENTUM;
+        // Only update if particle is visible.
+        if (alpha == 0) {
+            return;
+        }
 
-		// Update position.
-		x += vx;
-		y += vy;
+        // Read fluid info and add to velocity.
+        int fluidIndex = ope.fluidSolver.getIndexForNormalizedPosition(x
+                * ope.invWidth, y * ope.invHeight);
+        vx = ope.fluidSolver.u[fluidIndex] * ope.width * mass * FLUID_FORCE
+                + vx * MOMENTUM;
+        vy = ope.fluidSolver.v[fluidIndex] * ope.height * mass * FLUID_FORCE
+                + vy * MOMENTUM;
 
-		// Bounce at edges.
-		if (x < 0) {
-			x = 0;
-			vx *= -1;
-		} else if (x > ope.width) {
-			x = ope.width;
-			vx *= -1;
-		}
+        // Update position.
+        x += vx;
+        y += vy;
 
-		if (y < 0) {
-			y = 0;
-			vy *= -1;
-		} else if (y > ope.height) {
-			y = ope.height;
-			vy *= -1;
-		}
+        // Bounce at edges.
+        if (x < 0) {
+            x = 0;
+            vx *= -1;
+        } else if (x > ope.width) {
+            x = ope.width;
+            vx *= -1;
+        }
 
-		// Hackish way to make particles glitter when the slow down a lot.
-		if (vx * vx + vy * vy < 1) {
-			vx = (float) (Math.random() * 2 - 1);
-			vy = (float) (Math.random() * 2 - 1);
-		}
+        if (y < 0) {
+            y = 0;
+            vy *= -1;
+        } else if (y > ope.height) {
+            y = ope.height;
+            vy *= -1;
+        }
 
-		// Fade out a bit (and kill if alpha == 0.)
-		alpha *= 0.999;
-		if (alpha < 0.01) {
-			alpha = 0;
-		}
-	}
+        // Hackish way to make particles glitter when the slow down a lot.
+        if (vx * vx + vy * vy < 1) {
+            vx = (float) (Math.random() * 2 - 1);
+            vy = (float) (Math.random() * 2 - 1);
+        }
 
-	public void updateVertexArrays(int i, FloatBuffer positions, FloatBuffer colors) {
+        // Fade out a bit (and kill if alpha == 0.)
+        alpha *= 0.999;
+        if (alpha < 0.01) {
+            alpha = 0;
+        }
+    }
 
-		int vi = i * 4;
-		positions.put(vi ++, x - vx);
-		positions.put(vi ++, y - vy);
-		positions.put(vi ++, x);
-		positions.put(vi ++, y);
+    public void updateVertexArrays(int i, FloatBuffer positions,
+            FloatBuffer colors) {
 
-		int ci = i * 6;
-		colors.put(ci ++, alpha);
-		colors.put(ci ++, alpha);
-		colors.put(ci ++, alpha);
-		colors.put(ci ++, alpha);
-		colors.put(ci ++, alpha);
-		colors.put(ci ++, alpha);
-	}
+        int vi = i * 4;
+        positions.put(vi++, x - vx);
+        positions.put(vi++, y - vy);
+        positions.put(vi++, x);
+        positions.put(vi++, y);
 
-	public void draw(GL gl) {
-		gl.glColor3f(alpha, alpha, alpha);
-		gl.glVertex2f(x - vx, y - vy);
-		gl.glVertex2f(x, y);
-	}
+        int ci = i * 6;
+        colors.put(ci++, alpha);
+        colors.put(ci++, alpha);
+        colors.put(ci++, alpha);
+        colors.put(ci++, alpha);
+        colors.put(ci++, alpha);
+        colors.put(ci++, alpha);
+    }
 
-	public float getAlpha() {
-		return alpha;
-	}
+    public void draw(GL gl) {
+        gl.glColor3f(alpha, alpha, alpha);
+        gl.glVertex2f(x - vx, y - vy);
+        gl.glVertex2f(x, y);
+    }
+
+    public float getAlpha() {
+        return alpha;
+    }
 }
