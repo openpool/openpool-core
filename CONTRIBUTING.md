@@ -5,15 +5,15 @@ through the process.
 
 ### FORK
 
-Fork the project [on GitHub](https://github.com/openpool/openpool-base-kinect) 
+Fork the project [on GitHub](https://github.com/openpool/openpool-core) 
 and check out your copy.  For keeping code quarities of our project, we separate 
 devel(opment) branch from master branch, so you HAVE TO checkout local branch 
 from "devel" and send pull request into it.  Also we recommend you to make 
 your own topic branch (like develSpike) for managing your commit.
 ```
-$ git clone git@github.com:YOURNAME/openpool-base-kinect.git
-$ cd openpool-base-kinect
-$ git remote add openpool git@github.com:openpool/openpool-base-kinect.git
+$ git clone git@github.com:YOURNAME/openpool-core.git
+$ cd openpool-core
+$ git remote add openpool git@github.com:openpool/openpool-core.git
 $ git checkout -b devel remotes/openpool/devel
 $ git checkout -b develSpike
 ```
@@ -51,7 +51,7 @@ Please, do not submit patches that fail check.
 $ git push origin -f develSpike
 ```
 
-Go to https://github.com/YOURNAME/openpool-base-kinect and select your topic branch.
+Go to https://github.com/YOURNAME/openpool-core and select your topic branch.
 Click the 'Pull Request' button, select "devel" as a base branch and fill out the form.  
 Pull requests are usually reviewed within a few days.
 

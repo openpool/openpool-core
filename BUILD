@@ -3,8 +3,8 @@
 # ------------------------------------------------------ #
 
 # At first time
-# $ git clone git@github.com:YOURNAME/openpool-base-kinect.git
-# $ git remote add openpool git@github.com:openpool/openpool-base-kinect.git
+# $ git clone git@github.com:YOURNAME/openpool-core.git
+# $ git remote add openpool git@github.com:openpool/openpool-core.git
 # $ git checkout -b devel remotes/openpool/devel
 # $ git checkout -b develSpike
 

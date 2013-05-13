@@ -30,8 +30,8 @@ sketchbook.location=${user.home}/workspace/Processing
 # adjustments below).
 
 
-#classpath.local.location=${user.home}/Documents/GitHub/openpool-base-kinect/dependency/
-classpath.local.location=${user.home}/workspace/openpool/openpool-base-kinect/dependency/
+#classpath.local.location=${user.home}/Documents/GitHub/openpool-core/dependency/
+classpath.local.location=${user.home}/workspace/openpool/openpool-core/dependency/
 
 
 # For OSX users. 
@@ -74,7 +74,7 @@ ant.description=ProcessingLibs Ant build file.
 # Project details.
 # Give your library a name.
 
-project.name=OpenpoolBaseKinect
+project.name=OpenPoolCore
 
 
 # Use 'normal' or 'fast' as value for project.compile.
