@@ -12,7 +12,7 @@
 
  All rights reserved.
  This work is licensed under GPL v2.
-*/
+ */
 import java.io.File;
 
 import openpool.Ball;
@@ -21,43 +21,45 @@ import openpool.OpenPool;
 import processing.core.PApplet;
 
 public class OpenPoolExample extends PApplet {
-	private static final long serialVersionUID = 1468683270191048480L;
+    private static final long serialVersionUID = 1468683270191048480L;
 
-	public static void main(String[] args) {
-		new OpenPoolExample();
-	}
+    public static void main(String[] args) {
+        new OpenPoolExample();
+    }
 
-	OpenPool op;
-	boolean real = false;
+    OpenPool op;
+    boolean real = false;
 
-	public void setup() {
-		size(840, 440);
-		frameRate(30);
+    public void setup() {
+        size(840, 440);
+        frameRate(30);
 
-		if (real) {
-			op = new OpenPool(this);
-		} else {
-			String userDir = System.getProperty("user.dir");
-			String binPath = File.separatorChar + "bin";
-			if (userDir.endsWith(binPath)) {
-				userDir = userDir.substring(0,  userDir.length() - binPath.length());
-			}
-			// op = new DummyPool(this);
-			op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
-		}
+        if (real) {
+            op = new OpenPool(this);
+        } else {
+            String userDir = System.getProperty("user.dir");
+            String binPath = File.separatorChar + "bin";
+            if (userDir.endsWith(binPath)) {
+                userDir = userDir.substring(0,
+                        userDir.length() - binPath.length());
+            }
+            // op = new DummyPool(this);
+            op = new OpenPool(this, userDir + File.separator + "recordings"
+                    + File.separator + "straight1.oni");
+        }
 
-		op.loadConfig("config.txt");
-		op.setConfigMode(true);
-	}
-	
-	public void draw() {
-		op.updateBalls();
-		for (Ball ball : op.balls) {
-			ball.draw(this);
-			if (ball.prev != null) {
-				stroke(255);
-				line(ball.x, ball.y, ball.prev.x, ball.prev.y);
-			}
-		}
-	}
+        op.loadConfig("config.txt");
+        op.setConfigMode(true);
+    }
+
+    public void draw() {
+        op.updateBalls();
+        for (Ball ball : op.balls) {
+            ball.draw(this);
+            if (ball.prev != null) {
+                stroke(255);
+                line(ball.x, ball.y, ball.prev.x, ball.prev.y);
+            }
+        }
+    }
 }

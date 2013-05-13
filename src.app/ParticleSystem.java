@@ -41,109 +41,108 @@ import processing.opengl.PGraphicsOpenGL;
 
 class ParticleSystem {
 
-	private boolean isVertexArrayEnabled = true;
+    private boolean isVertexArrayEnabled = true;
 
-	private Particle[] particles;
-	private int particleIndex;
+    private Particle[] particles;
+    private int particleIndex;
 
-	private FloatBuffer positions;
-	private FloatBuffer colors;
+    private FloatBuffer positions;
+    private FloatBuffer colors;
 
-	ParticleSystem(OpenPoolExampleWithFluids ope, int numParticles) {
+    ParticleSystem(OpenPoolExampleWithFluids ope, int numParticles) {
 
-		particles = new Particle[numParticles];
-		for (int i = 0; i < numParticles; i++) {
-			particles[i] = new Particle(ope);
-		}
-		particleIndex = 0;
+        particles = new Particle[numParticles];
+        for (int i = 0; i < numParticles; i++) {
+            particles[i] = new Particle(ope);
+        }
+        particleIndex = 0;
 
-		// 2 coordinates per point, 2 points per particle (current and previous)
-		positions = BufferUtil.newFloatBuffer(particles.length * 2 * 2);
+        // 2 coordinates per point, 2 points per particle (current and previous)
+        positions = BufferUtil.newFloatBuffer(particles.length * 2 * 2);
 
-		// 3 parameters per point, 2 colors per particle (current and previous)
-		colors = BufferUtil.newFloatBuffer(particles.length * 3 * 2);
-	}
+        // 3 parameters per point, 2 colors per particle (current and previous)
+        colors = BufferUtil.newFloatBuffer(particles.length * 3 * 2);
+    }
 
-	public boolean isVertexArrayEnabled() {
-		return isVertexArrayEnabled;
-	}
-	
-	public void setVertexArrayEnabled(boolean isVertexArrayEnabled) {
-		this.isVertexArrayEnabled = isVertexArrayEnabled;
-	}
+    public boolean isVertexArrayEnabled() {
+        return isVertexArrayEnabled;
+    }
 
-	public void updateAndDraw(PGraphicsOpenGL pgl) {
+    public void setVertexArrayEnabled(boolean isVertexArrayEnabled) {
+        this.isVertexArrayEnabled = isVertexArrayEnabled;
+    }
 
-		// Get OpenGL object.
-		GL gl = pgl.beginGL();
+    public void updateAndDraw(PGraphicsOpenGL pgl) {
 
-		// Enable blending.
-		boolean isBlendEnabled = gl.glIsEnabled(GL.GL_BLEND);
-		if (!isBlendEnabled) {
-			gl.glEnable(GL.GL_BLEND);
-		}
+        // Get OpenGL object.
+        GL gl = pgl.beginGL();
 
-		// Additive blending (ignore alpha)
-		gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);
+        // Enable blending.
+        boolean isBlendEnabled = gl.glIsEnabled(GL.GL_BLEND);
+        if (!isBlendEnabled) {
+            gl.glEnable(GL.GL_BLEND);
+        }
 
-		// Make points round
-		boolean isLineSmoothened = gl.glIsEnabled(GL.GL_LINE_SMOOTH);
-		if (!isLineSmoothened) {
-			gl.glEnable(GL.GL_LINE_SMOOTH);
-		}
-		gl.glLineWidth(1);
-		
-		updateAndDraw(gl);
+        // Additive blending (ignore alpha)
+        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);
 
-		// Reset settings.
-		if (!isBlendEnabled) {
-			gl.glDisable(GL.GL_BLEND);
-		}
-		if (!isLineSmoothened) {
-			gl.glDisable(GL.GL_LINE_SMOOTH);
-		}
-		
-		pgl.endGL();
-	}
-	
-	private void updateAndDraw(GL gl) {
-		
-		// Render particles using vertex arrays.
-		if (isVertexArrayEnabled) {
-			for (int i = 0; i < particles.length; i ++) {
-				Particle particle = particles[i];
-				particle.update();
-				particle.updateVertexArrays(i, positions, colors);
-			}
-			gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
-			gl.glVertexPointer(2, GL.GL_FLOAT, 0, positions);
-			gl.glEnableClientState(GL.GL_COLOR_ARRAY);
-			gl.glColorPointer(3, GL.GL_FLOAT, 0, colors);
-			gl.glDrawArrays(GL.GL_LINES, 0, particles.length * 2);
+        // Make points round
+        boolean isLineSmoothened = gl.glIsEnabled(GL.GL_LINE_SMOOTH);
+        if (!isLineSmoothened) {
+            gl.glEnable(GL.GL_LINE_SMOOTH);
+        }
+        gl.glLineWidth(1);
 
-		// Render particles without vertex arrays.
-		} else {
-			gl.glBegin(GL.GL_LINES);
-			for (Particle particle: particles) {
-				particle.update();
-				particle.draw(gl);
-			}
-			gl.glEnd();
-		}
-	}
+        updateAndDraw(gl);
 
-	public void addParticles(float x, float y, int count) {
-		for (int i = 0; i < count; i++) {
-			addParticle(
-					x + (float) (Math.random() * 30 - 15),
-					y + (float) (Math.random() * 30 - 15));
-		}
-	}
+        // Reset settings.
+        if (!isBlendEnabled) {
+            gl.glDisable(GL.GL_BLEND);
+        }
+        if (!isLineSmoothened) {
+            gl.glDisable(GL.GL_LINE_SMOOTH);
+        }
 
-	private void addParticle(float x, float y) {
-		particles[particleIndex ++].initialize(x, y);
-		if (particleIndex >= particles.length) {
-			particleIndex = 0;
-		}
-	}
+        pgl.endGL();
+    }
+
+    private void updateAndDraw(GL gl) {
+
+        // Render particles using vertex arrays.
+        if (isVertexArrayEnabled) {
+            for (int i = 0; i < particles.length; i++) {
+                Particle particle = particles[i];
+                particle.update();
+                particle.updateVertexArrays(i, positions, colors);
+            }
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+            gl.glVertexPointer(2, GL.GL_FLOAT, 0, positions);
+            gl.glEnableClientState(GL.GL_COLOR_ARRAY);
+            gl.glColorPointer(3, GL.GL_FLOAT, 0, colors);
+            gl.glDrawArrays(GL.GL_LINES, 0, particles.length * 2);
+
+            // Render particles without vertex arrays.
+        } else {
+            gl.glBegin(GL.GL_LINES);
+            for (Particle particle : particles) {
+                particle.update();
+                particle.draw(gl);
+            }
+            gl.glEnd();
+        }
+    }
+
+    public void addParticles(float x, float y, int count) {
+        for (int i = 0; i < count; i++) {
+            addParticle(x + (float) (Math.random() * 30 - 15), y
+                    + (float) (Math.random() * 30 - 15));
+        }
+    }
+
+    private void addParticle(float x, float y) {
+        particles[particleIndex++].initialize(x, y);
+        if (particleIndex >= particles.length) {
+            particleIndex = 0;
+        }
+    }
 }

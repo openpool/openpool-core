@@ -14,7 +14,7 @@
 
  All rights reserved.
  This work is licensed under GPL v2.
-*/
+ */
 import java.io.File;
 
 import msafluid.*;
@@ -27,266 +27,266 @@ import processing.opengl.PGraphicsOpenGL;
 import javax.media.opengl.*;
 
 public class OpenPoolExampleWithFluids extends PApplet {
-	private static final long serialVersionUID = -7348561580190403869L;
+    private static final long serialVersionUID = -7348561580190403869L;
 
-	/**
-	 * Fish config.
-	 */
-	private static final int
-			NUM_FISHES = 20,
-			FISH_SPEED = 5;
+    /**
+     * Fish config.
+     */
+    private static final int NUM_FISHES = 20, FISH_SPEED = 5;
 
-	/**
-	 * Fluid config.
-	 */
-	private static final float FLUID_WIDTH = 120;
+    /**
+     * Fluid config.
+     */
+    private static final float FLUID_WIDTH = 120;
 
-	/**
-	 * Particle config.
-	 */
-	private static final int NUM_PARTICLES = 2000;
+    /**
+     * Particle config.
+     */
+    private static final int NUM_PARTICLES = 2000;
 
-	/**
-	 * Initial position of the red shoal.
-	 */
-	private static final int RX = -100, RY = 0;
+    /**
+     * Initial position of the red shoal.
+     */
+    private static final int RX = -100, RY = 0;
 
-	/**
-	 * Initial position of the blue shoal.
-	 */
-	private static final int BX = 100, BY = 0;
+    /**
+     * Initial position of the blue shoal.
+     */
+    private static final int BX = 100, BY = 0;
 
-	/**
-	 * Initial position of the green shoal.
-	 */
-	private static final int GX = 0, GY = 0;
+    /**
+     * Initial position of the green shoal.
+     */
+    private static final int GX = 0, GY = 0;
 
-	/**
-	 * OpenPool library.
-	 */
-	OpenPool op;
+    /**
+     * OpenPool library.
+     */
+    OpenPool op;
 
-	/**
-	 * Fluid solver.
-	 */
-	MSAFluidSolver2D fluidSolver;
-	
-	/**
-	 * Particle system.
-	 */
-	private ParticleSystem particleSystem;
+    /**
+     * Fluid solver.
+     */
+    MSAFluidSolver2D fluidSolver;
 
-	/**
-	 * Shoal system.
-	 */
-	private ShoalSystem shoalSystem;
+    /**
+     * Particle system.
+     */
+    private ParticleSystem particleSystem;
 
-	/**
-	 * PImage for billiard pool background.
-	 */
-	private PImage backgroundImage;
+    /**
+     * Shoal system.
+     */
+    private ShoalSystem shoalSystem;
 
-	/**
-	 * PImage for fluid image processing.
-	 */
-	private PImage fluidImage;
+    /**
+     * PImage for billiard pool background.
+     */
+    private PImage backgroundImage;
 
-	/**
-	 * Debug mode?
-	 */
-	boolean isDebugMode = false;
-	
-	/**
-	 * Draw fluid?
-	 */
-	private boolean drawFluid = true;
+    /**
+     * PImage for fluid image processing.
+     */
+    private PImage fluidImage;
 
-	/**
-	 * Window metrics-related information.
-	 * (Inverse of screen dimensions)
-	 */
-	float invWidth, invHeight;
-	
-	/**
-	 * Window metrics-related information.
-	 * (Aspect ratio)
-	 */
-	private float aspectRatio;
+    /**
+     * Debug mode?
+     */
+    boolean isDebugMode = false;
 
-	public void setup() {
+    /**
+     * Draw fluid?
+     */
+    private boolean drawFluid = true;
 
-		size(840, 440, OPENGL);
-		frameRate(15);
+    /**
+     * Window metrics-related information. (Inverse of screen dimensions)
+     */
+    float invWidth, invHeight;
 
-		String userDir = System.getProperty("user.dir");
-		String binPath = File.separatorChar + "bin";
-		if (userDir.endsWith(binPath)) {
-			userDir = userDir.substring(0,  userDir.length() - binPath.length());
-		}
-		// op = new DummyPool(this);
-		op = new OpenPool(this, userDir + File.separator + "recordings" + File.separator + "straight1.oni");
-		op.loadConfig("config.txt");
+    /**
+     * Window metrics-related information. (Aspect ratio)
+     */
+    private float aspectRatio;
 
-		invWidth = 1.0f / width;
-		invHeight = 1.0f / height;
-		aspectRatio = width * invHeight;
+    public void setup() {
 
-		// Create fluid solver and set options.
-		fluidSolver = new MSAFluidSolver2D(
-				(int) (FLUID_WIDTH),
-				(int) (FLUID_WIDTH / aspectRatio));
-		fluidSolver.enableRGB(true).setFadeSpeed(0.05f);
-		fluidSolver.setDeltaT(0.5f).setVisc(0.001f);
+        size(840, 440, OPENGL);
+        frameRate(15);
 
-		// Create PImage to hold fluid picture.
-		fluidImage = createImage(fluidSolver.getWidth(), fluidSolver.getHeight(), RGB);
+        String userDir = System.getProperty("user.dir");
+        String binPath = File.separatorChar + "bin";
+        if (userDir.endsWith(binPath)) {
+            userDir = userDir.substring(0, userDir.length() - binPath.length());
+        }
+        // op = new DummyPool(this);
+        op = new OpenPool(this, userDir + File.separator + "recordings"
+                + File.separator + "straight1.oni");
+        op.loadConfig("config.txt");
 
-		backgroundImage = loadImage(userDir + "\\recordings\\billiards.jpg");
-		// tint(255, 127);
+        invWidth = 1.0f / width;
+        invHeight = 1.0f / height;
+        aspectRatio = width * invHeight;
 
-		shoalSystem = new ShoalSystem(this);
-		shoalSystem.addShoal(1, 0.75f, 0.75f, RX, RY, NUM_FISHES, FISH_SPEED);
-		shoalSystem.addShoal(0.75f, 1, 0.75f, GX, GY, NUM_FISHES, FISH_SPEED);
-		shoalSystem.addShoal(0.75f, 0.75f, 1, BX, BY, NUM_FISHES, FISH_SPEED);
-		shoalSystem.addShoal(1, 1, 1, GX, GY, NUM_FISHES, FISH_SPEED);
-		shoalSystem.addShoal(1, 1, 1, GX, GY, NUM_FISHES, FISH_SPEED);
-		
-		particleSystem = new ParticleSystem(this, NUM_PARTICLES);
-	}
+        // Create fluid solver and set options.
+        fluidSolver = new MSAFluidSolver2D((int) (FLUID_WIDTH),
+                (int) (FLUID_WIDTH / aspectRatio));
+        fluidSolver.enableRGB(true).setFadeSpeed(0.05f);
+        fluidSolver.setDeltaT(0.5f).setVisc(0.001f);
 
-	public void draw() {
-		if (op.isConfigMode()) {
-			return;
-		}
+        // Create PImage to hold fluid picture.
+        fluidImage = createImage(fluidSolver.getWidth(),
+                fluidSolver.getHeight(), RGB);
 
-		// Update ball positions and other related information.
-		shoalSystem.clearEllipseObjects();
-		op.updateBalls();
-		for (Ball ball : op.balls) {
-			shoalSystem.addObstacle(ball.x, ball.y, 30);
-		}
-		shoalSystem.update();
-		fluidSolver.update();
+        backgroundImage = loadImage(userDir + "\\recordings\\billiards.jpg");
+        // tint(255, 127);
 
-		// Draw background.
-		background(0);
-		if (isDebugMode) {
-			image(backgroundImage, 0, 0, 498 * 2, 282 * 2);
-		}
+        shoalSystem = new ShoalSystem(this);
+        shoalSystem.addShoal(1, 0.75f, 0.75f, RX, RY, NUM_FISHES, FISH_SPEED);
+        shoalSystem.addShoal(0.75f, 1, 0.75f, GX, GY, NUM_FISHES, FISH_SPEED);
+        shoalSystem.addShoal(0.75f, 0.75f, 1, BX, BY, NUM_FISHES, FISH_SPEED);
+        shoalSystem.addShoal(1, 1, 1, GX, GY, NUM_FISHES, FISH_SPEED);
+        shoalSystem.addShoal(1, 1, 1, GX, GY, NUM_FISHES, FISH_SPEED);
 
-		// Draw fluids.
-		if (drawFluid) {
-			for (int i = 0; i < fluidSolver.getNumCells(); i++) {
-				fluidImage.pixels[i] = color(fluidSolver.r[i], fluidSolver.g[i],
-						fluidSolver.b[i]);
-			}
-			fluidImage.updatePixels();
-			image(fluidImage, 0, 0, width, height);
-		}
+        particleSystem = new ParticleSystem(this, NUM_PARTICLES);
+    }
 
-		// Draw balls.
-		for (Ball ball : op.balls) {
-			ellipse(ball.x, ball.y, 50, 50);
-		}
+    public void draw() {
+        if (op.isConfigMode()) {
+            return;
+        }
 
-		// Draw shoals.
-		shoalSystem.draw();
+        // Update ball positions and other related information.
+        shoalSystem.clearEllipseObjects();
+        op.updateBalls();
+        for (Ball ball : op.balls) {
+            shoalSystem.addObstacle(ball.x, ball.y, 30);
+        }
+        shoalSystem.update();
+        fluidSolver.update();
 
-		if (!isDebugMode) {
-			PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;
-			if (!drawFluid) {
-				fadeToColor(pgl, 0, 0, 0, 0.05f);
-			}
-			particleSystem.updateAndDraw(pgl);
-		}
-	}
+        // Draw background.
+        background(0);
+        if (isDebugMode) {
+            image(backgroundImage, 0, 0, 498 * 2, 282 * 2);
+        }
 
-	public void mouseMoved() {
-		if (op.isConfigMode()) {
-			return;
-		}
+        // Draw fluids.
+        if (drawFluid) {
+            for (int i = 0; i < fluidSolver.getNumCells(); i++) {
+                fluidImage.pixels[i] = color(fluidSolver.r[i],
+                        fluidSolver.g[i], fluidSolver.b[i]);
+            }
+            fluidImage.updatePixels();
+            image(fluidImage, 0, 0, width, height);
+        }
 
-		float mouseNormX = mouseX * invWidth;
-		float mouseNormY = mouseY * invHeight;
-		float mouseVelX = (mouseX - pmouseX) * invWidth;
-		float mouseVelY = (mouseY - pmouseY) * invHeight;
-		addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
-	}
+        // Draw balls.
+        for (Ball ball : op.balls) {
+            ellipse(ball.x, ball.y, 50, 50);
+        }
 
-	public void keyPressed() {
-		if (key == '\n') {
-			op.setConfigMode(!op.isConfigMode());
-			if (op.isConfigMode()) {
-				println("ENTERING CONFIG MODE");
-			} else {
-				println("LEAVING CONFIG MODE");
-			}
-		}
-		if (op.isConfigMode()) {
-			return;
-		}
+        // Draw shoals.
+        shoalSystem.draw();
 
-		switch (key) {
-		case 'r':
-			boolean isVertexArrayEnabled = !particleSystem.isVertexArrayEnabled();
-			particleSystem.setVertexArrayEnabled(isVertexArrayEnabled);
-			println("Render particles with vertex arrays: " + isVertexArrayEnabled);
-			break;
-		case ' ':
-			isDebugMode ^= true;
-			drawFluid ^= true;
-			if (isDebugMode) {
-				println("DEBUG MODE");
-			} else {
-				println("NORMAL MODE");
-			}
-			break;
-		}
-		print("FRAMERATE: ");
-		println(frameRate);
-	}
+        if (!isDebugMode) {
+            PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;
+            if (!drawFluid) {
+                fadeToColor(pgl, 0, 0, 0, 0.05f);
+            }
+            particleSystem.updateAndDraw(pgl);
+        }
+    }
 
-	/**
-	 * Add force and dye to fluid, and create particles.
-	 */
-	void addForceToFluid(float x, float y, float dx, float dy) {
+    public void mouseMoved() {
+        if (op.isConfigMode()) {
+            return;
+        }
 
-		// Balance the x and y components of speed with the screen aspect ratio.
-		float speed = sq(dx) + sq(dy * aspectRatio);
+        float mouseNormX = mouseX * invWidth;
+        float mouseNormY = mouseY * invHeight;
+        float mouseVelX = (mouseX - pmouseX) * invWidth;
+        float mouseVelY = (mouseY - pmouseY) * invHeight;
+        addForceToFluid(mouseNormX, mouseNormY, mouseVelX, mouseVelY);
+    }
 
-		if (speed > 0) {
-			x = x < 0 ? 0 : (x > 1 ? 1 : x);
-			y = y < 0 ? 0 : (y > 1 ? 1 : y);
+    public void keyPressed() {
+        if (key == '\n') {
+            op.setConfigMode(!op.isConfigMode());
+            if (op.isConfigMode()) {
+                println("ENTERING CONFIG MODE");
+            } else {
+                println("LEAVING CONFIG MODE");
+            }
+        }
+        if (op.isConfigMode()) {
+            return;
+        }
 
-			colorMode(HSB, 360, 1, 1);
-			float hue = ((x + y) * 180 + frameCount) % 360;
-			int drawColor = color(hue, 1, 1);
-			colorMode(RGB, 1);
+        switch (key) {
+        case 'r':
+            boolean isVertexArrayEnabled = !particleSystem
+                    .isVertexArrayEnabled();
+            particleSystem.setVertexArrayEnabled(isVertexArrayEnabled);
+            println("Render particles with vertex arrays: "
+                    + isVertexArrayEnabled);
+            break;
+        case ' ':
+            isDebugMode ^= true;
+            drawFluid ^= true;
+            if (isDebugMode) {
+                println("DEBUG MODE");
+            } else {
+                println("NORMAL MODE");
+            }
+            break;
+        }
+        print("FRAMERATE: ");
+        println(frameRate);
+    }
 
-			float colorMult = 5;
-			int index = fluidSolver.getIndexForNormalizedPosition(x, y);
-			fluidSolver.rOld[index] += red(drawColor) * colorMult;
-			fluidSolver.gOld[index] += green(drawColor) * colorMult;
-			fluidSolver.bOld[index] += blue(drawColor) * colorMult;
+    /**
+     * Add force and dye to fluid, and create particles.
+     */
+    void addForceToFluid(float x, float y, float dx, float dy) {
 
-			float velocityMult = 30.0f;
-			fluidSolver.uOld[index] += dx * velocityMult;
-			fluidSolver.vOld[index] += dy * velocityMult;
+        // Balance the x and y components of speed with the screen aspect ratio.
+        float speed = sq(dx) + sq(dy * aspectRatio);
 
-			particleSystem.addParticles(x * width, y * height, 10);
-		}
-	}
+        if (speed > 0) {
+            x = x < 0 ? 0 : (x > 1 ? 1 : x);
+            y = y < 0 ? 0 : (y > 1 ? 1 : y);
 
-	private void fadeToColor(PGraphicsOpenGL pgl, float r, float g, float b, float speed) {
-		GL gl = pgl.beginGL();
-		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-		gl.glColor4f(r, g, b, speed);
-		gl.glBegin(GL.GL_QUADS);
-			gl.glVertex2f(0, 0);
-			gl.glVertex2f(width, 0);
-			gl.glVertex2f(width, height);
-			gl.glVertex2f(0, height);
-		gl.glEnd();
-		pgl.endGL();
-	}
+            colorMode(HSB, 360, 1, 1);
+            float hue = ((x + y) * 180 + frameCount) % 360;
+            int drawColor = color(hue, 1, 1);
+            colorMode(RGB, 1);
+
+            float colorMult = 5;
+            int index = fluidSolver.getIndexForNormalizedPosition(x, y);
+            fluidSolver.rOld[index] += red(drawColor) * colorMult;
+            fluidSolver.gOld[index] += green(drawColor) * colorMult;
+            fluidSolver.bOld[index] += blue(drawColor) * colorMult;
+
+            float velocityMult = 30.0f;
+            fluidSolver.uOld[index] += dx * velocityMult;
+            fluidSolver.vOld[index] += dy * velocityMult;
+
+            particleSystem.addParticles(x * width, y * height, 10);
+        }
+    }
+
+    private void fadeToColor(PGraphicsOpenGL pgl, float r, float g, float b,
+            float speed) {
+        GL gl = pgl.beginGL();
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glColor4f(r, g, b, speed);
+        gl.glBegin(GL.GL_QUADS);
+        gl.glVertex2f(0, 0);
+        gl.glVertex2f(width, 0);
+        gl.glVertex2f(width, height);
+        gl.glVertex2f(0, height);
+        gl.glEnd();
+        pgl.endGL();
+    }
 }

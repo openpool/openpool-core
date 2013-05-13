@@ -6,135 +6,135 @@ import processing.core.PVector;
 
 class Shoal {
 
-	private static final int FISH_COEFF_FORCE = 2000;
-	
-	private OpenPoolExampleWithFluids ope;
+    private static final int FISH_COEFF_FORCE = 2000;
 
-	/**
-	 * Center of this shoal.
-	 */
-	float x, y;
-	
-	/**
-	 * Velocity of this shoal.
-	 */
-	private float vx, vy;
+    private OpenPoolExampleWithFluids ope;
 
-	ArrayList<Fish> fishes;
+    /**
+     * Center of this shoal.
+     */
+    float x, y;
 
-	public Shoal(OpenPoolExampleWithFluids ope) {
-		this.ope = ope;
-		x = 0;
-		y = 0;
-		vx = 0;
-		vy = 0;
-		fishes = new ArrayList<Fish>();
-	}
+    /**
+     * Velocity of this shoal.
+     */
+    private float vx, vy;
 
-	public void add(Fish fish) {
-		fishes.add(fish);
-	}
+    ArrayList<Fish> fishes;
 
-	public void clearVelocityVectors() {
-		Iterator<Fish> it = fishes.iterator();
-		while (it.hasNext()) {
-			it.next().clearVelocityVectors();
-		}
-	}
+    public Shoal(OpenPoolExampleWithFluids ope) {
+        this.ope = ope;
+        x = 0;
+        y = 0;
+        vx = 0;
+        vy = 0;
+        fishes = new ArrayList<Fish>();
+    }
 
-	void addShoalAvoidanceForce(PVector v) {
-		// Rule 4: Do not collide with another shoal.
-		for (Fish fish : fishes) {
-			fish.v4.x = fish.v4.x + v.x;
-			fish.v4.y = fish.v4.y + v.y;
-		}
-	}
+    public void add(Fish fish) {
+        fishes.add(fish);
+    }
 
-	public void update() {
-		x = 0;
-		y = 0;
-		vx = 0;
-		vy = 0;
+    public void clearVelocityVectors() {
+        Iterator<Fish> it = fishes.iterator();
+        while (it.hasNext()) {
+            it.next().clearVelocityVectors();
+        }
+    }
 
-		Iterator<Fish> it = fishes.iterator();
+    void addShoalAvoidanceForce(PVector v) {
+        // Rule 4: Do not collide with another shoal.
+        for (Fish fish : fishes) {
+            fish.v4.x = fish.v4.x + v.x;
+            fish.v4.y = fish.v4.y + v.y;
+        }
+    }
 
-		while (it.hasNext()) {
-			Fish fish = it.next();
+    public void update() {
+        x = 0;
+        y = 0;
+        vx = 0;
+        vy = 0;
 
-			x = x + fish.x;
-			y = y + fish.y;
+        Iterator<Fish> it = fishes.iterator();
 
-			applyShoalRules(fish);
+        while (it.hasNext()) {
+            Fish fish = it.next();
 
-			fish.move();
+            x = x + fish.x;
+            y = y + fish.y;
 
-			vx = vx + fish.vx;
-			vy = vy + fish.vy;
+            applyShoalRules(fish);
 
-			ope.addForceToFluid(
-					fish.x / ope.width, fish.y / ope.height,
-					-fish.vx / FISH_COEFF_FORCE, -fish.vy / FISH_COEFF_FORCE);
-		}
+            fish.move();
 
-		x = x / fishes.size();
-		y = y / fishes.size();
+            vx = vx + fish.vx;
+            vy = vy + fish.vy;
 
-		vx = vx / fishes.size();
-		vy = vy / fishes.size();
-	}
+            ope.addForceToFluid(fish.x / ope.width, fish.y / ope.height,
+                    -fish.vx / FISH_COEFF_FORCE, -fish.vy / FISH_COEFF_FORCE);
+        }
 
-	/**
-	 * Calculate next velocity parameters.
-	 */
-	void applyShoalRules(Fish fish) {
-		Iterator<Fish> itB = fishes.iterator();
-		while (itB.hasNext()) {
-			Fish fishB = itB.next();
-			if (fish != fishB) {
+        x = x / fishes.size();
+        y = y / fishes.size();
 
-				// Rule 1: Follow the other fishes.
-				fish.v1.x = fish.v1.x + fishB.x;
-				fish.v1.y = fish.v1.y + fishB.y;
+        vx = vx / fishes.size();
+        vy = vy / fishes.size();
+    }
 
-				// Rule 2: Do not collide with another fish.
-				if (PApplet.dist(fish.x, fish.y, fishB.x, fishB.y) < ShoalSystem.DISTANCE_THRESHOLD) {
-					fish.v2.x -= (fishB.x - fish.x);
-					fish.v2.y -= (fishB.y - fish.y);
-				}
+    /**
+     * Calculate next velocity parameters.
+     */
+    void applyShoalRules(Fish fish) {
+        Iterator<Fish> itB = fishes.iterator();
+        while (itB.hasNext()) {
+            Fish fishB = itB.next();
+            if (fish != fishB) {
 
-				// Rule 3: Go into the same direction as the other fishes.
-				fish.v3.x += fishB.vx;
-				fish.v3.y += fishB.vy;
-			}
-		}
+                // Rule 1: Follow the other fishes.
+                fish.v1.x = fish.v1.x + fishB.x;
+                fish.v1.y = fish.v1.y + fishB.y;
 
-		// Rule 1
-		fish.v1.x = (fish.v1.x / (fishes.size() - 1));
-		fish.v1.y = (fish.v1.y / (fishes.size() - 1));
-		fish.v1.x = (fish.v1.x - fish.x) / ShoalSystem.CENTER_PULL_FACTOR;
-		fish.v1.y = (fish.v1.y - fish.y) / ShoalSystem.CENTER_PULL_FACTOR;
+                // Rule 2: Do not collide with another fish.
+                if (PApplet.dist(fish.x, fish.y, fishB.x, fishB.y) < ShoalSystem.DISTANCE_THRESHOLD) {
+                    fish.v2.x -= (fishB.x - fish.x);
+                    fish.v2.y -= (fishB.y - fish.y);
+                }
 
-		// Rule 3
-		fish.v3.x /= (fishes.size() - 1);
-		fish.v3.y /= (fishes.size() - 1);
-		fish.v3.x = (fish.v3.x - fish.vx) / 2;
-		fish.v3.y = (fish.v3.y - fish.vy) / 2;
-	}
+                // Rule 3: Go into the same direction as the other fishes.
+                fish.v3.x += fishB.vx;
+                fish.v3.y += fishB.vy;
+            }
+        }
 
-	void draw() {
-		for (Fish fish : fishes) {
-			fish.draw();
-		}
+        // Rule 1
+        fish.v1.x = (fish.v1.x / (fishes.size() - 1));
+        fish.v1.y = (fish.v1.y / (fishes.size() - 1));
+        fish.v1.x = (fish.v1.x - fish.x) / ShoalSystem.CENTER_PULL_FACTOR;
+        fish.v1.y = (fish.v1.y - fish.y) / ShoalSystem.CENTER_PULL_FACTOR;
 
-		if (ope.isDebugMode) {
-			ope.noFill();
-			ope.stroke(1, 1, 1);
-			ope.ellipse(x, y, ShoalSystem.CA_DISTANCE_THRESHOLD, ShoalSystem.CA_DISTANCE_THRESHOLD);
-			ope.text("SHOAL", x + 50, y + 50);
-			ope.text("x: ", x + 50, y + 50 + 15);
-			ope.text(x, x + 50 + 15, y + 50 + 15);
-			ope.text("y: ", x + 50, y + 50 + 30);
-			ope.text(y, x + 50 + 15, y + 50 + 30);
-		}
-	}
+        // Rule 3
+        fish.v3.x /= (fishes.size() - 1);
+        fish.v3.y /= (fishes.size() - 1);
+        fish.v3.x = (fish.v3.x - fish.vx) / 2;
+        fish.v3.y = (fish.v3.y - fish.vy) / 2;
+    }
+
+    void draw() {
+        for (Fish fish : fishes) {
+            fish.draw();
+        }
+
+        if (ope.isDebugMode) {
+            ope.noFill();
+            ope.stroke(1, 1, 1);
+            ope.ellipse(x, y, ShoalSystem.CA_DISTANCE_THRESHOLD,
+                    ShoalSystem.CA_DISTANCE_THRESHOLD);
+            ope.text("SHOAL", x + 50, y + 50);
+            ope.text("x: ", x + 50, y + 50 + 15);
+            ope.text(x, x + 50 + 15, y + 50 + 15);
+            ope.text("y: ", x + 50, y + 50 + 30);
+            ope.text(y, x + 50 + 15, y + 50 + 30);
+        }
+    }
 }
