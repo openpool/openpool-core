@@ -24,8 +24,9 @@ import processing.core.PImage;
 
 public class BallDetector implements Runnable {
     private BallSystem ballSystem;
-    private SimpleOpenNI cam1;
-    private SimpleOpenNI cam2;
+    private SimpleOpenNI[] cams = new SimpleOpenNI[2];
+    private int cam1id = 0;
+    private int cam2id = 1;
     private int camCount = 0;
 
     private int depthWidth;
@@ -90,8 +91,8 @@ public class BallDetector implements Runnable {
     BallDetector(BallSystem ballSystem, SimpleOpenNI cam1, SimpleOpenNI cam2,
             PApplet pa) {
         this.ballSystem = ballSystem;
-        this.cam1 = cam1;
-        this.cam2 = cam2;
+        this.cams[cam1id] = cam1;
+        this.cams[cam2id] = cam2;
 
         if (cam1 == null) {
             depthWidth = 640;
@@ -132,11 +133,11 @@ public class BallDetector implements Runnable {
     }
 
     public synchronized void run() {
-        if (cam1 != null) {
-            cam1.update();
+        if (cams[cam1id] != null) {
+            cams[cam1id].update();
         }
-        if (cam2 != null) {
-            cam2.update();
+        if (cams[cam2id] != null) {
+            cams[cam2id].update();
         }
 
         retrieveDepthImage(currentImage);
@@ -317,19 +318,19 @@ public class BallDetector implements Runnable {
         cvSetZero(target);
 
         // FIXME: WORKAROUND!!! cam2 first
-        if (cam2 != null) {
-            copyImage(target, cam2.depthImage(),
-                    cam2_xoffset + cam1.depthWidth(), cam2_yoffset,
-                    cam2.depthWidth(), cam2.depthHeight());
-            fillDepthErrorHoles(target, cam2.depthMap(),
-                    cam2_xoffset + cam1.depthWidth(), cam2_yoffset,
-                    cam2.depthWidth(), cam2.depthHeight());
+        if (cams[cam2id] != null) {
+            copyImage(target, cams[cam2id].depthImage(),
+                    cam2_xoffset + cams[cam1id].depthWidth(), cam2_yoffset,
+                    cams[cam2id].depthWidth(), cams[cam2id].depthHeight());
+            fillDepthErrorHoles(target, cams[cam2id].depthMap(),
+                    cam2_xoffset + cams[cam1id].depthWidth(), cam2_yoffset,
+                    cams[cam2id].depthWidth(), cams[cam2id].depthHeight());
         }
-        if (cam1 != null) {
-            copyImage(target, cam1.depthImage(), cam1_xoffset, cam1_yoffset,
-                    cam1.depthWidth(), cam1.depthHeight());
-            fillDepthErrorHoles(target, cam1.depthMap(), cam1_xoffset,
-                    cam1_yoffset, cam1.depthWidth(), cam1.depthHeight());
+        if (cams[cam1id] != null) {
+            copyImage(target, cams[cam1id].depthImage(), cam1_xoffset, cam1_yoffset,
+                    cams[cam1id].depthWidth(), cams[cam1id].depthHeight());
+            fillDepthErrorHoles(target, cams[cam1id].depthMap(), cam1_xoffset,
+                    cam1_yoffset, cams[cam1id].depthWidth(), cams[cam1id].depthHeight());
         }
     }
 
@@ -470,6 +471,16 @@ public class BallDetector implements Runnable {
         currentImage.release();
         backgroundImage.release();
         temporaryImage.release();
+    }
+    
+    public void SwapCams()
+    {
+        if( camCount == 2 )
+        {
+            int temp = cam1id;
+            cam1id = cam2id;
+            cam2id = temp;
+        }
     }
 
     public Point getCamImageCorner(int camNumber) {

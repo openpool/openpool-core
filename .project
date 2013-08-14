@@ -18,102 +18,82 @@
 		<link>
 			<name>.classpath</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/.classpath</locationURI>
+			<locationURI>PROJECT_LOC/.classpath</locationURI>
 		</link>
 		<link>
 			<name>.gitignore</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/.gitignore</locationURI>
+			<locationURI>PROJECT_LOC/.gitignore</locationURI>
 		</link>
 		<link>
 			<name>.project</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/.project</locationURI>
-		</link>
-		<link>
-			<name>BUILD</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/BUILD</locationURI>
-		</link>
-		<link>
-			<name>CONTRIBUTING.md</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/CONTRIBUTING.md</locationURI>
-		</link>
-		<link>
-			<name>LICENSE.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/LICENSE.txt</locationURI>
+			<locationURI>PROJECT_LOC/.project</locationURI>
 		</link>
 		<link>
 			<name>Processing</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/Processing</locationURI>
-		</link>
-		<link>
-			<name>README.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/README.txt</locationURI>
+			<locationURI>PROJECT_LOC/Processing</locationURI>
 		</link>
 		<link>
 			<name>code</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/code</locationURI>
+			<locationURI>PROJECT_LOC/code</locationURI>
 		</link>
 		<link>
 			<name>data</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/data</locationURI>
+			<locationURI>PROJECT_LOC/data</locationURI>
 		</link>
 		<link>
 			<name>dependency</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/dependency</locationURI>
+			<locationURI>PROJECT_LOC/dependency</locationURI>
 		</link>
 		<link>
 			<name>distribution</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/distribution</locationURI>
+			<locationURI>PROJECT_LOC/distribution</locationURI>
 		</link>
 		<link>
 			<name>examples</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/examples</locationURI>
+			<locationURI>PROJECT_LOC/examples</locationURI>
 		</link>
 		<link>
 			<name>lib</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/lib</locationURI>
+			<locationURI>PROJECT_LOC/lib</locationURI>
 		</link>
 		<link>
 			<name>recordings</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/recordings</locationURI>
+			<locationURI>PROJECT_LOC/recordings</locationURI>
 		</link>
 		<link>
 			<name>resources</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/resources</locationURI>
+			<locationURI>PROJECT_LOC/resources</locationURI>
 		</link>
 		<link>
 			<name>screenshots</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/screenshots</locationURI>
+			<locationURI>PROJECT_LOC/screenshots</locationURI>
 		</link>
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/src</locationURI>
+			<locationURI>PROJECT_LOC/src</locationURI>
 		</link>
 		<link>
 			<name>src.app</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/src.app</locationURI>
+			<locationURI>PROJECT_LOC/src.app</locationURI>
 		</link>
 		<link>
 			<name>web</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Documents/GitHub/openpool-core/web</locationURI>
+			<locationURI>PROJECT_LOC/web</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -34,6 +34,7 @@ public class OpenPool {
     private ScheduledFuture<?> future;
 
     private SimpleOpenNI cam1, cam2;
+    private int numOfCams = 0;
 
     private ConfigFile configFile;
     private ConfigHandler[] configHandlers;
@@ -125,6 +126,7 @@ public class OpenPool {
     public OpenPool(PApplet pa, int numCamera, String cam1FileName,
             String cam2FileName) {
         this.pa = pa;
+        this.numOfCams = numCamera;
 
         pa.hint(PApplet.ENABLE_OPENGL_4X_SMOOTH);
 
@@ -343,6 +345,12 @@ public class OpenPool {
 
     public boolean isConfigMode() {
         return isConfigMode;
+    }
+    
+    public void SwapCams() {
+        if(numOfCams == 2) {
+            ballDetector.SwapCams();
+        }
     }
 
     public void setConfigMode(boolean isConfigMode) {
